@@ -1,0 +1,365 @@
+@import "tailwindcss";
+
+@theme {
+  --color-concrete: #f5f3ef;
+  --color-concrete-dark: #ebe8e2;
+  --color-charcoal: #1a1a1a;
+  --color-charcoal-muted: #404040;
+  --color-charcoal-infill: #525252;
+  --color-clay: #8b5a4a;
+  --color-clay-muted: #a67b6e;
+  --color-hairline: #d4d0c8;
+  --color-construction: #c8c4bc;
+  --color-construction-muted: #b8b4ac;
+
+  --font-serif: var(--font-fraunces), "Georgia", serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  /* 8px module — Swiss Modernism 2.0 */
+  --spacing-0: 0;
+  --spacing-1: 0.5rem;
+  --spacing-2: 1rem;
+  --spacing-3: 1.5rem;
+  --spacing-4: 2rem;
+  --spacing-5: 2.5rem;
+  --spacing-6: 3rem;
+  --spacing-8: 4rem;
+  --spacing-10: 5rem;
+  --spacing-12: 6rem;
+  --spacing-16: 8rem;
+  --spacing-20: 10rem;
+  --spacing-24: 12rem;
+
+  --text-infill: 0.8125rem;
+  --text-body: 1rem;
+  --text-lead: 1.125rem;
+  --text-title: 1.5rem;
+  --text-heading: 2rem;
+  --text-display: 2.5rem;
+  --text-hero: 3rem;
+
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-lg: 3rem;
+  --spacing-section-intimate: 3rem;
+  --spacing-section-standard: 5rem;
+  --spacing-section-atrium: 8rem;
+
+  --grid-columns: 12;
+  --grid-gap: 1px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-concrete text-charcoal font-sans antialiased overflow-x-hidden;
+    font-feature-settings: "kern" 1, "liga" 1;
+    font-size: var(--text-body);
+  }
+
+  ::selection {
+    @apply bg-clay/20 text-charcoal;
+  }
+
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-clay);
+    outline-offset: 3px;
+  }
+
+  a,
+  button,
+  [role="button"],
+  label[for],
+  select,
+  summary {
+    cursor: pointer;
+  }
+
+  input,
+  textarea {
+    cursor: text;
+  }
+
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+
+  @media (min-width: 1024px) {
+    section[id] {
+      scroll-margin-top: 5.5rem;
+    }
+  }
+}
+
+@layer utilities {
+  .type-display {
+    @apply font-serif font-light text-charcoal;
+    font-size: clamp(2rem, 4vw, var(--text-display));
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+
+  .type-heading {
+    @apply font-serif font-light text-charcoal;
+    font-size: var(--text-heading);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+
+  .type-title {
+    @apply font-serif text-charcoal;
+    font-size: var(--text-title);
+    line-height: 1.2;
+  }
+
+  .type-lead {
+    font-size: var(--text-lead);
+    line-height: 1.6;
+    @apply text-charcoal-muted;
+  }
+
+  .type-body {
+    font-size: var(--text-body);
+    line-height: 1.65;
+    @apply text-charcoal-muted;
+  }
+
+  .type-infill {
+    font-size: var(--text-infill);
+    line-height: 1.5;
+    @apply text-charcoal-infill;
+  }
+
+  .eyebrow {
+    @apply font-sans font-medium uppercase text-charcoal-infill;
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+  }
+
+  .label-caps {
+    @apply font-sans uppercase text-charcoal-infill;
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+  }
+
+  .dim-label {
+    @apply font-sans uppercase text-clay tabular-nums;
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+  }
+
+  .section-atrium {
+    padding-top: var(--spacing-section-atrium);
+    padding-bottom: var(--spacing-section-atrium);
+  }
+
+  .section-standard {
+    padding-top: var(--spacing-section-standard);
+    padding-bottom: var(--spacing-section-standard);
+  }
+
+  .section-intimate {
+    padding-top: var(--spacing-section-intimate);
+    padding-bottom: var(--spacing-section-intimate);
+  }
+
+  .section-compressed {
+    padding-top: var(--spacing-4);
+    padding-bottom: var(--spacing-4);
+  }
+
+  .action-primary {
+    @apply relative inline-block font-sans font-medium uppercase text-charcoal;
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    padding-bottom: var(--spacing-1);
+  }
+
+  .action-primary::after {
+    content: "";
+    @apply absolute bottom-0 left-0 h-0.5 w-full bg-clay origin-left;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .action-primary:hover::after {
+    transform: scaleX(1.06);
+  }
+
+  .action-primary:disabled {
+    color: var(--color-clay-muted);
+    cursor: not-allowed;
+  }
+
+  .action-primary:disabled::after {
+    background-color: var(--color-clay-muted);
+    transform: none;
+  }
+
+  .action-secondary {
+    @apply relative inline-block font-sans font-medium uppercase text-charcoal-infill;
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    padding-bottom: 2px;
+  }
+
+  .action-secondary::after {
+    content: "";
+    @apply absolute bottom-0 left-0 h-px w-full bg-charcoal-infill/50 origin-left;
+    transform: scaleX(0);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .action-secondary:hover {
+    @apply text-charcoal;
+  }
+
+  .action-secondary:hover::after {
+    transform: scaleX(1);
+  }
+
+  .action-secondary:disabled {
+    color: var(--color-clay-muted);
+    cursor: not-allowed;
+  }
+
+  .action-secondary:disabled::after {
+    transform: none;
+  }
+
+  .surface-structural {
+    @apply bg-concrete;
+  }
+
+  .surface-infill {
+    @apply bg-concrete-dark/60;
+  }
+
+  .hairline-border {
+    @apply border border-hairline;
+  }
+
+  .hairline-t {
+    @apply border-t border-hairline;
+  }
+
+  .hairline-b {
+    @apply border-b border-hairline;
+  }
+
+  .nav-blur {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .site-container {
+    @apply mx-auto w-full max-w-[90rem] px-6 lg:px-12;
+  }
+
+  .bay-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1px;
+    @apply bg-hairline;
+  }
+
+  .interactive-card {
+    @apply cursor-pointer transition-colors duration-300;
+  }
+
+  .interactive-card:hover .project-overlay {
+    @apply opacity-100;
+  }
+
+  .project-overlay {
+    @apply opacity-0 transition-opacity duration-500;
+  }
+
+  /* Elevation — light/shadow depth for interactive surfaces */
+  .elevation-surface {
+    transition:
+      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .elevation-surface:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(26, 26, 26, 0.07);
+  }
+
+  /* Lobby primary action — entrance landmark */
+  .cta-entrance {
+    @apply relative inline-flex items-center gap-2 font-sans font-medium uppercase text-concrete bg-charcoal;
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    padding: 0.875rem 1.5rem;
+    transition:
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.3s ease;
+  }
+
+  .cta-entrance:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(26, 26, 26, 0.14);
+    background-color: var(--color-clay);
+  }
+
+  .cta-entrance:disabled {
+    background-color: var(--color-clay-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Room void — deliberate negative space in asymmetric layouts */
+  .room-void {
+    @apply hidden lg:block;
+  }
+}
+
+@keyframes loader-draw {
+  from { stroke-dashoffset: 400; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes loader-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes loader-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loader-star { animation: loader-rotate 12s linear infinite; }
+.loader-star-stroke {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: loader-draw 2s ease-out forwards;
+}
+.loader-star-stroke-delay { animation-delay: 0.3s; }
+.loader-star-stroke-delay-2 { animation-delay: 0.6s; }
+.loader-pulse { animation: loader-pulse 1.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .loader-star { animation: none !important; }
+  .project-overlay { @apply opacity-100; }
+
+  .elevation-surface:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .cta-entrance:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
