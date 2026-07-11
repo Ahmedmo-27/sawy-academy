@@ -4,7 +4,7 @@ export const MODULE = 8;
 export const SITE_MAX = "max-w-[90rem]"; // 1440px = 180 modules
 
 /** Horizontal gutter: 24px (3 modules) mobile, 48px (6 modules) desktop */
-export const GUTTER = "px-6 lg:px-12";
+export const GUTTER = "px-5 sm:px-6 lg:px-12";
 
 /** 12-column bay grid used across portfolio, products, and course layouts */
 export const BAY_GRID =

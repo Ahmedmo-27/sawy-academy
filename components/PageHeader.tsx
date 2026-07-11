@@ -14,7 +14,7 @@ export function PageHeader({ eyebrow, title, description }: PageHeaderProps) {
     <header className="relative section-intimate overflow-hidden">
       <HeroBackdrop variant="page" />
       <GridColumns />
-      <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-8 lg:pb-12">
+      <PageContainer className="relative z-10 pt-20 sm:pt-24 lg:pt-32 pb-6 sm:pb-8 lg:pb-12">
         <Reveal variant="infill" immediate>
           <p className="eyebrow mb-3">{eyebrow}</p>
         </Reveal>

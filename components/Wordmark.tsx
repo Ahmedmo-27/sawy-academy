@@ -10,8 +10,8 @@ export function Wordmark({ linked = true, size = "md" }: WordmarkProps) {
   const content = (
     <span className="inline-flex items-center gap-2.5 sm:gap-3">
       <span
-        className={`font-sans font-medium uppercase tracking-[0.28em] text-charcoal ${
-          size === "sm" ? "text-xs" : "text-sm"
+        className={`font-sans font-medium uppercase tracking-[0.2em] sm:tracking-[0.28em] text-charcoal ${
+          size === "sm" ? "text-[0.65rem] sm:text-xs" : "text-xs sm:text-sm"
         }`}
       >
         {BRAND.wordmark}

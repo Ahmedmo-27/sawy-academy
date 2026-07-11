@@ -41,7 +41,7 @@ export default async function ProjectDetailPage({
     <>
       <header className="relative overflow-hidden">
         <GridColumns />
-        <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-0">
+        <PageContainer className="relative z-10 pt-20 sm:pt-24 lg:pt-32 pb-0">
           <p className="eyebrow mb-3">Portfolio · {project.sheetRef}</p>
           <h1 className="type-display max-w-4xl mb-8">{project.title}</h1>
 

@@ -54,7 +54,7 @@ export function HeroBackdrop({ variant = "page" }: HeroBackdropProps) {
       </motion.div>
 
       {/* Foreground scrim — solid, not gradient; protects structural text */}
-      <div className="absolute inset-y-0 left-0 w-full lg:w-7/12 bg-concrete/92 z-[2]" />
+      <div className="absolute inset-y-0 left-0 w-full md:w-10/12 lg:w-7/12 bg-concrete/88 md:bg-concrete/90 lg:bg-concrete/92 z-[2]" />
     </div>
   );
 }

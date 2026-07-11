@@ -54,7 +54,7 @@ function CourseListing({
                 Open drawing set
               </Link>
             </div>
-            <div className="lg:col-span-4 flex flex-col lg:items-end gap-3">
+            <div className="lg:col-span-4 flex flex-row flex-wrap items-center justify-between gap-3 sm:flex-col sm:items-start lg:items-end lg:flex-col">
               <span className="label-caps">{course.level}</span>
               <LevelProgressLine
                 progress={parseLevelProgress(course.level)}
@@ -115,8 +115,8 @@ export default function CoursesPage() {
                     }`}
                   >
                     {group.type === "diploma" && group.bundlePrice && (
-                      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-10 hairline-b pb-10">
-                        <div>
+                      <div className="flex flex-col gap-6 mb-10 hairline-b pb-10 sm:grid sm:grid-cols-2 lg:flex lg:flex-row lg:items-start lg:justify-between">
+                        <div className="sm:col-span-2 lg:col-auto">
                           <p className="label-caps mb-2">Diploma Programme</p>
                           <p className="type-infill max-w-md leading-relaxed">
                             Enroll in the full Architecture Diploma to access
@@ -125,7 +125,7 @@ export default function CoursesPage() {
                           </p>
                           <LevelProgressLine progress={1} className="mt-4" />
                         </div>
-                        <p className="type-display text-clay whitespace-nowrap">
+                        <p className="type-display text-clay lg:whitespace-nowrap">
                           {group.bundlePrice}
                         </p>
                         <EnrollButton
@@ -134,7 +134,7 @@ export default function CoursesPage() {
                           price={group.bundlePrice}
                           kind="diploma"
                           label="Enroll in Diploma"
-                          className="action-primary lg:mt-2 disabled:text-clay-muted disabled:cursor-not-allowed"
+                          className="action-primary w-full sm:w-auto sm:col-span-2 lg:col-auto lg:mt-2 disabled:text-clay-muted disabled:cursor-not-allowed text-center sm:text-left"
                         />
                       </div>
                     )}
