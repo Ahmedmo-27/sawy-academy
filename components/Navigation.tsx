@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useCart } from "@/components/cart/CartProvider";
 import { Wordmark } from "@/components/Wordmark";
 import { navTransition } from "@/lib/motion";
@@ -44,6 +44,28 @@ function NavLink({
   );
 }
 
+function MenuIcon({ open }: { open: boolean }) {
+  return (
+    <span className="relative flex h-4 w-5 flex-col justify-between" aria-hidden="true">
+      <span
+        className={`block h-px w-full bg-charcoal transition-transform duration-300 origin-center ${
+          open ? "translate-y-[7px] rotate-45" : ""
+        }`}
+      />
+      <span
+        className={`block h-px w-full bg-charcoal transition-opacity duration-200 ${
+          open ? "opacity-0" : "opacity-100"
+        }`}
+      />
+      <span
+        className={`block h-px w-full bg-charcoal transition-transform duration-300 origin-center ${
+          open ? "-translate-y-[7px] -rotate-45" : ""
+        }`}
+      />
+    </span>
+  );
+}
+
 export function Navigation() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -62,15 +84,24 @@ export function Navigation() {
     setOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   return (
     <motion.header
-      className="fixed top-0 left-0 right-0 z-50"
+      className="fixed top-0 left-0 right-0 z-50 pt-[env(safe-area-inset-top)]"
       initial={false}
       animate={{
-        backgroundColor: scrolled
+        backgroundColor: scrolled || open
           ? "rgba(245, 243, 239, 0.94)"
           : "rgba(245, 243, 239, 0)",
-        backdropFilter: scrolled ? "blur(12px)" : "blur(0px)",
+        backdropFilter: scrolled || open ? "blur(12px)" : "blur(0px)",
       }}
       transition={prefersReducedMotion ? { duration: 0 } : navTransition}
     >
@@ -100,46 +131,74 @@ export function Navigation() {
 
         <button
           type="button"
-          className="md:hidden eyebrow text-charcoal"
+          className="md:hidden flex items-center gap-3 eyebrow text-charcoal py-2 -mr-1"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="mobile-nav"
+          aria-label={open ? "Close menu" : "Open menu"}
         >
-          {open ? "Close" : count > 0 ? `Menu (${count})` : "Menu"}
+          <MenuIcon open={open} />
+          <span className="sr-only">{open ? "Close" : "Menu"}</span>
+          {!open && count > 0 && (
+            <span className="tabular-nums text-clay">({count})</span>
+          )}
         </button>
       </nav>
 
-      {open && (
-        <div
-          id="mobile-nav"
-          className="md:hidden hairline-t bg-concrete/98 px-6 pb-5 pt-3"
-        >
-          <ul className="flex flex-col gap-3">
-            {links.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={`eyebrow block py-1 ${
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.button
+              type="button"
+              className="md:hidden fixed inset-0 z-40 bg-charcoal/20 top-[calc(4rem+env(safe-area-inset-top))]"
+              aria-label="Close menu"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+              onClick={() => setOpen(false)}
+            />
+            <motion.div
+              id="mobile-nav"
+              className="md:hidden relative z-50 hairline-t bg-concrete/98 px-5 sm:px-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-3 max-h-[calc(100dvh-4rem-env(safe-area-inset-top))] overflow-y-auto"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
+            >
+              <ul className="flex flex-col gap-1">
+                {links.map((link) => {
+                  const active =
                     pathname === link.href ||
-                    pathname.startsWith(`${link.href}/`)
-                      ? "text-clay"
-                      : "text-charcoal-infill"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-            {count > 0 && (
-              <li>
-                <Link href="/products" className="eyebrow block py-1 text-clay">
-                  Cart ({count})
-                </Link>
-              </li>
-            )}
-          </ul>
-        </div>
-      )}
+                    pathname.startsWith(`${link.href}/`);
+                  return (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className={`eyebrow block py-3 border-b border-hairline/60 ${
+                          active ? "text-clay" : "text-charcoal-infill"
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+                {count > 0 && (
+                  <li>
+                    <Link
+                      href="/products"
+                      className="eyebrow block py-3 text-clay"
+                    >
+                      Cart ({count})
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }

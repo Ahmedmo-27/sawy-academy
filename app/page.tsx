@@ -72,7 +72,7 @@ export default function HomePage() {
         <HeroConstruction />
         <GridColumns />
 
-        <PageContainer className="relative z-10 pt-32 lg:pt-40 pb-12 lg:pb-16">
+        <PageContainer className="relative z-10 pt-28 sm:pt-32 lg:pt-40 pb-10 sm:pb-12 lg:pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 lg:items-center">
             <div className="col-span-12 lg:col-span-5 lg:pr-8">
               <GsapReveal type="text" immediate>
@@ -90,11 +90,11 @@ export default function HomePage() {
                 </p>
               </GsapReveal>
               <GsapReveal type="text" immediate delay={0.4}>
-                <div className="flex flex-wrap items-center gap-4 mb-8">
-                  <Link href="/portfolio" className="cta-entrance">
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mb-8">
+                  <Link href="/portfolio" className="cta-entrance text-center sm:text-left justify-center">
                     View portfolio
                   </Link>
-                  <Link href="/courses" className="action-secondary">
+                  <Link href="/courses" className="action-secondary text-center sm:text-left">
                     Browse courses
                   </Link>
                 </div>
@@ -324,7 +324,7 @@ export default function HomePage() {
 
           <GsapReveal type="card">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-hairline">
-              <div className="bg-concrete p-8 lg:p-10 lg:col-span-7 elevation-surface">
+              <div className="bg-concrete p-6 sm:p-8 lg:p-10 lg:col-span-7 elevation-surface">
                 <p className="type-infill leading-relaxed max-w-lg mb-8">
                   Write for commissions, collaboration, studio visits, or course
                   enrollment in Cairo.
@@ -334,7 +334,7 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              <div className="bg-concrete-dark/40 p-8 lg:p-10 lg:col-span-5">
+              <div className="bg-concrete-dark/40 p-6 sm:p-8 lg:p-10 lg:col-span-5">
                 <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
                 <dl className="space-y-6">
                   <div>

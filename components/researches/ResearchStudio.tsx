@@ -54,14 +54,17 @@ export function ResearchStudio() {
             {filtered.map((item, i) => (
               <Reveal key={item.id} variant="grid" delay={i * 50}>
                 <article
-                  className={`py-10 ${i > 0 ? "hairline-t" : ""} relative`}
+                  className={`py-8 sm:py-10 ${i > 0 ? "hairline-t" : ""} relative`}
                 >
-                  <span className="label-caps text-clay absolute top-10 right-0 hidden lg:block">
+                  <span className="label-caps text-clay absolute top-8 sm:top-10 right-0 hidden lg:block">
                     {String(i + 1).padStart(2, "0")}
                   </span>
 
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
-                    <div className="lg:col-span-3 flex gap-4 lg:flex-col lg:gap-2">
+                    <div className="lg:col-span-3 flex flex-wrap items-center gap-x-4 gap-y-2 lg:flex-col lg:items-start lg:gap-2">
+                      <span className="label-caps text-clay lg:hidden">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
                       <span className="label-caps">{item.category}</span>
                       <span className="label-caps opacity-70">{item.year}</span>
                     </div>

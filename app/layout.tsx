@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/cart/CartProvider";
@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   title: "Sawy Academy — Mohamed El Sawy",
   description:
     "Architecture portfolio, academic courses, and studio resources by Prof. Mohamed El Sawy, Cairo.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

@@ -53,7 +53,7 @@ export function SectionCutDivider({
         </div>
         {label && (
           <motion.span
-            className="label-caps text-charcoal/25 mx-2 whitespace-nowrap"
+            className="label-caps text-charcoal/25 mx-2 max-w-[42vw] truncate sm:max-w-none sm:whitespace-nowrap"
             variants={{
               hidden: { opacity: 0 },
               visible: { opacity: 1 },

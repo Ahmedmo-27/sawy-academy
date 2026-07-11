@@ -21,7 +21,7 @@ export default function ContactPage() {
       <section className="section-standard">
         <PageContainer>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-hairline">
-            <div className="bg-concrete p-8 lg:p-12 lg:pr-16">
+            <div className="bg-concrete p-6 sm:p-8 lg:p-12 lg:pr-16">
               <ThresholdFrame label="Bay 06 — Correspondence">
                 <Reveal variant="structural">
                   <p className="type-infill mb-10 max-w-md leading-relaxed">
@@ -37,10 +37,10 @@ export default function ContactPage() {
               </ThresholdFrame>
             </div>
 
-            <div className="surface-infill p-8 lg:p-12">
+            <div className="surface-infill p-6 sm:p-8 lg:p-12">
               <Reveal variant="infill" delay={150}>
                 <ThresholdFrame label="Drawing Title Block">
-                  <div className="hairline-border p-8 mt-4 bg-concrete/80">
+                  <div className="hairline-border p-5 sm:p-8 mt-4 bg-concrete/80">
                     <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
                     <div className="hairline-b pb-6 mb-6">
                       <p className="label-caps mb-2">Project</p>
