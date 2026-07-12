@@ -12,7 +12,7 @@ export function PageContainer({
   as: Tag = "div",
 }: PageContainerProps) {
   return (
-    <Tag className={`mx-auto w-full ${SITE_MAX} ${GUTTER} ${className}`}>
+    <Tag className={`mx-auto w-full min-w-0 max-w-full ${SITE_MAX} ${GUTTER} ${className}`}>
       {children}
     </Tag>
   );

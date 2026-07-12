@@ -41,7 +41,7 @@ export function HeroBackdrop({ variant = "page" }: HeroBackdropProps) {
         {variant === "home" ? (
           <>
             <FloorPlanSketch className="right-0 top-24 w-[48%] max-w-lg opacity-40 hidden lg:block" />
-            <AxonometricSketch className="right-0 bottom-8 w-32 opacity-15 sm:opacity-20 md:left-0 md:right-auto md:bottom-16 md:w-52 md:opacity-30" />
+            <AxonometricSketch className="hidden sm:block right-0 bottom-8 w-28 opacity-15 md:left-0 md:right-auto md:bottom-16 md:w-52 md:opacity-30" />
             <BlueprintDraw className="right-16 top-36 w-64 opacity-60 hidden lg:block" />
           </>
         ) : (
@@ -54,7 +54,13 @@ export function HeroBackdrop({ variant = "page" }: HeroBackdropProps) {
       </motion.div>
 
       {/* Foreground scrim — solid, not gradient; protects structural text */}
-      <div className="absolute inset-y-0 left-0 w-full md:w-10/12 lg:w-7/12 bg-concrete/82 sm:bg-concrete/85 md:bg-concrete/90 lg:bg-concrete/92 z-[2]" />
+      <div
+        className={`absolute inset-y-0 left-0 z-[2] ${
+          variant === "home"
+            ? "w-full bg-concrete/96 sm:bg-concrete/90 md:w-11/12 md:bg-concrete/92 lg:w-8/12"
+            : "w-full bg-concrete/90 md:w-10/12 lg:w-7/12"
+        }`}
+      />
     </div>
   );
 }

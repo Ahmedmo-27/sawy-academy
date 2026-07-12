@@ -8,21 +8,21 @@ interface WordmarkProps {
 
 export function Wordmark({ linked = true, size = "md" }: WordmarkProps) {
   const content = (
-    <span className="inline-flex items-center gap-2.5 sm:gap-3">
+    <span className="inline-flex min-w-0 max-w-full items-center gap-2 sm:gap-3">
       <span
-        className={`font-sans font-medium uppercase tracking-[0.2em] sm:tracking-[0.28em] text-charcoal ${
-          size === "sm" ? "text-[0.65rem] sm:text-xs" : "text-xs sm:text-sm"
+        className={`shrink-0 font-sans font-medium uppercase tracking-[0.16em] sm:tracking-[0.2em] md:tracking-[0.28em] text-charcoal ${
+          size === "sm" ? "text-[0.65rem] sm:text-xs" : "text-[0.7rem] sm:text-xs md:text-sm"
         }`}
       >
         {BRAND.wordmark}
       </span>
       <span
-        className="h-4 w-px bg-charcoal/30"
+        className="h-3.5 w-px shrink-0 bg-charcoal/30 sm:h-4"
         aria-hidden="true"
       />
       <span
-        className={`font-serif font-light tracking-wide text-charcoal-muted ${
-          size === "sm" ? "text-sm" : "text-base"
+        className={`min-w-0 truncate font-serif font-light tracking-wide text-charcoal-muted ${
+          size === "sm" ? "text-sm" : "text-sm sm:text-base"
         }`}
       >
         Academy

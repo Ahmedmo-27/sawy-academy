@@ -1,10 +1,15 @@
 /** 8px modular grid — all spacing derives from this unit */
 export const MODULE = 8;
 
-export const SITE_MAX = "max-w-[90rem]"; // 1440px = 180 modules
+/** Progressive content width — full bleed on phones, capped on larger viewports */
+export const SITE_MAX =
+  "max-w-full sm:max-w-[36rem] md:max-w-[48rem] lg:max-w-[64rem] xl:max-w-[72rem] 2xl:max-w-[90rem]";
 
-/** Horizontal gutter: 24px (3 modules) mobile, 48px (6 modules) desktop */
-export const GUTTER = "px-5 sm:px-6 lg:px-12";
+/** Horizontal gutter scales with viewport */
+export const GUTTER = "px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12";
+
+/** Shared shell for nav + page containers */
+export const SITE_SHELL = `mx-auto w-full min-w-0 ${SITE_MAX} ${GUTTER}`;
 
 /** 12-column bay grid used across portfolio, products, and course layouts */
 export const BAY_GRID =
