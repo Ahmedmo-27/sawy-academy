@@ -49,6 +49,15 @@
 
   --grid-columns: 12;
   --grid-gap: 1px;
+
+  --nav-height: 4rem;
+  --nav-height-lg: 5rem;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --nav-height: var(--nav-height-lg);
+  }
 }
 
 @layer base {
@@ -106,9 +115,10 @@
 @layer utilities {
   .type-display {
     @apply font-serif font-light text-charcoal;
-    font-size: clamp(1.75rem, 5vw, var(--text-display));
+    font-size: clamp(1.625rem, 4.5vw + 0.5rem, var(--text-display));
     line-height: 1.08;
     letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
   }
 
   .type-heading {
@@ -281,7 +291,7 @@
   }
 
   .site-container {
-    @apply mx-auto w-full max-w-[90rem] px-5 sm:px-6 lg:px-12;
+    @apply mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 sm:max-w-[36rem] md:max-w-[48rem] lg:max-w-[64rem] xl:max-w-[72rem] 2xl:max-w-[90rem];
   }
 
   .bay-grid {

@@ -67,24 +67,24 @@ export default function HomePage() {
   return (
     <>
       {/* ENTRANCE — lobby landmark */}
-      <section className="relative overflow-hidden" aria-label="Entrance">
+      <section className="relative overflow-x-clip" aria-label="Entrance">
         <HeroBackdrop variant="home" />
         <HeroConstruction />
         <GridColumns />
 
-        <PageContainer className="relative z-10 pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-32 lg:pt-40 pb-8 sm:pb-12 lg:pb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 lg:items-center">
-            <div className="order-2 lg:order-none col-span-12 lg:col-span-5 lg:pr-8">
+        <PageContainer className="relative z-10 pt-[calc(var(--nav-height)+0.5rem+env(safe-area-inset-top))] sm:pt-32 lg:pt-40 pb-8 sm:pb-12 lg:pb-16">
+          <div className="grid min-w-0 grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-12 lg:items-center">
+            <div className="order-2 min-w-0 lg:order-none col-span-12 lg:col-span-5 lg:pr-8">
               <GsapReveal type="text" immediate>
                 <p className="eyebrow mb-3">{BRAND.tagline}</p>
               </GsapReveal>
               <GsapReveal type="heading" immediate delay={0.1}>
-                <h1 className="type-display max-w-xl lg:max-w-2xl mb-4 sm:mb-5 leading-[1.12] sm:leading-[1.1]">
+                <h1 className="type-display max-w-full sm:max-w-xl lg:max-w-2xl mb-4 sm:mb-5 leading-[1.14] sm:leading-[1.1] text-balance">
                   Designing spaces that teach us how to inhabit the world.
                 </h1>
               </GsapReveal>
               <GsapReveal type="text" immediate delay={0.22}>
-                <p className="type-body max-w-md mb-8">
+                <p className="type-body max-w-full sm:max-w-md mb-8">
                   {BRAND.professorTitle} — founder of {BRAND.name}. Practice,
                   pedagogy, and research in Cairo.
                 </p>
@@ -107,7 +107,7 @@ export default function HomePage() {
                   aria-label="Jump to rooms"
                 >
                   <p className="label-caps mb-2 sm:mb-3">Floor plan</p>
-                  <ul className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-2 -mx-1 px-1 sm:mx-0 sm:px-0">
+                  <ul className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-2">
                     {sectionLinks.map((link) => (
                       <li key={link.href}>
                         <a href={link.href} className="action-secondary">
@@ -120,9 +120,9 @@ export default function HomePage() {
               </GsapReveal>
             </div>
 
-            <div className="order-1 lg:order-none col-span-12 lg:col-span-7 lg:-translate-y-8">
+            <div className="order-1 min-w-0 lg:order-none col-span-12 lg:col-span-7 mx-auto w-full max-w-[18rem] sm:max-w-xs md:max-w-sm lg:mx-0 lg:max-w-none lg:-translate-y-8">
               <GsapReveal type="image" immediate delay={0.18}>
-                <ImageFrame className="aspect-[5/4] sm:aspect-[4/3] lg:aspect-[3/4] max-h-[min(42vh,320px)] sm:max-h-none lg:max-h-[min(68vh,680px)] bg-concrete-dark/20">
+                <ImageFrame className="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[3/4] max-h-[min(38vh,280px)] sm:max-h-[min(42vh,320px)] lg:max-h-[min(68vh,680px)] bg-concrete-dark/20">
                   <PortraitSilhouette />
                 </ImageFrame>
               </GsapReveal>

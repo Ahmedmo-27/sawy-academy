@@ -13,7 +13,7 @@ const bracketTransition = hoverTransition;
 export function ImageFrame({ children, className = "" }: ImageFrameProps) {
   return (
     <motion.div
-      className={`relative group w-full ${className}`}
+      className={`relative group w-full max-w-full overflow-hidden ${className}`}
       initial="rest"
       whileHover="hover"
     >

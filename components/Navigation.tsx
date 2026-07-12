@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useCart } from "@/components/cart/CartProvider";
 import { Wordmark } from "@/components/Wordmark";
@@ -15,8 +16,6 @@ const links = [
   { href: "/products", label: "Products" },
   { href: "/contact", label: "Contact" },
 ];
-
-const NAV_HEIGHT = "4rem";
 
 function NavLink({
   href,
@@ -71,6 +70,102 @@ function MenuIcon({ open }: { open: boolean }) {
   );
 }
 
+function MobileNavDrawer({
+  open,
+  onClose,
+  pathname,
+  count,
+  prefersReducedMotion,
+}: {
+  open: boolean;
+  onClose: () => void;
+  pathname: string;
+  count: number;
+  prefersReducedMotion: boolean | null;
+}) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.button
+            type="button"
+            className="md:hidden fixed inset-0 z-[80] bg-charcoal/30"
+            style={{
+              top: "calc(var(--nav-height) + env(safe-area-inset-top))",
+            }}
+            aria-label="Close menu"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+            onClick={onClose}
+          />
+          <motion.aside
+            id="mobile-nav"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
+            className="md:hidden fixed right-0 z-[90] flex w-[min(17.5rem,100%)] max-w-[calc(100%-1rem)] flex-col border-l border-hairline bg-concrete shadow-[-12px_0_40px_rgba(26,26,26,0.1)]"
+            style={{
+              top: "calc(var(--nav-height) + env(safe-area-inset-top))",
+              bottom: 0,
+              paddingBottom: "env(safe-area-inset-bottom)",
+            }}
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{
+              duration: prefersReducedMotion ? 0 : 0.32,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <ul className="flex flex-1 flex-col overflow-y-auto px-4 py-4">
+              {links.map((link) => {
+                const active =
+                  pathname === link.href ||
+                  pathname.startsWith(`${link.href}/`);
+                return (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className={`eyebrow flex min-h-12 items-center border-b border-hairline/50 transition-colors ${
+                        active ? "text-clay" : "text-charcoal-infill"
+                      }`}
+                      onClick={onClose}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                );
+              })}
+              {count > 0 && (
+                <li>
+                  <Link
+                    href="/products"
+                    className="eyebrow flex min-h-12 items-center text-clay"
+                    onClick={onClose}
+                  >
+                    Cart ({count})
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>,
+    document.body
+  );
+}
+
 export function Navigation() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -108,139 +203,73 @@ export function Navigation() {
   }, [open]);
 
   return (
-    <motion.header
-      className="fixed top-0 left-0 right-0 z-50 pt-[env(safe-area-inset-top)]"
-      initial={false}
-      animate={{
-        backgroundColor: scrolled || open
-          ? "rgba(245, 243, 239, 0.94)"
-          : "rgba(245, 243, 239, 0)",
-        backdropFilter: scrolled || open ? "blur(12px)" : "blur(0px)",
-      }}
-      transition={prefersReducedMotion ? { duration: 0 } : navTransition}
-    >
-      <nav className="site-container flex items-center justify-between h-16 lg:h-20">
-        <Wordmark />
+    <>
+      <motion.header
+        className="fixed top-0 left-0 right-0 z-[100] pt-[env(safe-area-inset-top)] isolate"
+        initial={false}
+        animate={{
+          backgroundColor: scrolled || open
+            ? "rgba(245, 243, 239, 0.98)"
+            : "rgba(245, 243, 239, 0)",
+          backdropFilter: scrolled || open ? "blur(12px)" : "blur(0px)",
+        }}
+        transition={prefersReducedMotion ? { duration: 0 } : navTransition}
+      >
+        <nav className="site-container flex h-[var(--nav-height)] items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <Wordmark />
+          </div>
 
-        <ul className="hidden md:flex items-center gap-6 lg:gap-10">
-          {links.map((link) => (
-            <li key={link.href}>
-              <NavLink
-                href={link.href}
-                label={link.label}
-                active={
-                  pathname === link.href || pathname.startsWith(`${link.href}/`)
-                }
-              />
-            </li>
-          ))}
-          {count > 0 && (
-            <li>
-              <Link href="/products" className="eyebrow text-clay tabular-nums">
-                Cart ({count})
-              </Link>
-            </li>
-          )}
-        </ul>
-
-        <button
-          type="button"
-          className="md:hidden relative flex items-center justify-center min-h-11 min-w-11 -mr-2 rounded-sm border border-hairline/80 bg-concrete/60 text-charcoal transition-colors duration-200 hover:border-hairline hover:bg-concrete"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          aria-label={open ? "Close menu" : "Open menu"}
-        >
-          <MenuIcon open={open} />
-          {!open && count > 0 && (
-            <span
-              className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-clay px-1 text-[0.5625rem] font-medium leading-none text-concrete tabular-nums"
-              aria-hidden="true"
-            >
-              {count}
-            </span>
-          )}
-        </button>
-      </nav>
-
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.button
-              type="button"
-              className="md:hidden fixed inset-0 z-40 bg-charcoal/25"
-              style={{ top: `calc(${NAV_HEIGHT} + env(safe-area-inset-top))` }}
-              aria-label="Close menu"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-              onClick={() => setOpen(false)}
-            />
-            <motion.aside
-              id="mobile-nav"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Site navigation"
-              className="md:hidden fixed right-0 z-50 flex w-[min(18.5rem,calc(100vw-2.5rem))] flex-col border-l border-hairline bg-concrete/98 shadow-[-12px_0_40px_rgba(26,26,26,0.08)]"
-              style={{
-                top: `calc(${NAV_HEIGHT} + env(safe-area-inset-top))`,
-                bottom: 0,
-                paddingBottom: "env(safe-area-inset-bottom)",
-              }}
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{
-                duration: prefersReducedMotion ? 0 : 0.32,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              <div className="flex items-center justify-between px-5 py-3 hairline-b">
-                <p className="eyebrow text-charcoal-infill">Menu</p>
-                <button
-                  type="button"
-                  className="flex min-h-10 min-w-10 items-center justify-center rounded-sm text-charcoal transition-colors hover:bg-concrete-dark/60"
-                  onClick={() => setOpen(false)}
-                  aria-label="Close menu"
-                >
-                  <MenuIcon open />
-                </button>
-              </div>
-
-              <ul className="flex flex-1 flex-col overflow-y-auto px-3 py-2">
-                {links.map((link) => {
-                  const active =
+          <ul className="hidden md:flex shrink-0 items-center gap-6 lg:gap-10">
+            {links.map((link) => (
+              <li key={link.href}>
+                <NavLink
+                  href={link.href}
+                  label={link.label}
+                  active={
                     pathname === link.href ||
-                    pathname.startsWith(`${link.href}/`);
-                  return (
-                    <li key={link.href}>
-                      <Link
-                        href={link.href}
-                        className={`eyebrow flex min-h-12 items-center border-b border-hairline/50 px-2 transition-colors ${
-                          active ? "text-clay" : "text-charcoal-infill"
-                        }`}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  );
-                })}
-                {count > 0 && (
-                  <li>
-                    <Link
-                      href="/products"
-                      className="eyebrow flex min-h-12 items-center px-2 text-clay"
-                    >
-                      Cart ({count})
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
-    </motion.header>
+                    pathname.startsWith(`${link.href}/`)
+                  }
+                />
+              </li>
+            ))}
+            {count > 0 && (
+              <li>
+                <Link href="/products" className="eyebrow text-clay tabular-nums">
+                  Cart ({count})
+                </Link>
+              </li>
+            )}
+          </ul>
+
+          <button
+            type="button"
+            className="md:hidden relative shrink-0 flex items-center justify-center min-h-11 min-w-11 rounded-sm border border-hairline/80 bg-concrete text-charcoal transition-colors duration-200 hover:border-hairline hover:bg-concrete-dark/80"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            aria-label={open ? "Close menu" : "Open menu"}
+          >
+            <MenuIcon open={open} />
+            {!open && count > 0 && (
+              <span
+                className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-clay px-1 text-[0.5625rem] font-medium leading-none text-concrete tabular-nums"
+                aria-hidden="true"
+              >
+                {count}
+              </span>
+            )}
+          </button>
+        </nav>
+      </motion.header>
+
+      <MobileNavDrawer
+        open={open}
+        onClose={() => setOpen(false)}
+        pathname={pathname}
+        count={count}
+        prefersReducedMotion={prefersReducedMotion}
+      />
+    </>
   );
 }
