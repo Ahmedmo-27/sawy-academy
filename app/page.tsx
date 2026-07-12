@@ -72,14 +72,14 @@ export default function HomePage() {
         <HeroConstruction />
         <GridColumns />
 
-        <PageContainer className="relative z-10 pt-28 sm:pt-32 lg:pt-40 pb-10 sm:pb-12 lg:pb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 lg:items-center">
-            <div className="col-span-12 lg:col-span-5 lg:pr-8">
+        <PageContainer className="relative z-10 pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-32 lg:pt-40 pb-8 sm:pb-12 lg:pb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 lg:items-center">
+            <div className="order-2 lg:order-none col-span-12 lg:col-span-5 lg:pr-8">
               <GsapReveal type="text" immediate>
                 <p className="eyebrow mb-3">{BRAND.tagline}</p>
               </GsapReveal>
               <GsapReveal type="heading" immediate delay={0.1}>
-                <h1 className="type-display max-w-xl lg:max-w-2xl mb-5 leading-[1.1]">
+                <h1 className="type-display max-w-xl lg:max-w-2xl mb-4 sm:mb-5 leading-[1.12] sm:leading-[1.1]">
                   Designing spaces that teach us how to inhabit the world.
                 </h1>
               </GsapReveal>
@@ -90,24 +90,24 @@ export default function HomePage() {
                 </p>
               </GsapReveal>
               <GsapReveal type="text" immediate delay={0.4}>
-                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mb-8">
-                  <Link href="/portfolio" className="cta-entrance text-center sm:text-left justify-center">
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                  <Link href="/portfolio" className="cta-entrance w-full sm:w-auto text-center sm:text-left justify-center">
                     View portfolio
                   </Link>
-                  <Link href="/courses" className="action-secondary text-center sm:text-left">
+                  <Link href="/courses" className="action-secondary w-full sm:w-auto text-center sm:text-left justify-center sm:justify-start py-3 sm:py-0">
                     Browse courses
                   </Link>
                 </div>
-                <ScaleBar scale="1:200" className="max-w-[200px]" />
+                <ScaleBar scale="1:200" className="hidden sm:block max-w-[200px]" />
               </GsapReveal>
 
               <GsapReveal type="text" immediate delay={0.46}>
                 <nav
-                  className="mt-8 pt-6 hairline-t"
+                  className="mt-6 sm:mt-8 pt-5 sm:pt-6 hairline-t"
                   aria-label="Jump to rooms"
                 >
-                  <p className="label-caps mb-3">Floor plan</p>
-                  <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                  <p className="label-caps mb-2 sm:mb-3">Floor plan</p>
+                  <ul className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-2 -mx-1 px-1 sm:mx-0 sm:px-0">
                     {sectionLinks.map((link) => (
                       <li key={link.href}>
                         <a href={link.href} className="action-secondary">
@@ -120,9 +120,9 @@ export default function HomePage() {
               </GsapReveal>
             </div>
 
-            <div className="col-span-12 lg:col-span-7 lg:-translate-y-8">
+            <div className="order-1 lg:order-none col-span-12 lg:col-span-7 lg:-translate-y-8">
               <GsapReveal type="image" immediate delay={0.18}>
-                <ImageFrame className="aspect-[4/3] lg:aspect-[3/4] lg:max-h-[min(68vh,680px)] bg-concrete-dark/20">
+                <ImageFrame className="aspect-[5/4] sm:aspect-[4/3] lg:aspect-[3/4] max-h-[min(42vh,320px)] sm:max-h-none lg:max-h-[min(68vh,680px)] bg-concrete-dark/20">
                   <PortraitSilhouette />
                 </ImageFrame>
               </GsapReveal>

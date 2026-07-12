@@ -16,6 +16,8 @@ const links = [
   { href: "/contact", label: "Contact" },
 ];
 
+const NAV_HEIGHT = "4rem";
+
 function NavLink({
   href,
   label,
@@ -46,20 +48,23 @@ function NavLink({
 
 function MenuIcon({ open }: { open: boolean }) {
   return (
-    <span className="relative flex h-4 w-5 flex-col justify-between" aria-hidden="true">
+    <span
+      className="relative flex h-[18px] w-[22px] flex-col justify-between"
+      aria-hidden="true"
+    >
       <span
-        className={`block h-px w-full bg-charcoal transition-transform duration-300 origin-center ${
-          open ? "translate-y-[7px] rotate-45" : ""
+        className={`block h-[1.5px] w-full rounded-full bg-charcoal transition-transform duration-300 origin-center ${
+          open ? "translate-y-[8.25px] rotate-45" : ""
         }`}
       />
       <span
-        className={`block h-px w-full bg-charcoal transition-opacity duration-200 ${
+        className={`block h-[1.5px] w-full rounded-full bg-charcoal transition-opacity duration-200 ${
           open ? "opacity-0" : "opacity-100"
         }`}
       />
       <span
-        className={`block h-px w-full bg-charcoal transition-transform duration-300 origin-center ${
-          open ? "-translate-y-[7px] -rotate-45" : ""
+        className={`block h-[1.5px] w-full rounded-full bg-charcoal transition-transform duration-300 origin-center ${
+          open ? "-translate-y-[8.25px] -rotate-45" : ""
         }`}
       />
     </span>
@@ -91,6 +96,15 @@ export function Navigation() {
     return () => {
       document.body.style.overflow = prev;
     };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
   return (
@@ -131,16 +145,20 @@ export function Navigation() {
 
         <button
           type="button"
-          className="md:hidden flex items-center gap-3 eyebrow text-charcoal py-2 -mr-1"
+          className="md:hidden relative flex items-center justify-center min-h-11 min-w-11 -mr-2 rounded-sm border border-hairline/80 bg-concrete/60 text-charcoal transition-colors duration-200 hover:border-hairline hover:bg-concrete"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="mobile-nav"
           aria-label={open ? "Close menu" : "Open menu"}
         >
           <MenuIcon open={open} />
-          <span className="sr-only">{open ? "Close" : "Menu"}</span>
           {!open && count > 0 && (
-            <span className="tabular-nums text-clay">({count})</span>
+            <span
+              className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-clay px-1 text-[0.5625rem] font-medium leading-none text-concrete tabular-nums"
+              aria-hidden="true"
+            >
+              {count}
+            </span>
           )}
         </button>
       </nav>
@@ -150,7 +168,8 @@ export function Navigation() {
           <>
             <motion.button
               type="button"
-              className="md:hidden fixed inset-0 z-40 bg-charcoal/20 top-[calc(4rem+env(safe-area-inset-top))]"
+              className="md:hidden fixed inset-0 z-40 bg-charcoal/25"
+              style={{ top: `calc(${NAV_HEIGHT} + env(safe-area-inset-top))` }}
               aria-label="Close menu"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -158,15 +177,38 @@ export function Navigation() {
               transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
               onClick={() => setOpen(false)}
             />
-            <motion.div
+            <motion.aside
               id="mobile-nav"
-              className="md:hidden relative z-50 hairline-t bg-concrete/98 px-5 sm:px-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-3 max-h-[calc(100dvh-4rem-env(safe-area-inset-top))] overflow-y-auto"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Site navigation"
+              className="md:hidden fixed right-0 z-50 flex w-[min(18.5rem,calc(100vw-2.5rem))] flex-col border-l border-hairline bg-concrete/98 shadow-[-12px_0_40px_rgba(26,26,26,0.08)]"
+              style={{
+                top: `calc(${NAV_HEIGHT} + env(safe-area-inset-top))`,
+                bottom: 0,
+                paddingBottom: "env(safe-area-inset-bottom)",
+              }}
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.32,
+                ease: [0.22, 1, 0.36, 1],
+              }}
             >
-              <ul className="flex flex-col gap-1">
+              <div className="flex items-center justify-between px-5 py-3 hairline-b">
+                <p className="eyebrow text-charcoal-infill">Menu</p>
+                <button
+                  type="button"
+                  className="flex min-h-10 min-w-10 items-center justify-center rounded-sm text-charcoal transition-colors hover:bg-concrete-dark/60"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <MenuIcon open />
+                </button>
+              </div>
+
+              <ul className="flex flex-1 flex-col overflow-y-auto px-3 py-2">
                 {links.map((link) => {
                   const active =
                     pathname === link.href ||
@@ -175,7 +217,7 @@ export function Navigation() {
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className={`eyebrow block py-3 border-b border-hairline/60 ${
+                        className={`eyebrow flex min-h-12 items-center border-b border-hairline/50 px-2 transition-colors ${
                           active ? "text-clay" : "text-charcoal-infill"
                         }`}
                       >
@@ -188,14 +230,14 @@ export function Navigation() {
                   <li>
                     <Link
                       href="/products"
-                      className="eyebrow block py-3 text-clay"
+                      className="eyebrow flex min-h-12 items-center px-2 text-clay"
                     >
                       Cart ({count})
                     </Link>
                   </li>
                 )}
               </ul>
-            </motion.div>
+            </motion.aside>
           </>
         )}
       </AnimatePresence>

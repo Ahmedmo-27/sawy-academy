@@ -106,7 +106,7 @@
 @layer utilities {
   .type-display {
     @apply font-serif font-light text-charcoal;
-    font-size: clamp(2rem, 4vw, var(--text-display));
+    font-size: clamp(1.75rem, 5vw, var(--text-display));
     line-height: 1.08;
     letter-spacing: -0.02em;
   }
