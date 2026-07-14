@@ -24,14 +24,14 @@ function WireframeOverlay() {
       fill="none"
       aria-hidden="true"
     >
-      <rect x="40" y="40" width="320" height="420" stroke="#f5f3ef" strokeWidth="1" opacity="0.9" />
-      <path d="M40 200 H200 V40 H360 V460 H40" stroke="#f5f3ef" strokeWidth="0.75" opacity="0.7" />
-      <path d="M200 40 V460" stroke="#f5f3ef" strokeWidth="0.5" strokeDasharray="6 4" opacity="0.6" />
+      <rect x="40" y="40" width="320" height="420" stroke="var(--color-concrete)" strokeWidth="1" opacity="0.9" />
+      <path d="M40 200 H200 V40 H360 V460 H40" stroke="var(--color-concrete)" strokeWidth="0.75" opacity="0.7" />
+      <path d="M200 40 V460" stroke="var(--color-concrete)" strokeWidth="0.5" strokeDasharray="6 4" opacity="0.6" />
       <path d="M40 380 H160" stroke="#d4d0c8" strokeWidth="0.5" opacity="0.8" />
       <circle cx="300" cy="120" r="24" stroke="#d4d0c8" strokeWidth="0.5" opacity="0.5" />
       <path
         d="M80 420 L120 400 L160 420 L120 440 Z"
-        stroke="#8b5a4a"
+        stroke="var(--color-clay)"
         strokeWidth="0.5"
         opacity="0.6"
       />

@@ -20,7 +20,7 @@ function WireCube({ x, y }: { x: string; y: string }) {
       <path
         d="M0 20 L16 10 L32 20 L16 30 Z M0 20 L0 40 L16 50 L16 30 M16 30 L16 50 L32 40 L32 20"
         fill="none"
-        stroke="#8b5a4a"
+        stroke="var(--color-clay)"
         strokeWidth="0.6"
       />
     </g>
@@ -89,7 +89,7 @@ export function FloatingGeometryLayer() {
                 width={shape.w}
                 height={shape.h}
                 fill="none"
-                stroke="#8b5a4a"
+                stroke="var(--color-clay)"
                 strokeWidth="0.5"
                 opacity="0.25"
               />
@@ -103,7 +103,7 @@ export function FloatingGeometryLayer() {
                 cy={shape.cy}
                 r={shape.r}
                 fill="none"
-                stroke="#8b5a4a"
+                stroke="var(--color-clay)"
                 strokeWidth="0.5"
                 opacity="0.2"
               />
@@ -117,11 +117,11 @@ export function FloatingGeometryLayer() {
                   y1={shape.y1}
                   x2={shape.x2}
                   y2={shape.y2}
-                  stroke="#8b5a4a"
+                  stroke="var(--color-clay)"
                   strokeWidth="0.5"
                 />
-                <circle cx={shape.x1} cy={shape.y1} r="2" fill="#8b5a4a" opacity="0.4" />
-                <circle cx={shape.x2} cy={shape.y2} r="2" fill="#8b5a4a" opacity="0.4" />
+                <circle cx={shape.x1} cy={shape.y1} r="2" fill="var(--color-clay)" opacity="0.4" />
+                <circle cx={shape.x2} cy={shape.y2} r="2" fill="var(--color-clay)" opacity="0.4" />
               </g>
             );
           }

@@ -1,16 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-concrete: #f5f3ef;
-  --color-concrete-dark: #ebe8e2;
-  --color-charcoal: #1a1a1a;
-  --color-charcoal-muted: #404040;
-  --color-charcoal-infill: #525252;
-  --color-clay: #8b5a4a;
-  --color-clay-muted: #a67b6e;
-  --color-hairline: #d4d0c8;
-  --color-construction: #c8c4bc;
-  --color-construction-muted: #b8b4ac;
+  /* Cooler stone ground — off the warm-cream default */
+  --color-concrete: #eef0ed;
+  --color-concrete-dark: #e1e5e1;
+  /* Charcoal with a faint green undertone */
+  --color-charcoal: #141816;
+  --color-charcoal-muted: #3a403e;
+  --color-charcoal-infill: #505855;
+  /* Oxidized copper — Cairo material accent (token kept as clay for class compat) */
+  --color-clay: #2a6f62;
+  --color-clay-muted: #5a9186;
+  --color-clay-deep: #1f554b;
+  --color-hairline: #c5cbc6;
+  --color-construction: #b4bcb6;
+  --color-construction-muted: #a4aca6;
 
   --font-serif: var(--font-fraunces), "Georgia", serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
@@ -67,7 +71,11 @@
   }
 
   body {
-    @apply bg-concrete text-charcoal font-sans antialiased overflow-x-hidden;
+    @apply text-charcoal font-sans antialiased overflow-x-hidden;
+    background-color: var(--color-concrete);
+    background-image:
+      radial-gradient(ellipse 90% 55% at 12% -10%, rgba(42, 111, 98, 0.07), transparent 55%),
+      radial-gradient(ellipse 70% 45% at 100% 8%, rgba(20, 24, 22, 0.04), transparent 50%);
     font-feature-settings: "kern" 1, "liga" 1;
     font-size: var(--text-body);
     padding-left: env(safe-area-inset-left);
@@ -361,9 +369,9 @@
     }
   }
 
-  /* Lobby primary action — entrance landmark */
+  /* Lobby primary action — copper accent as the entrance landmark */
   .cta-entrance {
-    @apply relative inline-flex items-center gap-2 font-sans font-medium uppercase text-concrete bg-charcoal box-border max-w-full;
+    @apply relative inline-flex items-center gap-2 font-sans font-medium uppercase text-concrete bg-clay box-border max-w-full;
     font-size: 0.6875rem;
     letter-spacing: 0.2em;
     padding: 0.875rem 1.25rem;
@@ -382,8 +390,8 @@
   @media (hover: hover) and (pointer: fine) {
     .cta-entrance:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(26, 26, 26, 0.14);
-      background-color: var(--color-clay);
+      box-shadow: 0 10px 28px rgba(42, 111, 98, 0.28);
+      background-color: var(--color-clay-deep);
     }
   }
 
