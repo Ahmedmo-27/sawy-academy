@@ -43,7 +43,7 @@ export default function RootLayout({
           <SplashLoader />
           <ScrollAnimationShell>
             <Navigation />
-            <main className="flex-1 relative">{children}</main>
+            <main id="main-content" className="flex-1 relative">{children}</main>
             <Footer />
           </ScrollAnimationShell>
         </CartProvider>
