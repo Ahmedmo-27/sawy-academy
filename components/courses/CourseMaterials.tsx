@@ -17,7 +17,7 @@ export function CourseMaterials({ relatedProductIds }: CourseMaterialsProps) {
       {materials.map((product) => (
         <div
           key={product.id}
-          className="col-span-12 sm:col-span-6 lg:col-span-3 bg-concrete"
+          className="col-span-full sm:col-span-1 lg:col-span-3 bg-concrete"
         >
           <ProductCard
             id={product.id}

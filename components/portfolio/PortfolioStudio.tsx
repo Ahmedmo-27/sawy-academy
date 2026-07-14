@@ -12,9 +12,9 @@ import {
 } from "@/lib/data/portfolio";
 
 const spanMap = {
-  tall: "col-span-12 md:col-span-6 lg:col-span-4 lg:row-span-2",
-  wide: "col-span-12 lg:col-span-8",
-  square: "col-span-12 md:col-span-6 lg:col-span-4",
+  tall: "col-span-full sm:col-span-1 lg:col-span-4 lg:row-span-2",
+  wide: "col-span-full lg:col-span-8",
+  square: "col-span-full sm:col-span-1 lg:col-span-4",
 };
 
 const aspectMap = {

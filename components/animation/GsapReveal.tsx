@@ -86,7 +86,7 @@ export function GsapReveal({
   }, [reduced, type, delay, immediate]);
 
   return (
-    <div ref={ref} className={`will-change-transform ${className}`}>
+    <div ref={ref} className={`min-w-0 max-w-full will-change-transform ${className}`}>
       {children}
     </div>
   );

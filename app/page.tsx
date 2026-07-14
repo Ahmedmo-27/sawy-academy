@@ -73,35 +73,41 @@ export default function HomePage() {
         <GridColumns />
 
         <PageContainer className="relative z-10 pt-[calc(var(--nav-height)+0.5rem+env(safe-area-inset-top))] sm:pt-32 lg:pt-40 pb-8 sm:pb-12 lg:pb-16">
-          <div className="grid min-w-0 grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-12 lg:items-center">
-            <div className="order-2 min-w-0 lg:order-none col-span-12 lg:col-span-5 lg:pr-8">
-              <GsapReveal type="text" immediate>
-                <p className="eyebrow mb-3">{BRAND.tagline}</p>
+          <div className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:gap-12 lg:items-center">
+            <div className="order-2 min-w-0 max-w-full lg:order-none lg:col-span-5 lg:pr-8">
+              <GsapReveal type="text" immediate className="min-w-0 max-w-full">
+                <p className="eyebrow mb-3 break-words">{BRAND.tagline}</p>
               </GsapReveal>
-              <GsapReveal type="heading" immediate delay={0.1}>
+              <GsapReveal type="heading" immediate delay={0.1} className="min-w-0 max-w-full">
                 <h1 className="type-display max-w-full sm:max-w-xl lg:max-w-2xl mb-4 sm:mb-5 leading-[1.14] sm:leading-[1.1] text-balance">
                   Designing spaces that teach us how to inhabit the world.
                 </h1>
               </GsapReveal>
-              <GsapReveal type="text" immediate delay={0.22}>
-                <p className="type-body max-w-full sm:max-w-md mb-8">
+              <GsapReveal type="text" immediate delay={0.22} className="min-w-0 max-w-full">
+                <p className="type-body max-w-full sm:max-w-md mb-6 sm:mb-8">
                   {BRAND.professorTitle} — founder of {BRAND.name}. Practice,
                   pedagogy, and research in Cairo.
                 </p>
               </GsapReveal>
-              <GsapReveal type="text" immediate delay={0.4}>
+              <GsapReveal type="text" immediate delay={0.4} className="min-w-0 max-w-full">
                 <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-                  <Link href="/portfolio" className="cta-entrance w-full sm:w-auto text-center sm:text-left justify-center">
+                  <Link
+                    href="/portfolio"
+                    className="cta-entrance w-full sm:w-auto justify-center sm:justify-start"
+                  >
                     View portfolio
                   </Link>
-                  <Link href="/courses" className="action-secondary w-full sm:w-auto text-center sm:text-left justify-center sm:justify-start py-3 sm:py-0">
+                  <Link
+                    href="/courses"
+                    className="action-secondary self-start py-3 sm:py-0"
+                  >
                     Browse courses
                   </Link>
                 </div>
                 <ScaleBar scale="1:200" className="hidden sm:block max-w-[200px]" />
               </GsapReveal>
 
-              <GsapReveal type="text" immediate delay={0.46}>
+              <GsapReveal type="text" immediate delay={0.46} className="min-w-0 max-w-full">
                 <nav
                   className="mt-6 sm:mt-8 pt-5 sm:pt-6 hairline-t"
                   aria-label="Jump to rooms"
@@ -109,7 +115,7 @@ export default function HomePage() {
                   <p className="label-caps mb-2 sm:mb-3">Floor plan</p>
                   <ul className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-2">
                     {sectionLinks.map((link) => (
-                      <li key={link.href}>
+                      <li key={link.href} className="min-w-0">
                         <a href={link.href} className="action-secondary">
                           {link.label}
                         </a>
@@ -120,9 +126,9 @@ export default function HomePage() {
               </GsapReveal>
             </div>
 
-            <div className="order-1 min-w-0 lg:order-none col-span-12 lg:col-span-7 mx-auto w-full max-w-[18rem] sm:max-w-xs md:max-w-sm lg:mx-0 lg:max-w-none lg:-translate-y-8">
-              <GsapReveal type="image" immediate delay={0.18}>
-                <ImageFrame className="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[3/4] max-h-[min(38vh,280px)] sm:max-h-[min(42vh,320px)] lg:max-h-[min(68vh,680px)] bg-concrete-dark/20">
+            <div className="order-1 min-w-0 max-w-full lg:order-none lg:col-span-7 mx-auto w-full max-w-[14rem] sm:max-w-xs md:max-w-sm lg:mx-0 lg:max-w-none lg:-translate-y-8">
+              <GsapReveal type="image" immediate delay={0.18} className="min-w-0 max-w-full">
+                <ImageFrame className="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[3/4] max-h-[min(32vh,240px)] sm:max-h-[min(42vh,320px)] lg:max-h-[min(68vh,680px)] bg-concrete-dark/20">
                   <PortraitSilhouette />
                 </ImageFrame>
               </GsapReveal>
@@ -172,7 +178,7 @@ export default function HomePage() {
               {featuredProjects.map((project) => (
                 <div
                   key={project.id}
-                  className="col-span-12 md:col-span-4 bg-concrete"
+                  className="col-span-full lg:col-span-4 bg-concrete"
                 >
                   <ProjectCard
                     title={project.title}
@@ -253,7 +259,7 @@ export default function HomePage() {
               {featuredProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="col-span-12 sm:col-span-6 lg:col-span-3 bg-concrete group"
+                    className="col-span-full sm:col-span-1 lg:col-span-3 bg-concrete group"
                 >
                   <ProductCard
                     id={product.id}

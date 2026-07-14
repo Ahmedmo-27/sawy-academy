@@ -143,6 +143,7 @@
   .type-body {
     font-size: var(--text-body);
     line-height: 1.65;
+    overflow-wrap: break-word;
     @apply text-charcoal-muted;
   }
 
@@ -156,6 +157,7 @@
     @apply font-sans font-medium uppercase text-charcoal-infill;
     font-size: 0.6875rem;
     letter-spacing: 0.22em;
+    overflow-wrap: anywhere;
   }
 
   .label-caps {
@@ -291,7 +293,7 @@
   }
 
   .site-container {
-    @apply mx-auto w-full min-w-0 max-w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 sm:max-w-[36rem] md:max-w-[48rem] lg:max-w-[64rem] xl:max-w-[72rem] 2xl:max-w-[90rem];
+    @apply mx-auto w-full min-w-0 max-w-full px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 sm:max-w-[36rem] md:max-w-[48rem] lg:max-w-[64rem] xl:max-w-[72rem] 2xl:max-w-[90rem];
   }
 
   .bay-grid {
@@ -343,14 +345,20 @@
 
   /* Lobby primary action — entrance landmark */
   .cta-entrance {
-    @apply relative inline-flex items-center gap-2 font-sans font-medium uppercase text-concrete bg-charcoal;
+    @apply relative inline-flex items-center gap-2 font-sans font-medium uppercase text-concrete bg-charcoal box-border max-w-full;
     font-size: 0.6875rem;
     letter-spacing: 0.2em;
-    padding: 0.875rem 1.5rem;
+    padding: 0.875rem 1.25rem;
     transition:
       transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
       background-color 0.3s ease;
+  }
+
+  @media (min-width: 640px) {
+    .cta-entrance {
+      padding: 0.875rem 1.5rem;
+    }
   }
 
   @media (hover: hover) and (pointer: fine) {
