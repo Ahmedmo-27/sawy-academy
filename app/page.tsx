@@ -73,8 +73,8 @@ export default function HomePage() {
         <GridColumns />
 
         <PageContainer className="relative z-10 pt-[calc(var(--nav-height)+0.5rem+env(safe-area-inset-top))] sm:pt-32 lg:pt-40 pb-8 sm:pb-12 lg:pb-16">
-          <div className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:gap-12 lg:items-center">
-            <div className="order-2 min-w-0 max-w-full lg:order-none lg:col-span-5 lg:pr-8">
+          <div className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:gap-6 lg:items-center">
+            <div className="order-2 min-w-0 max-w-full lg:order-none lg:col-span-5 lg:pr-4">
               <GsapReveal type="text" immediate className="min-w-0 max-w-full">
                 <p className="eyebrow mb-3 break-words">{BRAND.tagline}</p>
               </GsapReveal>
@@ -90,7 +90,7 @@ export default function HomePage() {
                 </p>
               </GsapReveal>
               <GsapReveal type="text" immediate delay={0.4} className="min-w-0 max-w-full">
-                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <div className="flex flex-col sm:flex-row sm:flex-nowrap items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
                   <Link
                     href="/portfolio"
                     className="cta-entrance w-full sm:w-auto justify-center sm:justify-start"
@@ -99,7 +99,7 @@ export default function HomePage() {
                   </Link>
                   <Link
                     href="/courses"
-                    className="action-secondary self-start py-3 sm:py-0"
+                    className="action-secondary self-start sm:self-center py-3 sm:py-0"
                   >
                     Browse courses
                   </Link>
