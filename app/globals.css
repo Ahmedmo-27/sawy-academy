@@ -110,6 +110,24 @@
       scroll-margin-top: 5.5rem;
     }
   }
+
+  /* Custom scale scrollbar replaces the native bar on desktop */
+  html.scale-scrollbar-active {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html.scale-scrollbar-active::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  html.scale-scrollbar-dragging,
+  html.scale-scrollbar-dragging * {
+    cursor: grabbing !important;
+    user-select: none !important;
+  }
 }
 
 @layer utilities {
