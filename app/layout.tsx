@@ -22,7 +22,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Sawy Academy — Mohamed El Sawy",
   description:
-    "Architecture portfolio, academic courses, and studio resources by Prof. Mohamed El Sawy, Cairo.",
+    "Architecture portfolio, academic courses, and studio resources by Prof. Mohamed El Sawy, Vice Dean of the Faculty of Engineering at Misr International University (MIU), Cairo.",
 };
 
 export const viewport: Viewport = {

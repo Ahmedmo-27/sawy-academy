@@ -26,11 +26,11 @@ export function Footer() {
               <ScaleBar scale="1:200" className="mt-6 mb-4 max-w-[100px]" />
               <p className="type-title mb-2">{BRAND.professorTitle}</p>
               <p className="type-infill leading-relaxed max-w-xs">
-                {BRAND.address.line2}
+                {BRAND.role}
                 <br />
-                {BRAND.address.country}
+                {BRAND.institution}
                 <br />
-                Architecture & Spatial Design
+                {BRAND.address.line2}, {BRAND.address.country}
               </p>
             </div>
 

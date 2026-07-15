@@ -50,6 +50,11 @@ export default function ContactPage() {
                     <div className="hairline-b py-6 mb-6">
                       <p className="label-caps mb-2">Architect</p>
                       <p className="type-title text-xl">{BRAND.professor}</p>
+                      <p className="type-infill mt-2 leading-relaxed">
+                        {BRAND.role}
+                        <br />
+                        {BRAND.institution}
+                      </p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-6 hairline-b py-6 mb-6">
