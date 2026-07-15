@@ -9,7 +9,7 @@ export default function ResearchesPage() {
       <PageHeader
         eyebrow="Scholarship"
         title="Researches"
-        description={`Published papers, conference proceedings, and ongoing investigations by ${BRAND.professor}.`}
+        description={`Published papers, conference proceedings, and ongoing investigations by ${BRAND.professorTitle}, ${BRAND.affiliation}.`}
       />
 
       <ThresholdDoorway label="BIBLIOGRAPHY INDEX" />

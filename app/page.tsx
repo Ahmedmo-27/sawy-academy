@@ -85,8 +85,9 @@ export default function HomePage() {
               </GsapReveal>
               <GsapReveal type="text" immediate delay={0.22} className="min-w-0 max-w-full">
                 <p className="type-body max-w-full sm:max-w-md mb-6 sm:mb-8">
-                  {BRAND.professorTitle} — founder of {BRAND.name}. Practice,
-                  pedagogy, and research in Cairo.
+                  {BRAND.professorTitle} — {BRAND.role} at {BRAND.institution},
+                  and founder of {BRAND.name}. Practice, pedagogy, and research
+                  in Cairo.
                 </p>
               </GsapReveal>
               <GsapReveal type="text" immediate delay={0.4} className="min-w-0 max-w-full">
