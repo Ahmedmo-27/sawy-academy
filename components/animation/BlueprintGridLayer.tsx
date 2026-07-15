@@ -39,8 +39,8 @@ export function BlueprintGridLayer() {
       style={{
         opacity: 0.045,
         backgroundImage: `
-          linear-gradient(to right, #8b5a4a 1px, transparent 1px),
-          linear-gradient(to bottom, #8b5a4a 1px, transparent 1px)
+          linear-gradient(to right, var(--color-clay) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--color-clay) 1px, transparent 1px)
         `,
         backgroundSize: "48px 48px",
         maskImage: "linear-gradient(to bottom, black 0%, black 85%, transparent 100%)",

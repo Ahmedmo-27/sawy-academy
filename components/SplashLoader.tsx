@@ -52,7 +52,7 @@ export function SplashLoader() {
             className="loader-star-stroke"
             points="60,8 68,32 92,32 74,48 80,72 60,58 40,72 46,48 28,32 52,32"
             fill="none"
-            stroke="#8b5a4a"
+            stroke="var(--color-clay)"
             strokeWidth="1"
           />
           <polygon
@@ -69,7 +69,7 @@ export function SplashLoader() {
             cy="60"
             r="8"
             fill="none"
-            stroke="#8b5a4a"
+            stroke="var(--color-clay)"
             strokeWidth="0.6"
           />
         </svg>

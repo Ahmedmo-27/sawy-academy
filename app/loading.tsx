@@ -14,7 +14,7 @@ export default function Loading() {
             className="loader-star-stroke"
             points="40,6 45,24 62,24 49,36 54,54 40,44 26,54 31,36 18,24 35,24"
             fill="none"
-            stroke="#8b5a4a"
+            stroke="var(--color-clay)"
             strokeWidth="1"
           />
         </svg>

@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
 @theme {
+  /* Warm plaster / paper — keeps the studio material base */
   --color-concrete: #f5f3ef;
   --color-concrete-dark: #ebe8e2;
   --color-charcoal: #1a1a1a;
   --color-charcoal-muted: #404040;
   --color-charcoal-infill: #525252;
-  --color-clay: #8b5a4a;
-  --color-clay-muted: #a67b6e;
+  /* Warm bronze — same earth family as clay, less generic terracotta */
+  --color-clay: #8a6240;
+  --color-clay-muted: #a8845f;
+  --color-clay-deep: #6e4d32;
   --color-hairline: #d4d0c8;
   --color-construction: #c8c4bc;
   --color-construction-muted: #b8b4ac;
@@ -361,7 +364,7 @@
     }
   }
 
-  /* Lobby primary action — entrance landmark */
+  /* Lobby primary action — charcoal structure, bronze accent on hover */
   .cta-entrance {
     @apply relative inline-flex items-center gap-2 font-sans font-medium uppercase text-concrete bg-charcoal box-border max-w-full;
     font-size: 0.6875rem;
