@@ -163,12 +163,12 @@ function PracticeMenu({ pathname }: { pathname: string }) {
               }
             }}
           >
-            <div className="hairline-border bg-concrete/98 min-w-[176px] backdrop-blur-sm">
+            <div className="hairline-border bg-concrete/98 min-w-[13.5rem] backdrop-blur-sm">
               {practiceChildren.map((child, i) => (
                 <div key={child.href} className={i > 0 ? "hairline-t" : ""}>
                   <Link
                     href={child.href}
-                    className={`block px-5 py-3 eyebrow transition-colors duration-200 ${
+                    className={`block whitespace-nowrap px-5 py-3 eyebrow transition-colors duration-200 ${
                       isActive(pathname, child.href)
                         ? "text-clay"
                         : "text-charcoal-infill hover:text-charcoal"
