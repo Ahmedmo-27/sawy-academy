@@ -3,19 +3,84 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useCart } from "@/components/cart/CartProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { Wordmark } from "@/components/Wordmark";
 import { navTransition } from "@/lib/motion";
 
-const links = [
+/**
+ * Primary content navigation. "Practice" groups the professor's output
+ * (Portfolio + Researches) behind a minimal flyout; Courses/Products/Services
+ * stay standalone as distinct commercial offerings. Contact is retained here
+ * for now — see report; it is also present in the Footer.
+ */
+const practiceChildren = [
   { href: "/portfolio", label: "Portfolio" },
   { href: "/researches", label: "Researches" },
+];
+
+const contentLinks = [
   { href: "/courses", label: "Courses" },
   { href: "/products", label: "Products" },
+  { href: "/services", label: "Services" },
   { href: "/contact", label: "Contact" },
 ];
+
+function isActive(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <motion.svg
+      width="9"
+      height="9"
+      viewBox="0 0 10 10"
+      fill="none"
+      aria-hidden="true"
+      className="shrink-0"
+      style={{ transformOrigin: "center" }}
+      initial={false}
+      animate={{ rotate: open ? 180 : 0 }}
+      transition={navTransition}
+    >
+      <path
+        d="M2 3.5 L5 6.5 L8 3.5"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </motion.svg>
+  );
+}
+
+/** Shopping-bag glyph with enough weight to remain legible at nav size. */
+function CartGlyph() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M5.5 8.5 H18.5 L17.5 20 H6.5 Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 8.5 V6.5 A3 3 0 0 1 15 6.5 V8.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 function NavLink({
   href,
@@ -45,124 +110,79 @@ function NavLink({
   );
 }
 
-function MenuIcon({ open }: { open: boolean }) {
-  return (
-    <span
-      className="relative flex h-[18px] w-[22px] flex-col justify-between"
-      aria-hidden="true"
-    >
-      <span
-        className={`block h-[1.5px] w-full rounded-full bg-charcoal transition-transform duration-300 origin-center ${
-          open ? "translate-y-[8.25px] rotate-45" : ""
-        }`}
-      />
-      <span
-        className={`block h-[1.5px] w-full rounded-full bg-charcoal transition-opacity duration-200 ${
-          open ? "opacity-0" : "opacity-100"
-        }`}
-      />
-      <span
-        className={`block h-[1.5px] w-full rounded-full bg-charcoal transition-transform duration-300 origin-center ${
-          open ? "-translate-y-[8.25px] -rotate-45" : ""
-        }`}
-      />
-    </span>
-  );
-}
-
-function MobileNavDrawer({
-  open,
-  onClose,
-  pathname,
-  count,
-  prefersReducedMotion,
-}: {
-  open: boolean;
-  onClose: () => void;
-  pathname: string;
-  count: number;
-  prefersReducedMotion: boolean | null;
-}) {
-  const [mounted, setMounted] = useState(false);
+function PracticeMenu({ pathname }: { pathname: string }) {
+  const [open, setOpen] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const active =
+    isActive(pathname, "/portfolio") || isActive(pathname, "/researches");
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setOpen(false);
+  }, [pathname]);
 
-  if (!mounted) return null;
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        className={`relative eyebrow pb-1 inline-flex items-center gap-1.5 transition-colors duration-200 ${
+          active ? "text-clay" : "text-charcoal-infill hover:text-charcoal"
+        }`}
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        onFocus={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setOpen(false);
+        }}
+      >
+        Practice
+        <Chevron open={open} />
+        <motion.span
+          className="absolute bottom-0 left-0 h-px w-full bg-current origin-left"
+          initial={false}
+          animate={{ scaleX: active || open ? 1 : 0 }}
+          transition={navTransition}
+        />
+      </button>
 
-  return createPortal(
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.button
-            type="button"
-            className="md:hidden fixed inset-0 z-[80] bg-charcoal/30"
-            style={{
-              top: "calc(var(--nav-height) + env(safe-area-inset-top))",
-            }}
-            aria-label="Close menu"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-            onClick={onClose}
-          />
-          <motion.aside
-            id="mobile-nav"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Site navigation"
-            className="md:hidden fixed right-0 z-[90] flex w-[min(17.5rem,100%)] max-w-[calc(100%-1rem)] flex-col border-l border-hairline bg-concrete shadow-[-12px_0_40px_rgba(26,26,26,0.1)]"
-            style={{
-              top: "calc(var(--nav-height) + env(safe-area-inset-top))",
-              bottom: 0,
-              paddingBottom: "env(safe-area-inset-bottom)",
-            }}
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{
-              duration: prefersReducedMotion ? 0 : 0.32,
-              ease: [0.22, 1, 0.36, 1],
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="absolute left-0 top-full pt-3"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={prefersReducedMotion ? { duration: 0 } : navTransition}
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                setOpen(false);
+              }
             }}
           >
-            <ul className="flex flex-1 flex-col overflow-y-auto px-4 py-4">
-              {links.map((link) => {
-                const active =
-                  pathname === link.href ||
-                  pathname.startsWith(`${link.href}/`);
-                return (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className={`eyebrow flex min-h-12 items-center border-b border-hairline/50 transition-colors ${
-                        active ? "text-clay" : "text-charcoal-infill"
-                      }`}
-                      onClick={onClose}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                );
-              })}
-              {count > 0 && (
-                <li>
+            <div className="hairline-border bg-concrete/98 min-w-[13.5rem] backdrop-blur-sm">
+              {practiceChildren.map((child, i) => (
+                <div key={child.href} className={i > 0 ? "hairline-t" : ""}>
                   <Link
-                    href="/products"
-                    className="eyebrow flex min-h-12 items-center text-clay"
-                    onClick={onClose}
+                    href={child.href}
+                    className={`block whitespace-nowrap px-5 py-3 eyebrow transition-colors duration-200 ${
+                      isActive(pathname, child.href)
+                        ? "text-clay"
+                        : "text-charcoal-infill hover:text-charcoal"
+                    }`}
                   >
-                    Cart ({count})
+                    {child.label}
                   </Link>
-                </li>
-              )}
-            </ul>
-          </motion.aside>
-        </>
-      )}
-    </AnimatePresence>,
-    document.body
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -170,8 +190,22 @@ export function Navigation() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [practiceOpen, setPracticeOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const { count } = useCart();
+  const { isAuthenticated, isAdmin, user } = useAuth();
+
+  const accountHref = isAdmin
+    ? "/admin"
+    : isAuthenticated
+      ? "/dashboard/profile"
+      : "/login";
+  const accountLabel = isAdmin
+    ? "Go to admin panel"
+    : isAuthenticated
+      ? user.name?.split(" ")[0] || "Account"
+      : "Login";
+  const cartActive = isActive(pathname, "/cart");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -182,94 +216,179 @@ export function Navigation() {
 
   useEffect(() => {
     setOpen(false);
+    setPracticeOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open]);
-
   return (
-    <>
-      <motion.header
-        className="fixed top-0 left-0 right-0 z-[100] pt-[env(safe-area-inset-top)] isolate"
-        initial={false}
-        animate={{
-          backgroundColor: scrolled || open
-            ? "rgba(245, 243, 239, 0.98)"
-            : "rgba(245, 243, 239, 0)",
-          backdropFilter: scrolled || open ? "blur(12px)" : "blur(0px)",
-        }}
-        transition={prefersReducedMotion ? { duration: 0 } : navTransition}
-      >
-        <nav className="site-container flex h-[var(--nav-height)] items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <Wordmark />
-          </div>
+    <motion.header
+      className="fixed top-0 left-0 right-0 z-50"
+      initial={false}
+      animate={{
+        backgroundColor: scrolled || open
+          ? "rgba(245, 243, 239, 0.94)"
+          : "rgba(245, 243, 239, 0)",
+        backdropFilter: scrolled || open ? "blur(12px)" : "blur(0px)",
+      }}
+      transition={prefersReducedMotion ? { duration: 0 } : navTransition}
+    >
+      <nav className="site-container flex items-center justify-between h-16 lg:h-20">
+        <Wordmark />
 
-          <ul className="hidden md:flex shrink-0 items-center gap-6 lg:gap-10">
-            {links.map((link) => (
+        <div className="hidden md:flex items-center gap-6">
+          <ul className="flex items-center gap-6">
+            <li>
+              <PracticeMenu pathname={pathname} />
+            </li>
+            {contentLinks.map((link) => (
               <li key={link.href}>
                 <NavLink
                   href={link.href}
                   label={link.label}
-                  active={
-                    pathname === link.href ||
-                    pathname.startsWith(`${link.href}/`)
-                  }
+                  active={isActive(pathname, link.href)}
                 />
               </li>
             ))}
-            {count > 0 && (
-              <li>
-                <Link href="/products" className="eyebrow text-clay tabular-nums">
-                  Cart ({count})
-                </Link>
-              </li>
-            )}
           </ul>
 
-          <button
-            type="button"
-            className="md:hidden relative shrink-0 flex items-center justify-center min-h-11 min-w-11 rounded-sm border border-hairline/80 bg-concrete text-charcoal transition-colors duration-200 hover:border-hairline hover:bg-concrete-dark/80"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-            aria-label={open ? "Close menu" : "Open menu"}
-          >
-            <MenuIcon open={open} />
-            {!open && count > 0 && (
-              <span
-                className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-clay px-1 text-[0.5625rem] font-medium leading-none text-concrete tabular-nums"
-                aria-hidden="true"
-              >
-                {count}
-              </span>
-            )}
-          </button>
-        </nav>
-      </motion.header>
+          <span className="h-4 w-px bg-hairline" aria-hidden="true" />
 
-      <MobileNavDrawer
-        open={open}
-        onClose={() => setOpen(false)}
-        pathname={pathname}
-        count={count}
-        prefersReducedMotion={prefersReducedMotion}
-      />
-    </>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/cart"
+              aria-label={
+                count > 0
+                  ? `Cart, ${count} item${count === 1 ? "" : "s"}`
+                  : "Cart"
+              }
+              className={`relative inline-flex items-center transition-colors duration-200 ${
+                cartActive
+                  ? "text-clay"
+                  : "text-charcoal-infill hover:text-charcoal"
+              }`}
+            >
+              <CartGlyph />
+              {count > 0 && (
+                <span className="absolute -top-1.5 -right-2 label-caps text-[9px] leading-none text-clay">
+                  {count}
+                </span>
+              )}
+            </Link>
+
+            <NavLink
+              href={accountHref}
+              label={accountLabel}
+              active={isActive(pathname, accountHref)}
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="md:hidden eyebrow text-charcoal"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls="mobile-nav"
+        >
+          {open ? "Close" : count > 0 ? `Menu (${count})` : "Menu"}
+        </button>
+      </nav>
+
+      {open && (
+        <div
+          id="mobile-nav"
+          className="md:hidden hairline-t bg-concrete/98 px-6 pb-5 pt-3"
+        >
+          <ul className="flex flex-col gap-1">
+            <li>
+              <button
+                type="button"
+                className={`w-full flex items-center justify-between eyebrow py-2 ${
+                  isActive(pathname, "/portfolio") ||
+                  isActive(pathname, "/researches")
+                    ? "text-clay"
+                    : "text-charcoal-infill"
+                }`}
+                aria-expanded={practiceOpen}
+                onClick={() => setPracticeOpen((v) => !v)}
+              >
+                Practice
+                <Chevron open={practiceOpen} />
+              </button>
+              <AnimatePresence initial={false}>
+                {practiceOpen && (
+                  <motion.ul
+                    className="overflow-hidden pl-4"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={
+                      prefersReducedMotion ? { duration: 0 } : navTransition
+                    }
+                  >
+                    {practiceChildren.map((child) => (
+                      <li key={child.href}>
+                        <Link
+                          href={child.href}
+                          className={`eyebrow block py-2 ${
+                            isActive(pathname, child.href)
+                              ? "text-clay"
+                              : "text-charcoal-infill"
+                          }`}
+                        >
+                          {child.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
+            </li>
+
+            {contentLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={`eyebrow block py-2 ${
+                    isActive(pathname, link.href)
+                      ? "text-clay"
+                      : "text-charcoal-infill"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hairline-t mt-4 pt-4 flex items-center justify-between">
+            <Link
+              href="/cart"
+              className={`inline-flex items-center gap-2 eyebrow ${
+                cartActive ? "text-clay" : "text-charcoal-infill"
+              }`}
+              aria-label={
+                count > 0
+                  ? `Cart, ${count} item${count === 1 ? "" : "s"}`
+                  : "Cart"
+              }
+            >
+              <CartGlyph />
+              {count > 0 ? `Cart (${count})` : "Cart"}
+            </Link>
+
+            <Link
+              href={accountHref}
+              className={`eyebrow ${
+                isActive(pathname, accountHref)
+                  ? "text-clay"
+                  : "text-charcoal-infill"
+              }`}
+            >
+              {accountLabel}
+            </Link>
+          </div>
+        </div>
+      )}
+    </motion.header>
   );
 }
