@@ -1,16 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  /* Warm plaster / paper — keeps the studio material base */
   --color-concrete: #f5f3ef;
   --color-concrete-dark: #ebe8e2;
   --color-charcoal: #1a1a1a;
   --color-charcoal-muted: #404040;
   --color-charcoal-infill: #525252;
-  /* Warm bronze — same earth family as clay, less generic terracotta */
-  --color-clay: #8a6240;
-  --color-clay-muted: #a8845f;
-  --color-clay-deep: #6e4d32;
+  --color-clay: #8b5a4a;
+  --color-clay-muted: #a67b6e;
+  /* Muted rust/oxide — distinct from clay, same warm family */
+  --color-error: #6f3a32;
   --color-hairline: #d4d0c8;
   --color-construction: #c8c4bc;
   --color-construction-muted: #b8b4ac;
@@ -46,9 +45,6 @@
   --spacing-section-intimate: 3rem;
   --spacing-section-standard: 5rem;
   --spacing-section-atrium: 8rem;
-  --spacing-section-intimate-mobile: 2rem;
-  --spacing-section-standard-mobile: 3rem;
-  --spacing-section-atrium-mobile: 4rem;
 
   --grid-columns: 12;
   --grid-gap: 1px;
@@ -69,6 +65,12 @@
     overflow-x: hidden;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
   body {
     @apply bg-concrete text-charcoal font-sans antialiased overflow-x-hidden;
     font-feature-settings: "kern" 1, "liga" 1;
@@ -79,6 +81,11 @@
 
   ::selection {
     @apply bg-clay/20 text-charcoal;
+  }
+
+  ::placeholder {
+    color: var(--color-charcoal-infill);
+    opacity: 1;
   }
 
   :focus {
@@ -112,24 +119,6 @@
     section[id] {
       scroll-margin-top: 5.5rem;
     }
-  }
-
-  /* Custom scale scrollbar replaces the native bar on desktop */
-  html.scale-scrollbar-active {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  html.scale-scrollbar-active::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-
-  html.scale-scrollbar-dragging,
-  html.scale-scrollbar-dragging * {
-    cursor: grabbing !important;
-    user-select: none !important;
   }
 }
 
@@ -178,7 +167,6 @@
     @apply font-sans font-medium uppercase text-charcoal-infill;
     font-size: 0.6875rem;
     letter-spacing: 0.22em;
-    overflow-wrap: anywhere;
   }
 
   .label-caps {
@@ -194,35 +182,18 @@
   }
 
   .section-atrium {
-    padding-top: var(--spacing-section-atrium-mobile);
-    padding-bottom: var(--spacing-section-atrium-mobile);
+    padding-top: var(--spacing-section-atrium);
+    padding-bottom: var(--spacing-section-atrium);
   }
 
   .section-standard {
-    padding-top: var(--spacing-section-standard-mobile);
-    padding-bottom: var(--spacing-section-standard-mobile);
+    padding-top: var(--spacing-section-standard);
+    padding-bottom: var(--spacing-section-standard);
   }
 
   .section-intimate {
-    padding-top: var(--spacing-section-intimate-mobile);
-    padding-bottom: var(--spacing-section-intimate-mobile);
-  }
-
-  @media (min-width: 768px) {
-    .section-atrium {
-      padding-top: var(--spacing-section-atrium);
-      padding-bottom: var(--spacing-section-atrium);
-    }
-
-    .section-standard {
-      padding-top: var(--spacing-section-standard);
-      padding-bottom: var(--spacing-section-standard);
-    }
-
-    .section-intimate {
-      padding-top: var(--spacing-section-intimate);
-      padding-bottom: var(--spacing-section-intimate);
-    }
+    padding-top: var(--spacing-section-intimate);
+    padding-bottom: var(--spacing-section-intimate);
   }
 
   .section-compressed {
@@ -289,23 +260,23 @@
   }
 
   .surface-structural {
-    @apply bg-concrete;
+    background-color: var(--color-concrete);
   }
 
   .surface-infill {
-    @apply bg-concrete-dark/60;
+    background-color: color-mix(in srgb, var(--color-concrete-dark) 60%, transparent);
   }
 
   .hairline-border {
-    @apply border border-hairline;
+    border: 1px solid var(--color-hairline);
   }
 
   .hairline-t {
-    @apply border-t border-hairline;
+    border-top: 1px solid var(--color-hairline);
   }
 
   .hairline-b {
-    @apply border-b border-hairline;
+    border-bottom: 1px solid var(--color-hairline);
   }
 
   .nav-blur {
@@ -319,31 +290,17 @@
 
   .bay-grid {
     display: grid;
-    grid-template-columns: repeat(1, minmax(0, 1fr));
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: 1px;
-    @apply bg-hairline;
-  }
-
-  @media (min-width: 640px) {
-    .bay-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .bay-grid {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-    }
+    background-color: var(--color-hairline);
   }
 
   .interactive-card {
     @apply cursor-pointer transition-colors duration-300;
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    .interactive-card:hover .project-overlay {
-      @apply opacity-100;
-    }
+  .interactive-card:hover .project-overlay {
+    @apply opacity-100;
   }
 
   .project-overlay {
@@ -357,14 +314,12 @@
       box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    .elevation-surface:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 14px 40px rgba(26, 26, 26, 0.07);
-    }
+  .elevation-surface:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(26, 26, 26, 0.07);
   }
 
-  /* Lobby primary action — charcoal structure, bronze accent on hover */
+  /* Lobby primary action — entrance landmark */
   .cta-entrance {
     @apply relative inline-flex items-center gap-2 font-sans font-medium uppercase text-concrete bg-charcoal box-border max-w-full;
     font-size: 0.6875rem;
@@ -395,6 +350,210 @@
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+  }
+
+  /* Admin control-room actions — larger hit targets, hairline borders */
+  .admin-btn {
+    @apply inline-flex items-center justify-center gap-2 font-sans font-medium uppercase;
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    min-height: 2.75rem;
+    padding: 0.625rem 1.125rem;
+    border: 1px solid var(--color-hairline);
+    background-color: var(--color-concrete);
+    color: var(--color-charcoal);
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .admin-btn:hover:not(:disabled) {
+    border-color: var(--color-charcoal);
+    background-color: var(--color-concrete-dark);
+  }
+
+  .admin-btn:disabled {
+    color: var(--color-clay-muted);
+    border-color: var(--color-hairline);
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .admin-btn-primary {
+    border-color: var(--color-charcoal);
+    background-color: var(--color-charcoal);
+    color: var(--color-concrete);
+  }
+
+  .admin-btn-primary:hover:not(:disabled) {
+    border-color: var(--color-clay);
+    background-color: var(--color-clay);
+    color: var(--color-concrete);
+  }
+
+  .admin-btn-secondary {
+    border-color: var(--color-hairline);
+    background-color: var(--color-concrete);
+    color: var(--color-charcoal);
+  }
+
+  .admin-btn-danger {
+    border-color: var(--color-error);
+    background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
+    color: var(--color-error);
+  }
+
+  .admin-btn-danger:hover:not(:disabled) {
+    border-color: var(--color-error);
+    background-color: color-mix(in srgb, var(--color-error) 18%, transparent);
+    color: var(--color-error);
+  }
+
+  /* Public destructive text action (logout confirm, etc.) */
+  .action-danger {
+    @apply relative inline-block font-sans font-medium uppercase;
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    padding-bottom: 2px;
+    color: var(--color-error);
+  }
+
+  .action-danger::after {
+    content: "";
+    @apply absolute bottom-0 left-0 h-px w-full origin-left;
+    background-color: var(--color-error);
+    transform: scaleX(0);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .action-danger:hover::after {
+    transform: scaleX(1);
+  }
+
+  .action-danger:disabled {
+    color: var(--color-clay-muted);
+    cursor: not-allowed;
+  }
+
+  .action-danger:disabled::after {
+    transform: none;
+  }
+
+  /* Toast stack — transient action feedback */
+  .toast-viewport {
+    @apply pointer-events-none fixed z-[60] flex flex-col gap-2;
+    bottom: 1.25rem;
+    left: 1rem;
+    right: 1rem;
+    align-items: stretch;
+  }
+
+  @media (min-width: 640px) {
+    .toast-viewport {
+      left: auto;
+      right: 1.25rem;
+      width: min(22rem, calc(100vw - 2.5rem));
+      align-items: stretch;
+    }
+  }
+
+  .toast-item {
+    @apply pointer-events-auto flex items-start gap-3 px-4 py-3;
+    border: 1px solid var(--color-hairline);
+    background-color: var(--color-concrete);
+    transform: translateY(0.5rem);
+    opacity: 0;
+    transition:
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.28s ease;
+  }
+
+  .toast-item[data-visible="true"] {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .toast-item[data-type="success"] {
+    border-color: color-mix(in srgb, var(--color-clay) 55%, var(--color-hairline));
+    background-color: var(--color-concrete);
+  }
+
+  .toast-item[data-type="success"] .toast-message {
+    color: var(--color-clay);
+  }
+
+  .toast-item[data-type="error"] {
+    border-color: color-mix(in srgb, var(--color-error) 55%, var(--color-hairline));
+    background-color: var(--color-concrete-dark);
+  }
+
+  .toast-item[data-type="error"] .toast-message {
+    color: var(--color-error);
+  }
+
+  .toast-item[data-type="neutral"] {
+    border-color: var(--color-hairline);
+    background-color: var(--color-concrete-dark);
+  }
+
+  .toast-item[data-type="neutral"] .toast-message {
+    color: var(--color-charcoal-infill);
+  }
+
+  .toast-dismiss {
+    @apply shrink-0 font-sans text-charcoal-infill;
+    font-size: 0.875rem;
+    line-height: 1;
+    padding: 0.125rem 0.25rem;
+  }
+
+  .toast-dismiss:hover {
+    color: var(--color-charcoal);
+  }
+
+  .admin-btn-compact {
+    min-height: 2.25rem;
+    padding: 0.5rem 0.875rem;
+  }
+
+  /*
+   * Admin control room — readable type scale.
+   * Public marketing pages keep the tighter architectural caps.
+   */
+  .admin-shell {
+    --text-infill: 0.9375rem;
+  }
+
+  .admin-shell .eyebrow {
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+  }
+
+  .admin-shell .label-caps {
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+  }
+
+  .admin-shell .dim-label {
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
+  }
+
+  .admin-shell .type-infill {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .admin-shell .admin-btn {
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
+  }
+
+  .admin-shell .admin-table-cell {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--color-charcoal-muted);
   }
 
   /* Room void — deliberate negative space in asymmetric layouts */
@@ -429,7 +588,18 @@
 .loader-pulse { animation: loader-pulse 1.6s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .loader-star { animation: none !important; }
+  .loader-star,
+  .loader-star-stroke,
+  .loader-star-stroke-delay,
+  .loader-star-stroke-delay-2,
+  .loader-pulse {
+    animation: none !important;
+  }
+
+  .loader-pulse {
+    opacity: 1 !important;
+  }
+
   .project-overlay { @apply opacity-100; }
 
   .elevation-surface:hover {
@@ -440,5 +610,17 @@
   .cta-entrance:hover {
     transform: none;
     box-shadow: none;
+  }
+
+  .toast-item {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+
+  .action-danger::after,
+  .action-secondary::after,
+  .action-primary::after {
+    transition: none !important;
   }
 }

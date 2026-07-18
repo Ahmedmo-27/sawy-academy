@@ -204,3 +204,79 @@ export interface DashboardMetric {
   href: string;
   sheetRef: string;
 }
+
+export interface BrandingSettings {
+  name: string;
+  wordmark: string;
+  wordmarkSuffix?: string;
+  professor: string;
+  professorTitle: string;
+  role: string;
+  institution: string;
+  affiliation?: string;
+  tagline: string;
+  email: string;
+  phone: string;
+  mobile?: string;
+  address: {
+    line1: string;
+    line2: string;
+    governorate?: string;
+    country: string;
+    postal?: string;
+  };
+  officeHours?: string;
+  established?: string;
+  footerBlurb?: string;
+}
+
+export interface SeoSettings {
+  title: string;
+  description: string;
+}
+
+export interface NavLinkItem {
+  id: string;
+  label: string;
+  href: string;
+  children?: NavLinkItem[];
+}
+
+export interface PageHeaderContent {
+  eyebrow: string;
+  title: string;
+  description: string;
+}
+
+export interface SiteSettings extends TimestampedRecord {
+  key?: string;
+  branding: BrandingSettings;
+  seo: SeoSettings;
+  navigation: { items: NavLinkItem[] };
+  footer: { links: NavLinkItem[] };
+  pageHeaders: Record<string, PageHeaderContent>;
+  contactPage: { intro: string };
+}
+
+export type HomeSectionType =
+  | "hero"
+  | "philosophy"
+  | "portfolio"
+  | "courses"
+  | "products"
+  | "research"
+  | "contact"
+  | "custom";
+
+export interface HomeSection {
+  id: string;
+  type: HomeSectionType;
+  enabled: boolean;
+  order: number;
+  content: Record<string, unknown>;
+}
+
+export interface HomePageConfig extends TimestampedRecord {
+  key?: string;
+  sections: HomeSection[];
+}

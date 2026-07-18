@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PaymentScreenshotField } from "@/components/cart/PaymentScreenshotField";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useCart } from "@/components/cart/CartProvider";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { createOrder } from "@/lib/api/orders";
@@ -86,7 +86,7 @@ export function CheckoutForm() {
 
       <div className="hairline-b pb-6 mb-6">
         <p className="label-caps mb-2">Project</p>
-        <p className="type-title">Checkout</p>
+        <h2 className="type-title">Checkout</h2>
       </div>
 
       <div className="grid grid-cols-2 gap-6 hairline-b py-6 mb-6">
@@ -110,10 +110,17 @@ export function CheckoutForm() {
               amount manually — no card gateway on this sheet.
             </p>
           </div>
-          <PaymentScreenshotField
+          <ImageUploadField
             label="InstaPay Screenshot"
+            description="Upload a clear screenshot of your InstaPay payment confirmation. Image files only."
             value={screenshotUrl}
             onChange={setScreenshotUrl}
+            required
+            error={
+              error === "Upload an InstaPay payment screenshot to continue."
+                ? error
+                : undefined
+            }
           />
         </div>
 

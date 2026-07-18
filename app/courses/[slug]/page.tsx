@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
 import { CourseMaterials } from "@/components/courses/CourseMaterials";
 import { CourseSheetIndex } from "@/components/courses/CourseSheetIndex";
+import { DiplomaCourseDetail } from "@/components/courses/DiplomaCourseDetail";
 import { EnrollButton } from "@/components/courses/EnrollButton";
+import { LeveledCourseDetail } from "@/components/courses/LeveledCourseDetail";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { SectionCutDivider } from "@/components/decorative/SectionCutDivider";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
@@ -10,7 +12,14 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import { getAllCourses, getCourseBySlug } from "@/lib/data/courses";
+import {
+  getAllCourses,
+  getCourseBySlug,
+  getCourseGroupBySlug,
+  courseGroups,
+  type Course,
+  type CourseGroup,
+} from "@/lib/data/courses";
 import { parseLevelProgress } from "@/lib/motion";
 
 interface CourseDetailPageProps {
@@ -18,11 +27,20 @@ interface CourseDetailPageProps {
 }
 
 export function generateStaticParams() {
-  return getAllCourses().map((course) => ({ slug: course.slug }));
+  const courseParams = getAllCourses().map((course) => ({ slug: course.slug }));
+  const groupParams = courseGroups.map((group) => ({ slug: group.slug }));
+  return [...groupParams, ...courseParams];
 }
 
 export async function generateMetadata({ params }: CourseDetailPageProps) {
   const { slug } = await params;
+  const group = getCourseGroupBySlug(slug);
+  if (group) {
+    return {
+      title: `${group.title} — Sawy Academy`,
+      description: group.subtitle,
+    };
+  }
   const course = getCourseBySlug(slug);
   if (!course) return { title: "Course" };
   return {
@@ -31,13 +49,56 @@ export async function generateMetadata({ params }: CourseDetailPageProps) {
   };
 }
 
-export default async function CourseDetailPage({
-  params,
-}: CourseDetailPageProps) {
-  const { slug } = await params;
-  const course = getCourseBySlug(slug);
-  if (!course) notFound();
+function groupHeaderMeta(group: CourseGroup): {
+  eyebrow: string;
+  description: string;
+} {
+  const instructor = group.courses[0]?.instructor;
+  const instructorBit = instructor ? `${instructor}. ` : "";
 
+  if (group.type === "diploma") {
+    const priceBit = group.bundlePrice ? ` · ${group.bundlePrice}` : "";
+    return {
+      eyebrow: `Diploma · ${String(group.courses.length).padStart(2, "0")} sheets${priceBit}`,
+      description: `${instructorBit}${group.subtitle}`,
+    };
+  }
+
+  return {
+    eyebrow: `Leveled programme · ${String(group.courses.length).padStart(2, "0")} levels`,
+    description: `${instructorBit}${group.subtitle}`,
+  };
+}
+
+function GroupCourseDetail({ group }: { group: CourseGroup }) {
+  const meta = groupHeaderMeta(group);
+
+  return (
+    <>
+      <PageHeader
+        eyebrow={meta.eyebrow}
+        title={group.title}
+        description={meta.description}
+      />
+
+      <ThresholdDoorway
+        label={group.type === "diploma" ? "DRAWING SET" : "LEVEL SEQUENCE"}
+      />
+
+      <Section rhythm="standard" contained={false}>
+        <PageContainer>
+          {group.type === "diploma" ? (
+            <DiplomaCourseDetail group={group} />
+          ) : (
+            <LeveledCourseDetail group={group} />
+          )}
+        </PageContainer>
+      </Section>
+    </>
+  );
+}
+
+function StandaloneCourseDetail({ course }: { course: Course }) {
   return (
     <>
       <PageHeader
@@ -63,6 +124,7 @@ export default async function CourseDetailPage({
               id={course.id}
               name={course.title}
               price={course.price}
+              category={course.level}
               label="Enroll in course"
             />
           </div>
@@ -97,4 +159,20 @@ export default async function CourseDetailPage({
       </Section>
     </>
   );
+}
+
+export default async function CourseDetailPage({
+  params,
+}: CourseDetailPageProps) {
+  const { slug } = await params;
+
+  const group = getCourseGroupBySlug(slug);
+  if (group) {
+    return <GroupCourseDetail group={group} />;
+  }
+
+  const course = getCourseBySlug(slug);
+  if (!course) notFound();
+
+  return <StandaloneCourseDetail course={course} />;
 }

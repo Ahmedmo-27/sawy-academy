@@ -1,15 +1,11 @@
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { PortfolioStudio } from "@/components/portfolio/PortfolioStudio";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 
 export default function PortfolioPage() {
   return (
     <>
-      <PageHeader
-        eyebrow="Work"
-        title="Portfolio"
-        description="Built work, interiors, furniture, and competition entries spanning fifteen years of practice and research."
-      />
+      <CmsPageHeader pageKey="portfolio" />
 
       <ThresholdDoorway label="PROJECT INDEX" />
 

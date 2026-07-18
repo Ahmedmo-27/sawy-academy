@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
+import { useEffect, useState } from "react";
+import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { Reveal } from "@/components/Reveal";
 import { EnrollButton } from "@/components/courses/EnrollButton";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
@@ -10,14 +11,26 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import { courseGroups } from "@/lib/data/courses";
+import { listCourseGroups } from "@/lib/api/courseGroups";
+import type { Course, CourseGroup } from "@/lib/api/types";
 import { parseLevelProgress } from "@/lib/motion";
+import { toSlug } from "@/lib/slug";
+
+function asCourses(group: CourseGroup): Course[] {
+  return (group.courses ?? []).filter(
+    (item): item is Course => typeof item === "object" && item !== null
+  );
+}
+
+function groupSlug(group: CourseGroup) {
+  return group.slug || toSlug(group.title);
+}
 
 function CourseListing({
   courses,
   numbered,
 }: {
-  courses: (typeof courseGroups)[number]["courses"];
+  courses: Course[];
   numbered?: boolean;
 }) {
   return (
@@ -36,7 +49,7 @@ function CourseListing({
                 </span>
               </div>
             )}
-            <div className={numbered ? "lg:col-span-7" : "lg:col-span-7"}>
+            <div className="lg:col-span-7">
               <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
               <h3 className="type-title mb-2">
                 <Link
@@ -51,10 +64,10 @@ function CourseListing({
                 href={`/courses/${course.slug}`}
                 className="action-secondary mt-4 inline-block"
               >
-                Open drawing set
+                Open course details
               </Link>
             </div>
-            <div className="lg:col-span-4 flex flex-row flex-wrap items-center justify-between gap-3 sm:flex-col sm:items-start lg:items-end lg:flex-col">
+            <div className="lg:col-span-4 flex flex-col lg:items-end gap-3">
               <span className="label-caps">{course.level}</span>
               <LevelProgressLine
                 progress={parseLevelProgress(course.level)}
@@ -71,98 +84,148 @@ function CourseListing({
 }
 
 export default function CoursesPage() {
+  const [courseGroups, setCourseGroups] = useState<CourseGroup[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    listCourseGroups()
+      .then((data) => {
+        if (!cancelled) setCourseGroups(data);
+      })
+      .catch(() => {
+        if (!cancelled) setCourseGroups([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <>
-      <PageHeader
-        eyebrow="Education"
-        title="Courses"
-        description="Two programme types — a multi-course Architecture Diploma and the leveled Biogeometry course."
-      />
+      <CmsPageHeader pageKey="courses" />
 
       <ThresholdDoorway label="CURRICULUM" />
 
       <Section rhythm="standard" contained={false}>
         <PageContainer className="space-y-16 lg:space-y-24">
-          {courseGroups.map((group, groupIndex) => (
-            <div key={group.title}>
-              {groupIndex > 0 && (
-                <ThresholdDoorway
-                  label={
-                    group.type === "leveled" ? "LEVEL PROGRESSION" : "DIPLOMA"
-                  }
-                  className="mb-12"
-                />
-              )}
+          {loading && <p className="type-body">Loading curriculum…</p>}
+          {!loading &&
+            courseGroups.map((group, groupIndex) => {
+              const slug = groupSlug(group);
+              const courses = asCourses(group);
+              return (
+                <div key={group._id ?? group.id ?? slug}>
+                  {groupIndex > 0 && (
+                    <ThresholdDoorway
+                      label={
+                        group.type === "leveled"
+                          ? "LEVEL PROGRESSION"
+                          : "DIPLOMA"
+                      }
+                      className="mb-12"
+                    />
+                  )}
 
-              <Reveal variant="structural">
-                <div className="mb-8">
-                  <p className="eyebrow mb-2">{group.subtitle}</p>
-                  <h2 className="type-heading">{group.title}</h2>
-                </div>
-              </Reveal>
+                  <Reveal variant="structural">
+                    <div className="mb-8">
+                      <p className="eyebrow mb-2">{group.subtitle}</p>
+                      <h2 className="type-heading">
+                        <Link
+                          href={`/courses/${slug}`}
+                          className="hover:text-clay transition-colors duration-200"
+                        >
+                          {group.title}
+                        </Link>
+                      </h2>
+                      <Link
+                        href={`/courses/${slug}`}
+                        className="action-primary mt-5 inline-block"
+                      >
+                        Open course details
+                      </Link>
+                    </div>
+                  </Reveal>
 
-              <Reveal variant="structural" delay={80}>
-                <ThresholdFrame
-                  label={
-                    group.type === "diploma"
-                      ? "Bay 03 — Diploma Programme"
-                      : "Bay 04 — Leveled Course"
-                  }
-                >
-                  <div
-                    className={`hairline-border p-6 lg:p-10 mt-4 ${
-                      group.type === "diploma" ? "section-intimate" : ""
-                    }`}
-                  >
-                    {group.type === "diploma" && group.bundlePrice && (
-                      <div className="flex flex-col gap-6 mb-10 hairline-b pb-10 sm:grid sm:grid-cols-2 lg:flex lg:flex-row lg:items-start lg:justify-between">
-                        <div className="sm:col-span-2 lg:col-auto">
-                          <p className="label-caps mb-2">Diploma Programme</p>
-                          <p className="type-infill max-w-md leading-relaxed">
-                            Enroll in the full Architecture Diploma to access
-                            all core courses. Includes studio access and
-                            critique sessions.
-                          </p>
-                          <LevelProgressLine progress={1} className="mt-4" />
-                        </div>
-                        <p className="type-display text-clay lg:whitespace-nowrap">
-                          {group.bundlePrice}
-                        </p>
-                        <EnrollButton
-                          id="diploma-architecture"
-                          name={group.title}
-                          price={group.bundlePrice}
-                          kind="diploma"
-                          label="Enroll in Diploma"
-                          className="action-primary w-full sm:w-auto sm:col-span-2 lg:col-auto lg:mt-2 disabled:text-clay-muted disabled:cursor-not-allowed text-center sm:text-left"
+                  <Reveal variant="structural" delay={80}>
+                    <ThresholdFrame
+                      label={
+                        group.type === "diploma"
+                          ? "Bay 03 — Diploma Programme"
+                          : "Bay 04 — Leveled Course"
+                      }
+                    >
+                      <div
+                        className={`hairline-border p-6 lg:p-10 mt-4 ${
+                          group.type === "diploma" ? "section-intimate" : ""
+                        }`}
+                      >
+                        {group.type === "diploma" && group.bundlePrice && (
+                          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-10 hairline-b pb-10">
+                            <div>
+                              <p className="label-caps mb-2">
+                                Diploma Programme
+                              </p>
+                              <p className="type-infill max-w-md leading-relaxed">
+                                Enroll in the full Architecture Diploma to access
+                                all core courses. Includes studio access and
+                                critique sessions.
+                              </p>
+                              <LevelProgressLine progress={1} className="mt-4" />
+                            </div>
+                            <p className="type-display text-clay whitespace-nowrap">
+                              {group.bundlePrice}
+                            </p>
+                            <EnrollButton
+                              id={`diploma-${slug}`}
+                              name={group.title}
+                              price={group.bundlePrice}
+                              kind="diploma"
+                              label="Enroll in Diploma"
+                              className="action-primary lg:mt-2 disabled:text-clay-muted disabled:cursor-not-allowed"
+                            />
+                          </div>
+                        )}
+
+                        {group.type === "leveled" && (
+                          <div className="mb-10 hairline-b pb-10 section-compressed">
+                            <p className="label-caps mb-2">
+                              Three-Level Progression
+                            </p>
+                            <p className="type-infill max-w-md leading-relaxed">
+                              Biogeometry is taken level by level. Each level
+                              builds on the previous.
+                            </p>
+                            <div className="flex gap-2 mt-4 max-w-xs">
+                              <LevelProgressLine
+                                progress={0.33}
+                                className="flex-1"
+                              />
+                              <LevelProgressLine
+                                progress={0.66}
+                                className="flex-1"
+                              />
+                              <LevelProgressLine
+                                progress={1}
+                                className="flex-1"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <CourseListing
+                          courses={courses}
+                          numbered={group.type === "diploma"}
                         />
                       </div>
-                    )}
-
-                    {group.type === "leveled" && (
-                      <div className="mb-10 hairline-b pb-10 section-compressed">
-                        <p className="label-caps mb-2">Three-Level Progression</p>
-                        <p className="type-infill max-w-md leading-relaxed">
-                          Biogeometry is taken level by level. Each level builds
-                          on the previous.
-                        </p>
-                        <div className="flex gap-2 mt-4 max-w-xs">
-                          <LevelProgressLine progress={0.33} className="flex-1" />
-                          <LevelProgressLine progress={0.66} className="flex-1" />
-                          <LevelProgressLine progress={1} className="flex-1" />
-                        </div>
-                      </div>
-                    )}
-
-                    <CourseListing
-                      courses={group.courses}
-                      numbered={group.type === "diploma"}
-                    />
-                  </div>
-                </ThresholdFrame>
-              </Reveal>
-            </div>
-          ))}
+                    </ThresholdFrame>
+                  </Reveal>
+                </div>
+              );
+            })}
         </PageContainer>
       </Section>
     </>

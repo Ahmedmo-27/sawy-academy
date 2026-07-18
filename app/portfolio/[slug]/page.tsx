@@ -1,3 +1,6 @@
+"use client";
+
+import { use, useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import { BlueprintMorphImage } from "@/components/animation/BlueprintMorphImage";
 import { GridColumns } from "@/components/decorative/GridColumns";
@@ -7,41 +10,52 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import {
-  getProjectBySlug,
-  portfolioProjects,
-} from "@/lib/data/portfolio";
+import { getProject } from "@/lib/api/portfolio";
+import type { Project } from "@/lib/api/types";
 
 interface ProjectDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return portfolioProjects.map((project) => ({ slug: project.slug }));
-}
+export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+  const { slug } = use(params);
+  const [project, setProject] = useState<Project | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "missing">(
+    "loading"
+  );
 
-export async function generateMetadata({ params }: ProjectDetailPageProps) {
-  const { slug } = await params;
-  const project = getProjectBySlug(slug);
-  if (!project) return { title: "Project" };
-  return {
-    title: `${project.title} — Sawy Academy`,
-    description: `${project.category} · ${project.year} · ${project.sheetRef}`,
-  };
-}
+  useEffect(() => {
+    let cancelled = false;
+    getProject(slug)
+      .then((data) => {
+        if (cancelled) return;
+        setProject(data);
+        setStatus("ready");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setStatus("missing");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
 
-export default async function ProjectDetailPage({
-  params,
-}: ProjectDetailPageProps) {
-  const { slug } = await params;
-  const project = getProjectBySlug(slug);
-  if (!project) notFound();
+  if (status === "missing") notFound();
+
+  if (status === "loading" || !project) {
+    return (
+      <PageContainer className="pt-32 pb-20">
+        <p className="label-caps text-charcoal-infill">Loading project…</p>
+      </PageContainer>
+    );
+  }
 
   return (
     <>
       <header className="relative overflow-hidden">
         <GridColumns />
-        <PageContainer className="relative z-10 pt-20 sm:pt-24 lg:pt-32 pb-0">
+        <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-0">
           <p className="eyebrow mb-3">Portfolio · {project.sheetRef}</p>
           <h1 className="type-display max-w-4xl mb-8">{project.title}</h1>
 
@@ -59,7 +73,7 @@ export default async function ProjectDetailPage({
         </PageContainer>
       </header>
 
-      <ThresholdDoorway label={project.sheetRef} />
+      <ThresholdDoorway label={project.sheetRef || project.slug} />
 
       <Section rhythm="standard" contained={false}>
         <PageContainer>

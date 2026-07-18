@@ -1,18 +1,14 @@
 import { CheckoutForm } from "@/components/cart/CheckoutForm";
+import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { Reveal } from "@/components/Reveal";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import { PageHeader } from "@/components/PageHeader";
 
 export default function CheckoutPage() {
   return (
     <>
-      <PageHeader
-        eyebrow="Settlement"
-        title="Checkout"
-        description="Confirm the order total and upload InstaPay proof for studio verification."
-      />
+      <CmsPageHeader pageKey="checkout" />
 
       <ThresholdDoorway label="PAYMENT THRESHOLD" />
 

@@ -1,18 +1,14 @@
 import { Reveal } from "@/components/Reveal";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import { PageHeader } from "@/components/PageHeader";
 
 export default function LoginPage() {
   return (
     <>
-      <PageHeader
-        eyebrow="Access"
-        title="Login"
-        description="Sign in to the studio register with your academy credentials."
-      />
+      <CmsPageHeader pageKey="login" />
 
       <ThresholdDoorway label="ACCESS THRESHOLD" />
 

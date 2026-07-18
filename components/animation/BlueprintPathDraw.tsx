@@ -68,7 +68,7 @@ export function BlueprintPathDraw({
       aria-hidden="true"
     >
       <path className="bp-draw" d="M0 16 H400" stroke="#d4d0c8" strokeWidth="0.75" />
-      <path className="bp-draw" d="M40 8 V24 M360 8 V24" stroke="var(--color-clay)" strokeWidth="0.5" opacity="0.6" />
+      <path className="bp-draw" d="M40 8 V24 M360 8 V24" stroke="#8b5a4a" strokeWidth="0.5" opacity="0.6" />
       {variant === "section" && (
         <>
           <path className="bp-draw" d="M80 16 L95 10 L110 16 L95 22 Z" stroke="var(--color-construction)" strokeWidth="0.5" />

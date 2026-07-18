@@ -1,15 +1,48 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ProductCard } from "@/components/products/ProductCard";
-import { products } from "@/lib/data/products";
+import { listProducts } from "@/lib/api/products";
+import type { Product } from "@/lib/api/types";
 
 interface CourseMaterialsProps {
   relatedProductIds: string[];
 }
 
+function useRelatedProducts(relatedProductIds: string[]) {
+  const [materials, setMaterials] = useState<Product[]>([]);
+  const idsKey = relatedProductIds.join(",");
+
+  useEffect(() => {
+    const ids = idsKey ? idsKey.split(",") : [];
+    if (ids.length === 0) {
+      setMaterials([]);
+      return;
+    }
+
+    let cancelled = false;
+    listProducts()
+      .then((products) => {
+        if (cancelled) return;
+        setMaterials(products.filter((p) => ids.includes(p.id)));
+      })
+      .catch(() => {
+        if (!cancelled) setMaterials([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [idsKey]);
+
+  return materials;
+}
+
 export function CourseMaterials({ relatedProductIds }: CourseMaterialsProps) {
-  const materials = products.filter((p) => relatedProductIds.includes(p.id));
+  const materials = useRelatedProducts(relatedProductIds);
   if (materials.length === 0) return null;
 
   return (
@@ -17,7 +50,7 @@ export function CourseMaterials({ relatedProductIds }: CourseMaterialsProps) {
       {materials.map((product) => (
         <div
           key={product.id}
-          className="col-span-full sm:col-span-1 lg:col-span-3 bg-concrete"
+          className="col-span-12 sm:col-span-6 lg:col-span-3 bg-concrete"
         >
           <ProductCard
             id={product.id}
@@ -40,12 +73,12 @@ interface SpecifiedMaterialsStripProps {
 export function SpecifiedMaterialsStrip({
   relatedProductIds,
 }: SpecifiedMaterialsStripProps) {
-  const materials = products.filter((p) => relatedProductIds.includes(p.id));
+  const materials = useRelatedProducts(relatedProductIds);
   if (materials.length === 0) return null;
 
   return (
     <div>
-      <p className="label-caps mb-4 text-charcoal-infill/70">
+      <p className="label-caps mb-4 text-charcoal-infill">
         Specified materials
       </p>
       <div className="flex flex-wrap gap-4">

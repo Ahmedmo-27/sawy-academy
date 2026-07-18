@@ -1,15 +1,11 @@
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { ServicesRequestStudio } from "@/components/services/ServicesRequestStudio";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 
 export default function ServicesPage() {
   return (
     <>
-      <PageHeader
-        eyebrow="Practice"
-        title="Services"
-        description="Commission design work or propose research collaboration — each request opens as a new project sheet."
-      />
+      <CmsPageHeader pageKey="services" />
 
       <ThresholdDoorway label="SERVICE REQUEST" />
 

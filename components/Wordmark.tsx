@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { BRAND } from "@/lib/branding";
+import { useSiteSettings } from "@/components/cms/SiteContentProvider";
 
 interface WordmarkProps {
   linked?: boolean;
@@ -7,32 +9,32 @@ interface WordmarkProps {
 }
 
 export function Wordmark({ linked = true, size = "md" }: WordmarkProps) {
+  const { branding } = useSiteSettings();
+  const suffix = branding.wordmarkSuffix || "Academy";
+
   const content = (
-    <span className="inline-flex min-w-0 max-w-full items-center gap-2 sm:gap-3">
+    <span className="inline-flex items-center gap-2.5 sm:gap-3 whitespace-nowrap">
       <span
-        className={`shrink-0 font-sans font-medium uppercase tracking-[0.16em] sm:tracking-[0.2em] md:tracking-[0.28em] text-charcoal ${
-          size === "sm" ? "text-[0.65rem] sm:text-xs" : "text-[0.7rem] sm:text-xs md:text-sm"
+        className={`font-sans font-medium uppercase tracking-[0.28em] text-charcoal ${
+          size === "sm" ? "text-xs" : "text-sm"
         }`}
       >
-        {BRAND.wordmark}
+        {branding.wordmark}
       </span>
+      <span className="h-4 w-px bg-charcoal/30" aria-hidden="true" />
       <span
-        className="h-3.5 w-px shrink-0 bg-charcoal/30 sm:h-4"
-        aria-hidden="true"
-      />
-      <span
-        className={`min-w-0 truncate font-serif font-light tracking-wide text-charcoal-muted ${
-          size === "sm" ? "text-sm" : "text-sm sm:text-base"
+        className={`font-serif font-light tracking-wide text-charcoal-muted ${
+          size === "sm" ? "text-sm" : "text-base"
         }`}
       >
-        Academy
+        {suffix}
       </span>
     </span>
   );
 
   if (linked) {
     return (
-      <Link href="/" className="group cursor-pointer">
+      <Link href="/" className="group inline-flex shrink-0 cursor-pointer">
         {content}
       </Link>
     );

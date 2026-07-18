@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useId, useState } from "react";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiClientError } from "@/lib/api/client";
@@ -13,6 +13,7 @@ const MIN_PASSWORD_LENGTH = 8;
 export function SignupForm() {
   const router = useRouter();
   const { signup } = useAuth();
+  const formErrorId = useId();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +22,8 @@ export function SignupForm() {
   const [fieldError, setFieldError] = useState("");
   const [authError, setAuthError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const errorMessage = authError || fieldError;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -87,12 +90,12 @@ export function SignupForm() {
 
       <div className="hairline-b pb-6 mb-6">
         <p className="eyebrow mb-3">Sawy Academy — Access</p>
-        <h1 className="type-heading">Sign Up</h1>
+        <p className="type-heading">Sign Up</p>
       </div>
 
-      {(authError || fieldError) && (
-        <p className="type-body text-clay mb-6" role="alert">
-          {authError || fieldError}
+      {errorMessage && (
+        <p id={formErrorId} className="type-body text-clay mb-6" role="alert">
+          {errorMessage}
         </p>
       )}
 
@@ -100,6 +103,7 @@ export function SignupForm() {
         <div>
           <label htmlFor="signup-name" className="label-caps block mb-2">
             Name
+            <span className="text-clay"> *</span>
           </label>
           <input
             type="text"
@@ -107,6 +111,9 @@ export function SignupForm() {
             name="name"
             autoComplete="name"
             required
+            aria-required="true"
+            aria-invalid={Boolean(errorMessage)}
+            aria-describedby={errorMessage ? formErrorId : undefined}
             value={name}
             onChange={(event) => setName(event.target.value)}
             className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
@@ -117,6 +124,7 @@ export function SignupForm() {
         <div>
           <label htmlFor="signup-email" className="label-caps block mb-2">
             Email
+            <span className="text-clay"> *</span>
           </label>
           <input
             type="email"
@@ -124,6 +132,9 @@ export function SignupForm() {
             name="email"
             autoComplete="email"
             required
+            aria-required="true"
+            aria-invalid={Boolean(errorMessage)}
+            aria-describedby={errorMessage ? formErrorId : undefined}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
@@ -135,6 +146,7 @@ export function SignupForm() {
           <div className="flex items-baseline justify-between mb-2">
             <label htmlFor="signup-password" className="label-caps">
               Password
+              <span className="text-clay"> *</span>
             </label>
             <button
               type="button"
@@ -150,6 +162,9 @@ export function SignupForm() {
             name="password"
             autoComplete="new-password"
             required
+            aria-required="true"
+            aria-invalid={Boolean(errorMessage)}
+            aria-describedby={errorMessage ? formErrorId : undefined}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
@@ -160,6 +175,7 @@ export function SignupForm() {
         <div>
           <label htmlFor="signup-confirm" className="label-caps block mb-2">
             Confirm Password
+            <span className="text-clay"> *</span>
           </label>
           <input
             type={showPassword ? "text" : "password"}
@@ -167,6 +183,9 @@ export function SignupForm() {
             name="confirmPassword"
             autoComplete="new-password"
             required
+            aria-required="true"
+            aria-invalid={Boolean(errorMessage)}
+            aria-describedby={errorMessage ? formErrorId : undefined}
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"

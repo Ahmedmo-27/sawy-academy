@@ -1,13 +1,7 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/components/auth/AuthProvider";
-import { CartProvider } from "@/components/cart/CartProvider";
-import { ToastProvider } from "@/components/feedback/ToastProvider";
-import { Navigation } from "@/components/Navigation";
-import { Footer } from "@/components/Footer";
-import { SplashLoader } from "@/components/SplashLoader";
-import { ScrollAnimationShell } from "@/components/animation/ScrollAnimationShell";
+import { SiteShell } from "@/components/layout/SiteShell";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -24,13 +18,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Sawy Academy — Mohamed El Sawy",
   description:
-    "Architecture portfolio, academic courses, and studio resources by Prof. Mohamed El Sawy, Vice Dean of the Faculty of Engineering at Misr International University (MIU), Cairo.",
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  viewportFit: "cover",
+    "Architecture portfolio, academic courses, and studio resources by Prof. Mohamed El Sawy, Cairo.",
 };
 
 export default function RootLayout({
@@ -39,22 +27,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${inter.variable}`}>
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${inter.variable}`}
+      data-scroll-behavior="smooth"
+    >
       <body className="min-h-screen flex flex-col">
-        <AuthProvider>
-          <ToastProvider>
-            <CartProvider>
-              <SplashLoader />
-              <ScrollAnimationShell>
-                <Navigation />
-                <main id="main-content" className="flex-1 relative">
-                  {children}
-                </main>
-                <Footer />
-              </ScrollAnimationShell>
-            </CartProvider>
-          </ToastProvider>
-        </AuthProvider>
+        <SiteShell>{children}</SiteShell>
       </body>
     </html>
   );
