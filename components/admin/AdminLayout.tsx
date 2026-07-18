@@ -264,8 +264,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex lg:min-h-screen lg:w-full lg:flex-col lg:border-r lg:border-hairline bg-concrete-dark/70">
+        {/* flex-1 fills the tall aside so the nav below has sticky runway;
+            do not put sticky on this wrapper — nested sticky ancestors block the list. */}
         <div
-          className={`sticky top-0 w-full min-w-0 ${
+          className={`flex w-full min-w-0 flex-1 flex-col ${
             collapsed ? "p-3" : "p-6"
           }`}
         >
@@ -300,9 +302,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
           <nav
             aria-label="Admin sections"
-            className={`w-full min-w-0 ${collapsed ? "mt-4" : "mt-8"}`}
+            className={`w-full min-w-0 flex-1 ${collapsed ? "mt-4" : "mt-8"}`}
           >
-            <NavLinks collapsed={collapsed} />
+            <div className="sticky top-0 z-10 w-full min-w-0 bg-concrete-dark/70 py-1">
+              <NavLinks collapsed={collapsed} />
+            </div>
           </nav>
 
           <div
