@@ -264,11 +264,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex lg:min-h-screen lg:w-full lg:flex-col lg:border-r lg:border-hairline bg-concrete-dark/70">
-        <div
-          className={`sticky top-0 w-full min-w-0 ${
-            collapsed ? "p-3" : "p-6"
-          }`}
-        >
+        <div className={`w-full min-w-0 ${collapsed ? "p-3" : "p-6"}`}>
           <div className="flex flex-col gap-4">
             <Link href="/admin" className="block min-w-0">
               <p className="eyebrow text-clay">
@@ -302,7 +298,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             aria-label="Admin sections"
             className={`w-full min-w-0 ${collapsed ? "mt-4" : "mt-8"}`}
           >
-            <NavLinks collapsed={collapsed} />
+            {/* Sticky lives here only — a sticky ancestor on the aside content
+                would create a containing block and block this from sticking. */}
+            <div className="sticky top-0 z-10 w-full min-w-0 bg-concrete-dark/70 py-1">
+              <NavLinks collapsed={collapsed} />
+            </div>
           </nav>
 
           <div
