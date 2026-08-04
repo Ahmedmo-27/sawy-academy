@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
-const apiProxyTarget = process.env.API_PROXY_TARGET ?? "http://localhost:5000";
+const apiProxyTarget =
+  process.env.API_PROXY_TARGET ??
+  (process.env.NODE_ENV === "production"
+    ? "https://sawy-academy.onrender.com"
+    : "http://localhost:5000");
 
 const nextConfig: NextConfig = {
   async rewrites() {
