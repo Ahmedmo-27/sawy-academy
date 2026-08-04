@@ -97,7 +97,7 @@ export function CartView() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--spacing-gutter)] items-start">
       <div className="lg:col-span-8 min-w-0">
-        <p className="label-caps mb-4 text-charcoal-infill/70">
+        <p className="label-caps mb-4 text-charcoal-infill">
           Line Items · {count}
         </p>
 

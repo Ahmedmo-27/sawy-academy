@@ -8,15 +8,19 @@ export function SplashLoader() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    const minDisplay = 1400;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    const minDisplay = prefersReducedMotion ? 0 : 1400;
+    const fadeMs = prefersReducedMotion ? 0 : 600;
     const start = Date.now();
 
     const finish = () => {
       const elapsed = Date.now() - start;
       const remaining = Math.max(0, minDisplay - elapsed);
-      setTimeout(() => {
+      window.setTimeout(() => {
         setFadeOut(true);
-        setTimeout(() => setVisible(false), 600);
+        window.setTimeout(() => setVisible(false), fadeMs);
       }, remaining);
     };
 
@@ -32,7 +36,7 @@ export function SplashLoader() {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-center justify-center bg-concrete transition-opacity duration-600 ${
+      className={`fixed inset-0 z-[100] flex items-center justify-center bg-concrete transition-opacity duration-600 motion-reduce:transition-none ${
         fadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
       aria-live="polite"
@@ -52,7 +56,7 @@ export function SplashLoader() {
             className="loader-star-stroke"
             points="60,8 68,32 92,32 74,48 80,72 60,58 40,72 46,48 28,32 52,32"
             fill="none"
-            stroke="var(--color-clay)"
+            stroke="#8b5a4a"
             strokeWidth="1"
           />
           <polygon
@@ -69,7 +73,7 @@ export function SplashLoader() {
             cy="60"
             r="8"
             fill="none"
-            stroke="var(--color-clay)"
+            stroke="#8b5a4a"
             strokeWidth="0.6"
           />
         </svg>

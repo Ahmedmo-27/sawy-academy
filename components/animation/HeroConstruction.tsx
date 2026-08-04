@@ -91,17 +91,17 @@ export function HeroConstruction({ className = "" }: HeroConstructionProps) {
         <path className="hc-draw" d="M40 180 H240 V40 H440" stroke="var(--color-construction)" strokeWidth="0.6" />
         <path className="hc-draw" d="M240 40 V320" stroke="var(--color-construction)" strokeWidth="0.5" strokeDasharray="6 4" />
         {/* Measurement arrow */}
-        <path className="hc-draw" d="M60 340 H200" stroke="var(--color-clay)" strokeWidth="0.6" />
-        <path className="hc-draw" d="M60 336 L60 344 M200 336 L200 344" stroke="var(--color-clay)" strokeWidth="0.6" />
-        <path className="hc-draw" d="M125 332 V348" stroke="var(--color-clay)" strokeWidth="0.4" />
+        <path className="hc-draw" d="M60 340 H200" stroke="#8b5a4a" strokeWidth="0.6" />
+        <path className="hc-draw" d="M60 336 L60 344 M200 336 L200 344" stroke="#8b5a4a" strokeWidth="0.6" />
+        <path className="hc-draw" d="M125 332 V348" stroke="#8b5a4a" strokeWidth="0.4" />
         {/* Compass / protractor */}
         <g className="hc-compass" style={{ transformOrigin: "360px 100px" }}>
-          <circle cx="360" cy="100" r="36" stroke="var(--color-clay)" strokeWidth="0.6" />
+          <circle cx="360" cy="100" r="36" stroke="#8b5a4a" strokeWidth="0.6" />
           <circle cx="360" cy="100" r="28" stroke="var(--color-construction)" strokeWidth="0.4" strokeDasharray="2 4" />
-          <path d="M360 64 V136 M324 100 H396" stroke="var(--color-clay)" strokeWidth="0.5" />
-          <path d="M360 72 L352 100 L360 128 L368 100 Z" fill="var(--color-clay)" opacity="0.35" />
+          <path d="M360 64 V136 M324 100 H396" stroke="#8b5a4a" strokeWidth="0.5" />
+          <path d="M360 72 L352 100 L360 128 L368 100 Z" fill="#8b5a4a" opacity="0.35" />
         </g>
-        <text x="125" y="358" fill="var(--color-clay)" fontSize="8" fontFamily="sans-serif" opacity="0.5" letterSpacing="0.12em">
+        <text x="125" y="358" fill="#8b5a4a" fontSize="8" fontFamily="sans-serif" opacity="0.5" letterSpacing="0.12em">
           14.000
         </text>
       </svg>

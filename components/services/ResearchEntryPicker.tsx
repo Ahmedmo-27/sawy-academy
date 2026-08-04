@@ -65,7 +65,7 @@ export function ResearchEntryPicker({
     <div>
       <label htmlFor="research-entry-search" className="label-caps block mb-2">
         Existing research entry
-        <span className="text-clay-muted"> *</span>
+        <span className="text-clay"> *</span>
       </label>
       <p className="type-infill mb-4 text-charcoal-muted">
         Search by title, year, or category.
@@ -76,6 +76,9 @@ export function ResearchEntryPicker({
         type="search"
         value={query}
         placeholder="Search research…"
+        aria-required="true"
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? "research-entry-error" : undefined}
         onChange={(event) => setQuery(event.target.value)}
         className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
       />
@@ -136,7 +139,7 @@ export function ResearchEntryPicker({
       </div>
 
       {error && (
-        <p className="type-infill mt-2 text-clay" role="alert">
+        <p id="research-entry-error" className="type-infill mt-2 text-clay" role="alert">
           {error}
         </p>
       )}

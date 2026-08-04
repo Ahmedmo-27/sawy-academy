@@ -1,17 +1,13 @@
 import { CartView } from "@/components/cart/CartView";
+import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { Reveal } from "@/components/Reveal";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
-import { PageHeader } from "@/components/PageHeader";
 
 export default function CartPage() {
   return (
     <>
-      <PageHeader
-        eyebrow="Studio Cart"
-        title="Cart"
-        description="Review line items before submitting payment for verification."
-      />
+      <CmsPageHeader pageKey="cart" />
 
       <ThresholdDoorway label="ORDER SHEET" />
 

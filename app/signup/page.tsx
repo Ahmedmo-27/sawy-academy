@@ -1,18 +1,14 @@
 import { Reveal } from "@/components/Reveal";
 import { SignupForm } from "@/components/auth/SignupForm";
+import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import { PageHeader } from "@/components/PageHeader";
 
 export default function SignupPage() {
   return (
     <>
-      <PageHeader
-        eyebrow="Access"
-        title="Sign Up"
-        description="Create a student account to enroll, order materials, and follow studio work."
-      />
+      <CmsPageHeader pageKey="signup" />
 
       <ThresholdDoorway label="ENROLLMENT THRESHOLD" />
 

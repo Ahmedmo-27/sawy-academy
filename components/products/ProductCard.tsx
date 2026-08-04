@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { useCart } from "@/components/cart/CartProvider";
+import { useToast } from "@/components/feedback/ToastProvider";
 
 interface ProductCardProps {
   id: string;
@@ -25,13 +26,22 @@ export function ProductCard({
   onAddToCart,
 }: ProductCardProps) {
   const { addItem, hasItem } = useCart();
+  const { success } = useToast();
   const [justAdded, setJustAdded] = useState(false);
   const inCart = hasItem(id) || justAdded;
 
   function handleAdd() {
-    addItem({ id, name, price, kind: "product" });
+    addItem({
+      id,
+      name,
+      price,
+      kind: "product",
+      category,
+      image,
+    });
     onAddToCart?.();
     setJustAdded(true);
+    success("Added to cart");
   }
 
   return (

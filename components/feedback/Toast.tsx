@@ -42,7 +42,6 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       data-type={toast.type}
       data-visible={visible ? "true" : "false"}
       role={toast.type === "error" ? "alert" : "status"}
-      aria-live={toast.type === "error" ? "assertive" : "polite"}
     >
       <p className="toast-message type-infill flex-1 min-w-0">{toast.message}</p>
       <button

@@ -33,9 +33,12 @@ export function ProjectCard({
           alt={title}
           sizes="(max-width: 768px) 100vw, 33vw"
         />
-        <div className="project-overlay absolute inset-0 bg-charcoal/60 flex flex-col justify-end p-6 pointer-events-none">
+        <div
+          className="project-overlay absolute inset-0 bg-charcoal/60 flex flex-col justify-end p-6 pointer-events-none"
+          aria-hidden="true"
+        >
             <p className="label-caps !text-concrete/90 mb-2">{sheetRef}</p>
-            <h3 className="type-title !text-concrete mb-1">{title}</h3>
+            <p className="type-title !text-concrete mb-1">{title}</p>
             <p className="label-caps !text-concrete/80">
               {category} / {year}
             </p>
@@ -44,7 +47,7 @@ export function ProjectCard({
       <div className="p-6 group-hover:opacity-0 transition-opacity duration-300 hidden lg:block">
         <ScaleBar scale="1:50" className="mb-4" />
         <p className="dim-label mb-2">{sheetRef}</p>
-        <h3 className="type-title mb-2">{title}</h3>
+        <h2 className="type-title mb-2">{title}</h2>
         <p className="label-caps">
           {category} / {year}
         </p>
@@ -52,7 +55,7 @@ export function ProjectCard({
       <div className="p-6 lg:hidden">
         <ScaleBar scale="1:50" className="mb-4" />
         <p className="dim-label mb-2">{sheetRef}</p>
-        <h3 className="type-title mb-2">{title}</h3>
+        <h2 className="type-title mb-2">{title}</h2>
         <p className="label-caps">
           {category} / {year}
         </p>

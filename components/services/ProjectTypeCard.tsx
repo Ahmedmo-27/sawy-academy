@@ -57,8 +57,8 @@ export function ProjectTypeCard({
       />
 
       <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
-      <p className="label-caps mb-2 text-charcoal-infill/70">{sheetRef}</p>
-      <h3 className="type-title">{title}</h3>
+      <p className="label-caps mb-2 text-charcoal-infill">{sheetRef}</p>
+      <h2 className="type-title">{title}</h2>
       <p className="type-infill mt-4 max-w-md leading-relaxed">{description}</p>
       <p className="action-secondary mt-6 inline-block">
         {selected ? "Project sheet open" : "Open project sheet"}

@@ -28,11 +28,18 @@ export interface Course {
 export type CourseGroupType = "diploma" | "leveled";
 
 export interface CourseGroup {
+  /** Public route slug for the programme detail page */
+  slug: string;
   title: string;
   subtitle: string;
   type: CourseGroupType;
   courses: Course[];
   bundlePrice?: string;
+  /**
+   * Materials for the whole programme. When absent, diploma templates
+   * fall back to the union of each sub-course's relatedProductIds.
+   */
+  relatedProductIds?: string[];
 }
 
 function buildLessons(
@@ -48,6 +55,7 @@ function buildLessons(
 
 export const courseGroups: CourseGroup[] = [
   {
+    slug: "architecture-diploma",
     title: "Architecture Diploma",
     subtitle: "A structured diploma programme of core architectural courses",
     type: "diploma",
@@ -253,6 +261,7 @@ export const courseGroups: CourseGroup[] = [
     ],
   },
   {
+    slug: "biogeometry",
     title: "Biogeometry",
     subtitle:
       "A three-level course on form, energy, and proportion in the built environment",
@@ -388,6 +397,57 @@ export function getAllCourses(): Course[] {
 
 export function getCourseBySlug(slug: string): Course | undefined {
   return getAllCourses().find((course) => course.slug === slug);
+}
+
+export function getCourseGroupBySlug(slug: string): CourseGroup | undefined {
+  return courseGroups.find((group) => group.slug === slug);
+}
+
+export function getCourseGroupForCourse(
+  courseSlug: string
+): CourseGroup | undefined {
+  return courseGroups.find((group) =>
+    group.courses.some((course) => course.slug === courseSlug)
+  );
+}
+
+/** 1-based order of a course within its group (array position). */
+export function getCourseOrderInGroup(
+  group: CourseGroup,
+  courseId: string
+): number {
+  const index = group.courses.findIndex((course) => course.id === courseId);
+  return index >= 0 ? index + 1 : 0;
+}
+
+/** Unique product ids for a diploma — group-level first, else union of sub-courses. */
+export function getGroupRelatedProductIds(group: CourseGroup): string[] {
+  if (group.relatedProductIds && group.relatedProductIds.length > 0) {
+    return group.relatedProductIds;
+  }
+  const seen = new Set<string>();
+  for (const course of group.courses) {
+    for (const id of course.relatedProductIds) {
+      seen.add(id);
+    }
+  }
+  return Array.from(seen);
+}
+
+export function formatCourseDuration(course: Course): string {
+  const totalMinutes = course.lessons.reduce((sum, lesson) => {
+    const match = lesson.duration.match(/(\d+)/);
+    return sum + (match ? Number(match[1]) : 0);
+  }, 0);
+  if (totalMinutes <= 0) {
+    return `${String(course.lessons.length).padStart(2, "0")} sheets`;
+  }
+  if (totalMinutes >= 60) {
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  }
+  return `${totalMinutes} min`;
 }
 
 export function getLessonBySlug(

@@ -59,7 +59,7 @@ export function BlueprintDraw({ className = "" }: BlueprintDrawProps) {
       />
       <motion.path
         d="M40 220 H120"
-        stroke="var(--color-clay)"
+        stroke="#8b5a4a"
         strokeWidth="0.5"
         variants={{
           hidden: { pathLength: 0, opacity: 0 },
@@ -80,7 +80,7 @@ export function BlueprintDraw({ className = "" }: BlueprintDrawProps) {
       <motion.text
         x="200"
         y="228"
-        fill="var(--color-clay)"
+        fill="#8b5a4a"
         fontSize="7"
         fontFamily="sans-serif"
         textAnchor="middle"

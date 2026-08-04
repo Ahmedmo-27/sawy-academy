@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { uploadImage } from "@/lib/api/upload";
 
@@ -17,6 +17,10 @@ export function ReferenceImagesField({
   error,
 }: ReferenceImagesFieldProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputId = useId();
+  const labelId = useId();
+  const descId = useId();
+  const errorId = useId();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
@@ -46,11 +50,16 @@ export function ReferenceImagesField({
     onChange(value.filter((item) => item !== url));
   }
 
+  const combinedError = uploadError || error;
+
   return (
     <div>
-      <p className="label-caps mb-2">Reference images</p>
-      <p className="type-infill mb-4 text-charcoal-muted">
-        Optional — site photos, sketches, or precedent images.
+      <label id={labelId} htmlFor={inputId} className="label-caps mb-2 block">
+        Reference images
+      </label>
+      <p id={descId} className="type-infill mb-4 text-charcoal-muted">
+        Optional — site photos, sketches, or precedent images. Drop files or
+        click to select. Image formats only.
       </p>
 
       <button
@@ -63,6 +72,11 @@ export function ReferenceImagesField({
           void handleFiles(event.dataTransfer.files);
         }}
         disabled={isUploading}
+        aria-labelledby={labelId}
+        aria-describedby={
+          [descId, combinedError ? errorId : null].filter(Boolean).join(" ")
+        }
+        aria-invalid={Boolean(combinedError)}
       >
         <div className="py-6 text-center">
           <p className="eyebrow text-clay">
@@ -74,22 +88,25 @@ export function ReferenceImagesField({
 
       <input
         ref={inputRef}
+        id={inputId}
         type="file"
         accept="image/*"
         multiple
-        className="hidden"
+        className="sr-only"
+        tabIndex={-1}
+        aria-labelledby={labelId}
         onChange={(event) => void handleFiles(event.target.files)}
       />
 
       {value.length > 0 && (
         <ul className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {value.map((url) => (
+          {value.map((url, index) => (
             <li key={url} className="relative">
               <ImageFrame>
                 <div className="relative aspect-[4/3] bg-concrete-dark">
                   <Image
                     src={url}
-                    alt=""
+                    alt={`Reference image ${index + 1}`}
                     fill
                     unoptimized
                     sizes="(min-width: 1024px) 12rem, 33vw"
@@ -101,6 +118,7 @@ export function ReferenceImagesField({
                 type="button"
                 className="action-secondary mt-2"
                 onClick={() => removeImage(url)}
+                aria-label={`Remove reference image ${index + 1}`}
               >
                 Remove
               </button>
@@ -109,9 +127,9 @@ export function ReferenceImagesField({
         </ul>
       )}
 
-      {(uploadError || error) && (
-        <p className="type-infill mt-3 text-clay" role="alert">
-          {uploadError || error}
+      {combinedError && (
+        <p id={errorId} className="type-infill mt-3 text-clay" role="alert">
+          {combinedError}
         </p>
       )}
     </div>

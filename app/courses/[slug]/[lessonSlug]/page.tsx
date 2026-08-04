@@ -58,7 +58,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
     <>
       <header className="relative section-intimate overflow-hidden">
         <GridColumns />
-        <PageContainer className="relative z-10 pt-20 sm:pt-24 lg:pt-32 pb-6 sm:pb-8 lg:pb-12">
+        <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-8 lg:pb-12">
           <p className="eyebrow mb-3">
             {course.title} · Sheet {String(lesson.order).padStart(2, "0")}
           </p>
@@ -116,7 +116,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
                     rel="noopener noreferrer"
                     className="action-secondary"
                   >
-                    Open video
+                    Open video (opens in a new tab)
                   </a>
                 </div>
               )}

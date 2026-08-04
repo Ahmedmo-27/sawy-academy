@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useId, useState } from "react";
 
 const serviceTypes = [
   "Design",
@@ -12,6 +12,8 @@ const serviceTypes = [
 type Status = "idle" | "submitting" | "success" | "error";
 
 export function ContactForm() {
+  const formErrorId = useId();
+  const successId = useId();
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -52,16 +54,26 @@ export function ContactForm() {
   }
 
   return (
-    <form className="space-y-8 max-w-md pt-4" onSubmit={handleSubmit}>
+    <form className="space-y-8 max-w-md pt-4" onSubmit={handleSubmit} noValidate>
       <div>
         <label htmlFor="name" className="label-caps block mb-2">
           Name
+          <span className="text-clay"> *</span>
         </label>
         <input
           type="text"
           id="name"
           name="name"
           required
+          aria-required="true"
+          aria-invalid={status === "error"}
+          aria-describedby={
+            status === "error"
+              ? formErrorId
+              : status === "success"
+                ? successId
+                : undefined
+          }
           className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
           placeholder="Your name"
         />
@@ -70,12 +82,16 @@ export function ContactForm() {
       <div>
         <label htmlFor="email" className="label-caps block mb-2">
           Email
+          <span className="text-clay"> *</span>
         </label>
         <input
           type="email"
           id="email"
           name="email"
           required
+          aria-required="true"
+          aria-invalid={status === "error"}
+          aria-describedby={status === "error" ? formErrorId : undefined}
           className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
           placeholder="you@example.com"
         />
@@ -84,11 +100,15 @@ export function ContactForm() {
       <div>
         <label htmlFor="subject" className="label-caps block mb-2">
           Service Type
+          <span className="text-clay"> *</span>
         </label>
         <select
           id="subject"
           name="subject"
           required
+          aria-required="true"
+          aria-invalid={status === "error"}
+          aria-describedby={status === "error" ? formErrorId : undefined}
           className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200 appearance-none cursor-pointer"
           defaultValue=""
         >
@@ -106,12 +126,16 @@ export function ContactForm() {
       <div>
         <label htmlFor="message" className="label-caps block mb-2">
           Message
+          <span className="text-clay"> *</span>
         </label>
         <textarea
           id="message"
           name="message"
           rows={5}
           required
+          aria-required="true"
+          aria-invalid={status === "error"}
+          aria-describedby={status === "error" ? formErrorId : undefined}
           className="w-full bg-transparent hairline-border px-4 py-3 type-body text-charcoal resize-none focus-visible:border-clay transition-colors duration-200"
           placeholder="Describe your inquiry..."
         />
@@ -126,12 +150,12 @@ export function ContactForm() {
       </button>
 
       {status === "success" && (
-        <p className="type-body text-charcoal" role="status">
+        <p id={successId} className="type-body text-charcoal" role="status">
           Message received. I will reply within office hours.
         </p>
       )}
       {status === "error" && (
-        <p className="type-body text-clay" role="alert">
+        <p id={formErrorId} className="type-body text-clay" role="alert">
           {errorMessage}
         </p>
       )}

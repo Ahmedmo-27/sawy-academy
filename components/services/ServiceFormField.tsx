@@ -35,21 +35,26 @@ export function ServiceFormField({
   error,
   onChange,
 }: ServiceFormFieldProps) {
+  const errorId = `${id}-error`;
+
   return (
     <div>
       <label htmlFor={id} className="label-caps block mb-2">
         {label}
-        {required && <span className="text-clay-muted"> *</span>}
+        {required && <span className="text-clay"> *</span>}
       </label>
 
       {type === "textarea" ? (
         <textarea
           id={id}
           required={required}
+          aria-required={required || undefined}
           disabled={disabled}
           rows={rows}
           value={value}
           placeholder={placeholder}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
           onChange={(event) => onChange(event.target.value)}
           className="w-full bg-transparent hairline-border px-4 py-3 type-body text-charcoal resize-none focus-visible:border-clay transition-colors duration-200 disabled:opacity-60"
         />
@@ -57,8 +62,11 @@ export function ServiceFormField({
         <select
           id={id}
           required={required}
+          aria-required={required || undefined}
           disabled={disabled}
           value={value}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
           onChange={(event) => onChange(event.target.value)}
           className={`${inputClass} appearance-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed`}
         >
@@ -76,16 +84,19 @@ export function ServiceFormField({
           id={id}
           type={type}
           required={required}
+          aria-required={required || undefined}
           disabled={disabled}
           value={value}
           placeholder={placeholder}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
           onChange={(event) => onChange(event.target.value)}
           className={`${inputClass} disabled:opacity-60`}
         />
       )}
 
       {error && (
-        <p className="type-infill mt-2 text-clay" role="alert">
+        <p id={errorId} className="type-infill mt-2 text-clay" role="alert">
           {error}
         </p>
       )}
