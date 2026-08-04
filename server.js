@@ -17,7 +17,24 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+const defaultAllowedOrigins = [
+  "https://sawy-academy.onrender.com",
+  "https://sawy-academy.vercel.app",
+  "http://localhost:3000",
+];
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+  : defaultAllowedOrigins;
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/api/health", (req, res) => {
