@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback } from "react";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
 import { useAdminResource } from "@/hooks/useAdminResource";
-import { listMyEnrollments } from "@/lib/api/enrollments";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import type { Enrollment } from "@/lib/api/types";
 
 function isCompleted(enrollment: Enrollment) {
@@ -22,10 +23,27 @@ function continueHref(enrollment: Enrollment) {
 }
 
 export function EnrolledCoursesSection() {
-  const { data, isLoading, error, refetch } = useAdminResource(listMyEnrollments);
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<Enrollment[]>(
+        "/api/enrollments",
+        "Fetching enrollments",
+        onProgress,
+        { userId: "me" }
+      ),
+    []
+  );
+  const { data, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading enrollments");
 
   if (isLoading) {
-    return <AdminLoader label="Loading enrollments" />;
+    return (
+      <AdminLoader
+        label="Loading enrollments"
+        stepLabel={stepLabel}
+        progress={progress}
+      />
+    );
   }
 
   if (error) {

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
 import { useAdminResource } from "@/hooks/useAdminResource";
-import { listMyServiceRequests } from "@/lib/api/services";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import type { ServiceRequest } from "@/lib/api/types";
 
 function formatSubmitted(request: ServiceRequest) {
@@ -26,12 +26,28 @@ function detailText(request: ServiceRequest) {
 }
 
 export function ServiceRequestsSection() {
-  const { data, isLoading, error, refetch } =
-    useAdminResource(listMyServiceRequests);
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<ServiceRequest[]>(
+        "/api/services",
+        "Fetching service requests",
+        onProgress,
+        { userId: "me" }
+      ),
+    []
+  );
+  const { data, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading service requests");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (isLoading) {
-    return <AdminLoader label="Loading service requests" />;
+    return (
+      <AdminLoader
+        label="Loading service requests"
+        stepLabel={stepLabel}
+        progress={progress}
+      />
+    );
   }
 
   if (error) {

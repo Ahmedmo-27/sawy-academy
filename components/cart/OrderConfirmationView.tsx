@@ -3,23 +3,28 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback } from "react";
-import { AdminLoader } from "@/components/admin/AdminLoader";
 import { OrderSubmitted } from "@/components/cart/OrderSubmitted";
+import { SectionLoader } from "@/components/feedback/SectionLoader";
 import { useAdminResource } from "@/hooks/useAdminResource";
-import { getOrder } from "@/lib/api/orders";
+import { apiGet } from "@/lib/api/client";
+import type { Order } from "@/lib/api/types";
 
 export function OrderConfirmationView() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") ?? "";
 
-  const loader = useCallback(() => {
-    if (!orderId) {
-      throw new Error("Missing order reference.");
-    }
-    return getOrder(orderId);
-  }, [orderId]);
+  const loader = useCallback(
+    (onProgress: (progress: number) => void) => {
+      if (!orderId) {
+        throw new Error("Missing order reference.");
+      }
+      return apiGet<Order>(`/api/orders/${orderId}`, undefined, { onProgress });
+    },
+    [orderId]
+  );
 
-  const { data: order, isLoading, error } = useAdminResource(loader);
+  const { data: order, isLoading, error, progress, stepLabel } =
+    useAdminResource(loader, "Reading sheet");
 
   if (!orderId) {
     return (
@@ -38,9 +43,12 @@ export function OrderConfirmationView() {
 
   if (isLoading) {
     return (
-      <p className="label-caps text-charcoal-muted loader-pulse">
-        Reading sheet
-      </p>
+      <SectionLoader
+        label="Reading sheet"
+        stepLabel={stepLabel}
+        progress={progress}
+        className="py-8"
+      />
     );
   }
 

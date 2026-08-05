@@ -10,7 +10,8 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import { getProject } from "@/lib/api/portfolio";
+import { SectionLoader } from "@/components/feedback/SectionLoader";
+import { apiGet } from "@/lib/api/client";
 import type { Project } from "@/lib/api/types";
 
 interface ProjectDetailPageProps {
@@ -23,10 +24,15 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const [status, setStatus] = useState<"loading" | "ready" | "missing">(
     "loading"
   );
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    getProject(slug)
+    apiGet<Project>(`/api/portfolio/${slug}`, undefined, {
+      onProgress: (value) => {
+        if (!cancelled) setProgress(value);
+      },
+    })
       .then((data) => {
         if (cancelled) return;
         setProject(data);
@@ -46,7 +52,11 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   if (status === "loading" || !project) {
     return (
       <PageContainer className="pt-32 pb-20">
-        <p className="label-caps text-charcoal-infill">Loading project…</p>
+        <SectionLoader
+          label="Loading project…"
+          stepLabel="Fetching project sheet"
+          progress={progress}
+        />
       </PageContainer>
     );
   }

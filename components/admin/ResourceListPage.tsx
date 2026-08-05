@@ -60,7 +60,8 @@ export function ResourceListPage({ kind }: ResourceListPageProps) {
   const router = useRouter();
   const { error: toastError, neutral } = useToast();
   const loader = useCallback(() => config.list(), [config]);
-  const { data, setData, isLoading, error, refetch } = useAdminResource(loader);
+  const { data, setData, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader);
   const [deleteTarget, setDeleteTarget] = useState<ResourceRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
@@ -142,7 +143,13 @@ export function ResourceListPage({ kind }: ResourceListPageProps) {
         </p>
       )}
 
-      {isLoading && <AdminLoader label="Loading…" />}
+      {isLoading && (
+        <AdminLoader
+          label="Loading…"
+          stepLabel={stepLabel}
+          progress={progress}
+        />
+      )}
       {!isLoading && error && (
         <AdminErrorState
           title="We couldn't load this list"

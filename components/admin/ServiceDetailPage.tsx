@@ -11,11 +11,9 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAdminResource } from "@/hooks/useAdminResource";
-import {
-  getServiceRequest,
-  updateServiceRequestStatus,
-} from "@/lib/api/services";
-import type { ServiceStatus } from "@/lib/api/types";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
+import { updateServiceRequestStatus } from "@/lib/api/services";
+import type { ServiceRequest, ServiceStatus } from "@/lib/api/types";
 
 interface ServiceDetailPageProps {
   id: string;
@@ -29,8 +27,17 @@ const statusOptions: ServiceStatus[] = [
 ];
 
 export function ServiceDetailPage({ id }: ServiceDetailPageProps) {
-  const loader = useCallback(() => getServiceRequest(id), [id]);
-  const { data, setData, isLoading, error, refetch } = useAdminResource(loader);
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<ServiceRequest>(
+        `/api/services/${id}`,
+        "Fetching service request",
+        onProgress
+      ),
+    [id]
+  );
+  const { data, setData, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading…");
   const { success, error: toastError } = useToast();
   const [status, setStatus] = useState<ServiceStatus>("pending");
   const [notes, setNotes] = useState("");
@@ -76,7 +83,15 @@ export function ServiceDetailPage({ id }: ServiceDetailPageProps) {
     await persistStatus("rejected", reason);
   }
 
-  if (isLoading) return <AdminLoader label="Loading…" />;
+  if (isLoading) {
+    return (
+      <AdminLoader
+        label="Loading…"
+        stepLabel={stepLabel}
+        progress={progress}
+      />
+    );
+  }
 
   if (error || !data) {
     return (

@@ -3,15 +3,17 @@
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { AdminLoader } from "@/components/admin/AdminLoader";
+import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { useToast } from "@/components/feedback/ToastProvider";
-import { getMe, updateMe } from "@/lib/api/users";
+import { updateMe } from "@/lib/api/users";
 import { uploadImage } from "@/lib/api/upload";
-import { ApiClientError } from "@/lib/api/client";
+import { apiGet, ApiClientError } from "@/lib/api/client";
+import type { User } from "@/lib/api/types";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -36,7 +38,14 @@ function formatMemberSince(value?: string) {
 export function ProfileIdentityPanel() {
   const { updateSessionUser } = useAuth();
   const { success } = useToast();
-  const { data, setData, isLoading, error, refetch } = useAdminResource(getMe);
+  const { data, setData, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(
+      (onProgress) =>
+        apiGet<User>("/api/users/me", undefined, {
+          onProgress: (value) => onProgress(value, "Loading identity sheet"),
+        }),
+      "Loading identity sheet"
+    );
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const [name, setName] = useState("");
@@ -46,6 +55,7 @@ export function ProfileIdentityPanel() {
   const [saveError, setSaveError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState("");
 
   useEffect(() => {
@@ -68,10 +78,13 @@ export function ProfileIdentityPanel() {
   async function handlePhotoSelect(file?: File) {
     if (!file) return;
     setIsUploading(true);
+    setUploadProgress(0);
     setUploadError("");
 
     try {
-      const response = await uploadImage(file);
+      const response = await uploadImage(file, {
+        onProgress: setUploadProgress,
+      });
       setAvatarUrl(response.url);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed.");
@@ -132,7 +145,13 @@ export function ProfileIdentityPanel() {
   }
 
   if (isLoading) {
-    return <AdminLoader label="Loading identity sheet" />;
+    return (
+      <AdminLoader
+        label="Loading identity sheet"
+        stepLabel={stepLabel}
+        progress={progress}
+      />
+    );
   }
 
   if (error || !data) {
@@ -203,8 +222,16 @@ export function ProfileIdentityPanel() {
               }
             />
             <p id="profile-photo-hint" className="label-caps mt-3 text-charcoal-infill">
-              {isUploading ? "Uploading…" : "Click to change. Image files only."}
+              {isUploading ? "Uploading photo…" : "Click to change. Image files only."}
             </p>
+            {isUploading && (
+              <ProcessProgressBar
+                className="mt-3"
+                compact
+                stepLabel="Uploading photo"
+                progress={uploadProgress}
+              />
+            )}
             {uploadError && (
               <p className="type-body text-clay mt-2" role="alert">
                 {uploadError}

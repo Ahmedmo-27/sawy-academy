@@ -8,10 +8,10 @@ import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { FormField } from "@/components/admin/FormField";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAdminResource } from "@/hooks/useAdminResource";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import { getMainPageDestinations } from "@/lib/admin/pageDestinations";
 import { toFriendlyAdminError } from "@/lib/admin/friendly";
 import {
-  getSiteSettings,
   resetSiteSettings,
   updateSiteSettings,
 } from "@/lib/api/settings";
@@ -248,9 +248,17 @@ function LinkEditor({
 }
 
 export function SiteSettingsPage() {
-  const loader = useCallback(() => getSiteSettings(), []);
-  const { data, setData, isLoading, error, refetch } =
-    useAdminResource(loader);
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<SiteSettings>(
+        "/api/settings",
+        "Fetching site settings",
+        onProgress
+      ),
+    []
+  );
+  const { data, setData, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading site settings");
   const { success, error: toastError, neutral } = useToast();
   const [saving, setSaving] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
@@ -298,7 +306,15 @@ export function SiteSettingsPage() {
     }
   }
 
-  if (isLoading) return <AdminLoader label="Loading site settings" />;
+  if (isLoading) {
+    return (
+      <AdminLoader
+        label="Loading site settings"
+        stepLabel={stepLabel}
+        progress={progress}
+      />
+    );
+  }
   if (error) {
     return (
       <AdminErrorState

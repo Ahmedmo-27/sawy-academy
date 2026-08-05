@@ -12,7 +12,8 @@ import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAdminResource } from "@/hooks/useAdminResource";
-import { approveOrder, getOrder, rejectOrder } from "@/lib/api/orders";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
+import { approveOrder, rejectOrder } from "@/lib/api/orders";
 import type { Order } from "@/lib/api/types";
 
 interface OrderDetailPageProps {
@@ -24,8 +25,17 @@ function screenshotUrl(order: Order) {
 }
 
 export function OrderDetailPage({ id }: OrderDetailPageProps) {
-  const loader = useCallback(() => getOrder(id), [id]);
-  const { data: order, setData, isLoading, error, refetch } = useAdminResource(loader);
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<Order>(
+        `/api/orders/${id}`,
+        "Fetching order details",
+        onProgress
+      ),
+    [id]
+  );
+  const { data: order, setData, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading order…");
   const { success, error: toastError, neutral } = useToast();
   const [actionError, setActionError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -68,7 +78,15 @@ export function OrderDetailPage({ id }: OrderDetailPageProps) {
     }
   }
 
-  if (isLoading) return <AdminLoader label="Loading order…" />;
+  if (isLoading) {
+    return (
+      <AdminLoader
+        label="Loading order…"
+        stepLabel={stepLabel}
+        progress={progress}
+      />
+    );
+  }
 
   if (error || !order) {
     return (

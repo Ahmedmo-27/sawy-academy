@@ -1,6 +1,7 @@
 import { listCourseGroups } from "@/lib/api/courseGroups";
 import { listCourses } from "@/lib/api/courses";
 import { listProducts } from "@/lib/api/products";
+import { runParallelStagedLoad, type StagedLoadCallback } from "@/lib/load/stagedLoad";
 import type { DashboardMetric } from "@/lib/api/types";
 
 /**
@@ -8,16 +9,17 @@ import type { DashboardMetric } from "@/lib/api/types";
  * Orders/services stay at 0 until those routes are mounted — calling
  * them here only creates noisy 404s in the browser console.
  */
-export async function getDashboardMetrics(): Promise<DashboardMetric[]> {
-  const [groups, courses, products] = await Promise.allSettled([
-    listCourseGroups(),
-    listCourses(),
-    listProducts(),
-  ]);
-
-  const groupList = groups.status === "fulfilled" ? groups.value : [];
-  const courseList = courses.status === "fulfilled" ? courses.value : [];
-  const productList = products.status === "fulfilled" ? products.value : [];
+export async function getDashboardMetrics(
+  onProgress?: StagedLoadCallback
+): Promise<DashboardMetric[]> {
+  const [groupList, courseList, productList] = await runParallelStagedLoad(
+    [
+      { label: "Course groups", run: listCourseGroups },
+      { label: "Courses", run: listCourses },
+      { label: "Products", run: listProducts },
+    ],
+    onProgress
+  );
 
   return [
     {
