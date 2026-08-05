@@ -47,7 +47,7 @@ export async function runParallelStagedLoad<T extends readonly unknown[]>(
     })
   );
 
-  return results as T;
+  return results as unknown as T;
 }
 
 /** Run steps sequentially; progress advances before and after each step. */
@@ -65,5 +65,5 @@ export async function runSequentialStagedLoad<T extends readonly unknown[]>(
     reportProgress(onProgress, index + 1, total, step.label);
   }
 
-  return results as T;
+  return results as unknown as T;
 }
