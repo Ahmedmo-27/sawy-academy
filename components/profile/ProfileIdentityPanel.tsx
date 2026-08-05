@@ -46,6 +46,9 @@ export function ProfileIdentityPanel() {
         }),
       "Loading identity sheet"
     );
+  // #region agent log
+  fetch('http://127.0.0.1:7439/ingest/93dbd8bb-58d0-4883-a233-6effa3c7ca00',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ac457f'},body:JSON.stringify({sessionId:'ac457f',runId:'pre-fix',hypothesisId:'B',location:'ProfileIdentityPanel.tsx:render',message:'identity panel render',data:{isLoading,hasData:!!data,hasError:!!error,error:error||null,progress:progress??null},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const [name, setName] = useState("");
