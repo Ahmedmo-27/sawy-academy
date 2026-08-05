@@ -14,7 +14,6 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   const { isAdmin, isLoading } = useAuth();
 
   useEffect(() => {
-    // TODO: Prefer /login once admin session cookies replace the auth stub.
     if (!isLoading && !isAdmin) {
       router.replace("/login");
     }

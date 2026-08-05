@@ -1,10 +1,15 @@
 const express = require("express");
 const siteSettingsController = require("../controllers/siteSettingsController");
+const {
+  authenticate,
+  requireAdmin,
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
+const adminWrite = [authenticate, requireAdmin];
 
 router.get("/", siteSettingsController.get);
-router.put("/", /* TODO: adminOnly middleware */ siteSettingsController.update);
-router.post("/reset", /* TODO: adminOnly middleware */ siteSettingsController.reset);
+router.put("/", adminWrite, siteSettingsController.update);
+router.post("/reset", adminWrite, siteSettingsController.reset);
 
 module.exports = router;

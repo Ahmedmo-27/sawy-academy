@@ -1,12 +1,17 @@
 const express = require("express");
 const productController = require("../controllers/productController");
+const {
+  authenticate,
+  requireAdmin,
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
+const adminWrite = [authenticate, requireAdmin];
 
 router.get("/", productController.getAll);
 router.get("/:slug", productController.getBySlug);
-router.post("/", /* TODO: adminOnly middleware */ productController.create);
-router.put("/:slug", /* TODO: adminOnly middleware */ productController.update);
-router.delete("/:slug", /* TODO: adminOnly middleware */ productController.remove);
+router.post("/", adminWrite, productController.create);
+router.put("/:slug", adminWrite, productController.update);
+router.delete("/:slug", adminWrite, productController.remove);
 
 module.exports = router;

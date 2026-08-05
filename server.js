@@ -4,6 +4,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 const authRoutes = require("./routes/authRoutes");
+const deviceRoutes = require("./routes/deviceRoutes");
+const adminDeviceRoutes = require("./routes/adminDeviceRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const portfolioRoutes = require("./routes/portfolioRoutes");
 const productRoutes = require("./routes/productRoutes");
@@ -11,6 +13,9 @@ const researchRoutes = require("./routes/researchRoutes");
 const siteSettingsRoutes = require("./routes/siteSettingsRoutes");
 const homePageRoutes = require("./routes/homePageRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const userRoutes = require("./routes/userRoutes");
+const serviceRoutes = require("./routes/serviceRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 dotenv.config();
@@ -42,6 +47,8 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/devices", deviceRoutes);
+app.use("/api/admin", adminDeviceRoutes);
 app.use("/api/research", researchRoutes);
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/products", productRoutes);
@@ -49,6 +56,9 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/settings", siteSettingsRoutes);
 app.use("/api/homepage", homePageRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/services", serviceRoutes);
 
 app.use(errorHandler);
 

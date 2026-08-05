@@ -1,4 +1,5 @@
-import { apiPost } from "@/lib/api/client";
+import { apiGet, apiPost } from "@/lib/api/client";
+import { adoptDeviceId, getOrCreateDeviceId } from "@/lib/device/id";
 
 export type AuthRole = "admin" | "student" | "guest";
 
@@ -21,27 +22,63 @@ export interface SignupCredentials {
 }
 
 /**
- * Assumed POST /api/auth/login payload:
- *   { email: string, password: string }
+ * POST /api/auth/login — { email, password, deviceId?, userAgent? }
+ * POST /api/auth/signup — { name, email, password, deviceId?, userAgent? }
+ * GET  /api/auth/me     — validates the current session (Bearer + X-Device-Id)
+ * POST /api/auth/logout — revokes the current session
  *
- * Assumed POST /api/auth/signup payload:
- *   { name: string, email: string, password: string }
- *
- * Assumed success data shape (wrapped in ApiResponse):
- *   { token: string, user: { id?: string, name: string, email?: string, role: "admin" | "student" } }
+ * Success data shape (wrapped in ApiResponse):
+ *   { token: string, user: { id?, name, email?, role }, deviceId? }
  */
 export interface AuthSessionResponse {
   token: string;
   user: AuthUser;
+  /** Present when the server generated a device id for this browser. */
+  deviceId?: string;
 }
 
 /** @deprecated Prefer AuthSessionResponse — kept as an alias for existing imports. */
 export type LoginResponse = AuthSessionResponse;
 
-export function loginRequest(credentials: LoginCredentials) {
-  return apiPost<AuthSessionResponse>("/api/auth/login", credentials);
+export async function loginRequest(credentials: LoginCredentials) {
+  const result = await apiPost<AuthSessionResponse>(
+    "/api/auth/login",
+    {
+      ...credentials,
+      deviceId: getOrCreateDeviceId(),
+      userAgent:
+        typeof navigator !== "undefined" ? navigator.userAgent : undefined,
+    },
+    { auth: false }
+  );
+  adoptDeviceId(result.deviceId);
+  return result;
 }
 
-export function signupRequest(credentials: SignupCredentials) {
-  return apiPost<AuthSessionResponse>("/api/auth/signup", credentials);
+export async function signupRequest(credentials: SignupCredentials) {
+  const result = await apiPost<AuthSessionResponse>(
+    "/api/auth/signup",
+    {
+      ...credentials,
+      deviceId: getOrCreateDeviceId(),
+      userAgent:
+        typeof navigator !== "undefined" ? navigator.userAgent : undefined,
+    },
+    { auth: false }
+  );
+  adoptDeviceId(result.deviceId);
+  return result;
+}
+
+export interface AuthMeResponse {
+  user: AuthUser;
+  deviceId?: string;
+}
+
+export function getMeRequest() {
+  return apiGet<AuthMeResponse>("/api/auth/me");
+}
+
+export function logoutRequest() {
+  return apiPost<{ ok: boolean }>("/api/auth/logout");
 }

@@ -71,8 +71,7 @@ export function AccountActionsSection() {
 
   function confirmLogout() {
     setLogoutOpen(false);
-    logout();
-    router.replace("/");
+    void logout().then(() => router.replace("/"));
   }
 
   return (

@@ -1,6 +1,13 @@
 export interface ApiErrorBody {
   message?: string;
   statusCode?: number;
+  code?: string;
+  devices?: Array<{
+    id: string;
+    label: string;
+    lastActiveAt: string;
+    createdAt?: string;
+  }>;
 }
 
 export interface ApiResponse<T> {
