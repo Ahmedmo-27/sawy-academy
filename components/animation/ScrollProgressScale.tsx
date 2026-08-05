@@ -6,6 +6,12 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const TICKS = 20;
 
+/** Same max scroll the native scrollbar uses. */
+function getMaxScroll() {
+  const doc = document.documentElement;
+  return Math.max(0, doc.scrollHeight - doc.clientHeight);
+}
+
 export function ScrollProgressScale() {
   const fillRef = useRef<HTMLDivElement>(null);
   const markerRef = useRef<HTMLDivElement>(null);
@@ -18,33 +24,82 @@ export function ScrollProgressScale() {
     const marker = markerRef.current;
     if (!fill || !marker) return;
 
-    const tween = gsap.to(fill, {
-      scaleY: 1,
-      ease: "none",
-      scrollTrigger: {
-        trigger: document.body,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 0.4,
-      },
-    });
+    const proxy = { progress: 0 };
 
-    const markerTween = gsap.to(marker, {
-      top: "100%",
-      ease: "none",
-      scrollTrigger: {
-        trigger: document.body,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 0.4,
+    const tween = gsap.fromTo(
+      proxy,
+      { progress: 0 },
+      {
+        progress: 1,
+        ease: "none",
+        scrollTrigger: {
+          // Match the browser scrollbar: 0 → max scrollY
+          start: 0,
+          end: () => getMaxScroll(),
+          scrub: 0.4,
+          invalidateOnRefresh: true,
+        },
+        onUpdate: () => {
+          const p = proxy.progress;
+          gsap.set(fill, { scaleY: p });
+          gsap.set(marker, { top: `${p * 100}%` });
+        },
       },
+    );
+
+    let refreshRaf = 0;
+    const refresh = () => {
+      cancelAnimationFrame(refreshRaf);
+      refreshRaf = requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
+    };
+
+    // Recalculate as layout / assets settle (pre- and post-load)
+    const ro = new ResizeObserver(refresh);
+    ro.observe(document.documentElement);
+    ro.observe(document.body);
+
+    const onLoad = () => refresh();
+    window.addEventListener("load", onLoad);
+    window.addEventListener("resize", onLoad);
+    void document.fonts?.ready.then(refresh);
+
+    // Late images that expand document height after first paint
+    const bindImage = (img: HTMLImageElement) => {
+      if (img.complete) return;
+      img.addEventListener("load", refresh, { once: true });
+      img.addEventListener("error", refresh, { once: true });
+    };
+    document.querySelectorAll("img").forEach((img) => bindImage(img));
+
+    const mo = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        m.addedNodes.forEach((node) => {
+          if (node instanceof HTMLImageElement) bindImage(node);
+          else if (node instanceof HTMLElement) {
+            node.querySelectorAll("img").forEach((img) => bindImage(img));
+          }
+        });
+      }
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    // Double-raf so we measure after the first layout pass
+    const boot = requestAnimationFrame(() => {
+      refresh();
+      requestAnimationFrame(refresh);
     });
 
     return () => {
+      cancelAnimationFrame(boot);
+      cancelAnimationFrame(refreshRaf);
+      ro.disconnect();
+      mo.disconnect();
+      window.removeEventListener("load", onLoad);
+      window.removeEventListener("resize", onLoad);
       tween.scrollTrigger?.kill();
       tween.kill();
-      markerTween.scrollTrigger?.kill();
-      markerTween.kill();
     };
   }, [reduced]);
 
