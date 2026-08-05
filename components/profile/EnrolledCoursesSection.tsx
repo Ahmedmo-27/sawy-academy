@@ -35,6 +35,9 @@ export function EnrolledCoursesSection() {
   );
   const { data, isLoading, error, progress, stepLabel, refetch } =
     useAdminResource(loader, "Loading enrollments");
+  // #region agent log
+  fetch('http://127.0.0.1:7439/ingest/93dbd8bb-58d0-4883-a233-6effa3c7ca00',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ac457f'},body:JSON.stringify({sessionId:'ac457f',runId:'pre-fix',hypothesisId:'C',location:'EnrolledCoursesSection.tsx:render',message:'enrollments section render',data:{isLoading,hasData:!!data,dataLen:Array.isArray(data)?data.length:null,hasError:!!error,error:error||null},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 
   if (isLoading) {
     return (
