@@ -17,6 +17,8 @@ const orderRoutes = require("./routes/orderRoutes");
 const userRoutes = require("./routes/userRoutes");
 const serviceRoutes = require("./routes/serviceRoutes");
 const errorHandler = require("./middleware/errorHandler");
+const requestLogger = require("./middleware/requestLogger");
+const logger = require("./utils/logger");
 
 dotenv.config();
 
@@ -41,6 +43,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(requestLogger);
 
 app.get("/api/health", (req, res) => {
   res.json({ success: true, data: { status: "ok" } });
@@ -73,13 +76,13 @@ async function startServer() {
 
   const port = process.env.PORT || 5000;
   app.listen(port, () => {
-    console.log(`Sawy Academy API listening on port ${port}`);
+    logger.info("Sawy Academy API listening", { port });
   });
 }
 
 if (require.main === module) {
   startServer().catch((err) => {
-    console.error(err);
+    logger.error("Failed to start Sawy Academy API", { error: err });
     process.exit(1);
   });
 }

@@ -21,8 +21,10 @@ function normalizeGroupId(value: unknown) {
   return "";
 }
 
-export function listCourseGroups() {
-  return apiGet<CourseGroup[]>("/api/courses/groups");
+export function listCourseGroups(options?: {
+  onProgress?: (progress: number) => void;
+}) {
+  return apiGet<CourseGroup[]>("/api/courses/groups", undefined, options);
 }
 
 // Backend currently exposes list-only (`GET /api/courses/groups`).

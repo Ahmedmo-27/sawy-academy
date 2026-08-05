@@ -1,5 +1,6 @@
 import type { ApiResponse } from "@/lib/api/types";
 import { getOrCreateDeviceId } from "@/lib/device/id";
+import { logger } from "@/lib/logger";
 
 interface RequestOptions {
   query?: Record<string, string | number | boolean | undefined | null>;
@@ -90,6 +91,7 @@ export async function apiRequest<T>(
 ) {
   let body: BodyInit | undefined;
   const headers = new Headers();
+  const startedAt = typeof performance !== "undefined" ? performance.now() : Date.now();
 
   if (options.body instanceof FormData) {
     body = options.body;
@@ -114,28 +116,78 @@ export async function apiRequest<T>(
     headers.set("X-Device-Id", getOrCreateDeviceId());
   }
 
-  const response = await fetch(withQuery(path, options.query), {
+  const url = withQuery(path, options.query);
+  const route =
+    typeof window !== "undefined" ? window.location.pathname : undefined;
+
+  logger.info("API request", {
     method,
-    headers,
-    body,
+    path: url,
+    route,
+    auth: useAuth,
+    device: useDevice,
   });
 
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method,
+      headers,
+      body,
+    });
+  } catch (error) {
+    logger.error("API request network failure", {
+      method,
+      path: url,
+      route,
+      error,
+    });
+    throw new ApiClientError("Network request failed.", 0);
+  }
+
   const payload = await readJsonResponse<T>(response, options.onProgress);
+  const durationMs = Math.round(
+    (typeof performance !== "undefined" ? performance.now() : Date.now()) -
+      startedAt
+  );
 
   if (!response.ok || !payload?.success) {
     const extras = payload ? getErrorExtras(payload) : {};
+    const message = payload
+      ? getErrorMessage(payload, "Request failed.")
+      : "Request failed.";
+    const logDetails = {
+      method,
+      path: url,
+      route,
+      status: response.status,
+      durationMs,
+      code: extras.code,
+      error: message,
+    };
+
+    if (response.status >= 500 || response.status === 0) {
+      logger.error("API request failed", logDetails);
+    } else {
+      logger.warn("API request rejected", logDetails);
+    }
+
     if (
       extras.code === "DEVICE_REMOVED" &&
       typeof window !== "undefined"
     ) {
       window.dispatchEvent(new CustomEvent("sawy:session-invalid"));
     }
-    throw new ApiClientError(
-      payload ? getErrorMessage(payload, "Request failed.") : "Request failed.",
-      response.status,
-      extras
-    );
+    throw new ApiClientError(message, response.status, extras);
   }
+
+  logger.info("API request succeeded", {
+    method,
+    path: url,
+    route,
+    status: response.status,
+    durationMs,
+  });
 
   return payload.data as T;
 }

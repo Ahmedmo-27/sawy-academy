@@ -12,8 +12,9 @@ import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { SectionLoader } from "@/components/feedback/SectionLoader";
-import { apiGet } from "@/lib/api/client";
+import { listCourseGroups } from "@/lib/api/courseGroups";
 import type { Course, CourseGroup } from "@/lib/api/types";
+import { logger } from "@/lib/logger";
 import { parseLevelProgress } from "@/lib/motion";
 import { toSlug } from "@/lib/slug";
 
@@ -91,15 +92,30 @@ export default function CoursesPage() {
 
   useEffect(() => {
     let cancelled = false;
-    apiGet<CourseGroup[]>("/api/course-groups", undefined, {
+    logger.info("Courses page loading curriculum", {
+      page: "/courses",
+      endpoint: "/api/courses/groups",
+    });
+    listCourseGroups({
       onProgress: (value) => {
         if (!cancelled) setProgress(value);
       },
     })
       .then((data) => {
-        if (!cancelled) setCourseGroups(data);
+        if (!cancelled) {
+          setCourseGroups(data);
+          logger.info("Courses page curriculum loaded", {
+            page: "/courses",
+            groupCount: data.length,
+          });
+        }
       })
-      .catch(() => {
+      .catch((error) => {
+        logger.error("Courses page failed to load curriculum", {
+          page: "/courses",
+          endpoint: "/api/courses/groups",
+          error,
+        });
         if (!cancelled) setCourseGroups([]);
       })
       .finally(() => {
