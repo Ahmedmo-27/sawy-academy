@@ -6,10 +6,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { getCart, putCart } from "@/lib/api/cart";
 import { formatPrice, parsePrice } from "@/lib/cart/pricing";
+import { useAuth } from "@/hooks/useAuth";
 
 export type CartItemKind = "product" | "course" | "diploma";
 
@@ -41,47 +44,139 @@ interface CartContextValue {
 }
 
 const STORAGE_KEY = "sawy-academy-cart";
+const SYNC_DEBOUNCE_MS = 400;
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 function normalizeItem(item: CartItemInput): CartItem {
   return {
-    ...item,
+    id: item.id,
+    name: item.name,
+    price: item.price ?? "",
+    kind: item.kind,
     quantity: Math.max(1, item.quantity ?? 1),
+    category: item.category,
+    image: item.image,
   };
 }
 
+function readLocalItems(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as CartItem[];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((item) =>
+      normalizeItem({
+        ...item,
+        quantity: item.quantity ?? 1,
+      })
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** Union by id: local display fields win; quantity is the max of both sides. */
+function mergeCartItems(local: CartItem[], remote: CartItem[]): CartItem[] {
+  const map = new Map<string, CartItem>();
+
+  for (const item of remote) {
+    map.set(item.id, normalizeItem(item));
+  }
+
+  for (const item of local) {
+    const existing = map.get(item.id);
+    if (existing) {
+      map.set(
+        item.id,
+        normalizeItem({
+          ...existing,
+          ...item,
+          quantity: Math.max(existing.quantity, item.quantity ?? 1),
+        })
+      );
+    } else {
+      map.set(item.id, normalizeItem(item));
+    }
+  }
+
+  return Array.from(map.values());
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [remoteReady, setRemoteReady] = useState(false);
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as CartItem[];
-        if (Array.isArray(parsed)) {
-          setItems(
-            parsed.map((item) =>
-              normalizeItem({
-                ...item,
-                quantity: item.quantity ?? 1,
-              })
-            )
-          );
-        }
-      }
-    } catch {
-      // Ignore corrupt cart storage.
-    }
+    setItems(readLocalItems());
     setHydrated(true);
   }, []);
 
   useEffect(() => {
+    if (!hydrated || authLoading) return;
+
+    if (!isAuthenticated) {
+      setRemoteReady(true);
+      return;
+    }
+
+    let cancelled = false;
+    setRemoteReady(false);
+
+    async function syncFromServer() {
+      try {
+        const remote = await getCart();
+        if (cancelled) return;
+
+        const remoteItems = (remote.items || []).map((item) =>
+          normalizeItem({
+            ...item,
+            price: item.price ?? "",
+            quantity: item.quantity ?? 1,
+          })
+        );
+
+        const merged = mergeCartItems(itemsRef.current, remoteItems);
+        setItems(merged);
+      } catch {
+        // Keep the local cart when the server is unreachable.
+      } finally {
+        if (!cancelled) {
+          setRemoteReady(true);
+        }
+      }
+    }
+
+    void syncFromServer();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated, authLoading, isAuthenticated, user.id]);
+
+  useEffect(() => {
     if (!hydrated) return;
-    // TODO: Sync to GET/PUT /api/cart once authenticated cart endpoints exist.
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated || !remoteReady || !isAuthenticated) return;
+
+    const timer = window.setTimeout(() => {
+      void putCart(items).catch(() => {
+        // Local cart remains the source of truth on sync failure.
+      });
+    }, SYNC_DEBOUNCE_MS);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [items, hydrated, remoteReady, isAuthenticated]);
 
   const addItem = useCallback((item: CartItemInput) => {
     setItems((prev) => {
