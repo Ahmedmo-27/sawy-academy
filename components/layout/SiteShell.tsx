@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { ToastProvider } from "@/components/feedback/ToastProvider";
 import { SiteContentProvider } from "@/components/cms/SiteContentProvider";
+import { PlatformLogger } from "@/components/logging/PlatformLogger";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SplashLoader } from "@/components/SplashLoader";
@@ -22,6 +23,7 @@ export function SiteShell({ children }: SiteShellProps) {
     <AuthProvider>
       <ToastProvider>
         <SiteContentProvider>
+          <PlatformLogger />
           {isAdmin ? (
             <>{children}</>
           ) : (
