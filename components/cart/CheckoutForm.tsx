@@ -31,8 +31,7 @@ export function CheckoutForm() {
 
     setSubmitting(true);
     try {
-      // TODO: Confirm create-order payload against the real POST /api/orders contract.
-      await createOrder({
+      const order = await createOrder({
         items: items.map((item) => ({
           id: item.id,
           quantity: item.quantity,
@@ -43,8 +42,9 @@ export function CheckoutForm() {
         screenshotUrl,
       });
       clearCart();
-      // TODO: Route to an order-confirmation sheet once that page exists.
-      router.replace("/cart");
+      router.replace(
+        `/checkout/confirmation?orderId=${encodeURIComponent(order.id)}`
+      );
     } catch (err) {
       setError(
         err instanceof ApiClientError

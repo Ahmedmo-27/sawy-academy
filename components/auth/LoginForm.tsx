@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useId, useState } from "react";
+import { DeviceLimitPanel } from "@/components/auth/DeviceLimitPanel";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiClientError } from "@/lib/api/client";
+import type { RegisteredDevice } from "@/lib/api/devices";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -19,13 +21,26 @@ export function LoginForm() {
   const [fieldError, setFieldError] = useState("");
   const [authError, setAuthError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [blockedDevices, setBlockedDevices] = useState<RegisteredDevice[] | null>(
+    null
+  );
 
   const errorMessage = authError || fieldError;
+
+  async function attemptLogin(trimmedEmail: string, loginPassword: string) {
+    const user = await login({ email: trimmedEmail, password: loginPassword });
+    if (user.role === "admin") {
+      router.replace("/admin");
+    } else {
+      router.replace("/dashboard");
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAuthError("");
     setFieldError("");
+    setBlockedDevices(null);
 
     const trimmedEmail = email.trim();
     if (!trimmedEmail || !password) {
@@ -39,15 +54,17 @@ export function LoginForm() {
 
     setSubmitting(true);
     try {
-      const user = await login({ email: trimmedEmail, password });
-      // Role-based landing: admins → control room, students → studio dashboard.
-      if (user.role === "admin") {
-        router.replace("/admin");
-      } else {
-        // TODO: Confirm student dashboard route once /dashboard ships.
-        router.replace("/dashboard");
-      }
+      await attemptLogin(trimmedEmail, password);
     } catch (err) {
+      if (
+        err instanceof ApiClientError &&
+        err.code === "DEVICE_LIMIT_REACHED" &&
+        err.devices?.length
+      ) {
+        setBlockedDevices(err.devices);
+        return;
+      }
+
       if (err instanceof ApiClientError && err.status === 401) {
         setAuthError("Invalid credentials. Check your email and password.");
       } else {
@@ -70,6 +87,37 @@ export function LoginForm() {
         <p className="eyebrow mb-3">Sawy Academy — Access</p>
         <p className="type-heading">Sign In</p>
       </div>
+
+      {blockedDevices && (
+        <DeviceLimitPanel
+          devices={blockedDevices}
+          email={email.trim()}
+          password={password}
+          onRetryLogin={async () => {
+            setSubmitting(true);
+            setAuthError("");
+            try {
+              await attemptLogin(email.trim(), password);
+            } catch (err) {
+              if (
+                err instanceof ApiClientError &&
+                err.code === "DEVICE_LIMIT_REACHED" &&
+                err.devices?.length
+              ) {
+                setBlockedDevices(err.devices);
+                return;
+              }
+              setAuthError(
+                err instanceof Error
+                  ? err.message
+                  : "Unable to sign in. Try again shortly."
+              );
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+        />
+      )}
 
       {errorMessage && (
         <p id={formErrorId} className="type-body text-clay mb-6" role="alert">
@@ -145,13 +193,6 @@ export function LoginForm() {
             Create an account
           </Link>
         </p>
-        {/* TODO: Wire forgot-password once /api/auth/forgot-password exists.
-        <p className="type-infill">
-          <Link href="/forgot-password" className="action-secondary">
-            Forgot password?
-          </Link>
-        </p>
-        */}
       </div>
     </div>
   );

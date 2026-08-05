@@ -1,12 +1,17 @@
 const express = require("express");
 const researchController = require("../controllers/researchController");
+const {
+  authenticate,
+  requireAdmin,
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
+const adminWrite = [authenticate, requireAdmin];
 
 router.get("/", researchController.getAll);
 router.get("/:slug", researchController.getBySlug);
-router.post("/", /* TODO: adminOnly middleware */ researchController.create);
-router.put("/:slug", /* TODO: adminOnly middleware */ researchController.update);
-router.delete("/:slug", /* TODO: adminOnly middleware */ researchController.remove);
+router.post("/", adminWrite, researchController.create);
+router.put("/:slug", adminWrite, researchController.update);
+router.delete("/:slug", adminWrite, researchController.remove);
 
 module.exports = router;

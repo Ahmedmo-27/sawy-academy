@@ -1,13 +1,18 @@
 const express = require("express");
 const projectController = require("../controllers/projectController");
+const {
+  authenticate,
+  requireAdmin,
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
+const adminWrite = [authenticate, requireAdmin];
 
 router.get("/", projectController.getAll);
-router.patch("/reorder", /* TODO: adminOnly middleware */ projectController.reorder);
+router.patch("/reorder", adminWrite, projectController.reorder);
 router.get("/:slug", projectController.getBySlug);
-router.post("/", /* TODO: adminOnly middleware */ projectController.create);
-router.put("/:slug", /* TODO: adminOnly middleware */ projectController.update);
-router.delete("/:slug", /* TODO: adminOnly middleware */ projectController.remove);
+router.post("/", adminWrite, projectController.create);
+router.put("/:slug", adminWrite, projectController.update);
+router.delete("/:slug", adminWrite, projectController.remove);
 
 module.exports = router;

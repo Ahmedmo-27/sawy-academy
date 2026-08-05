@@ -11,6 +11,7 @@ import { CoursePickerField } from "@/components/admin/CoursePickerField";
 import { FormField } from "@/components/admin/FormField";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { LessonsManager } from "@/components/admin/LessonsManager";
+import { UserDevicesPanel } from "@/components/admin/UserDevicesPanel";
 import {
   resourceConfigs,
   type ResourceField,
@@ -336,6 +337,12 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
               lessons={(record as unknown as Course).lessons ?? []}
             />
           </div>
+        </ThresholdFrame>
+      )}
+
+      {kind === "users" && isEdit && lookupKey && (
+        <ThresholdFrame label="REGISTERED DEVICES">
+          <UserDevicesPanel userId={lookupKey} />
         </ThresholdFrame>
       )}
 

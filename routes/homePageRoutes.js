@@ -1,14 +1,19 @@
 const express = require("express");
 const homePageController = require("../controllers/homePageController");
+const {
+  authenticate,
+  requireAdmin,
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
+const adminWrite = [authenticate, requireAdmin];
 
 router.get("/", homePageController.get);
-router.put("/", /* TODO: adminOnly middleware */ homePageController.update);
-router.patch("/reorder", /* TODO: adminOnly middleware */ homePageController.reorder);
-router.post("/sections", /* TODO: adminOnly middleware */ homePageController.createSection);
-router.put("/sections/:id", /* TODO: adminOnly middleware */ homePageController.updateSection);
-router.delete("/sections/:id", /* TODO: adminOnly middleware */ homePageController.removeSection);
-router.post("/reset", /* TODO: adminOnly middleware */ homePageController.reset);
+router.put("/", adminWrite, homePageController.update);
+router.patch("/reorder", adminWrite, homePageController.reorder);
+router.post("/sections", adminWrite, homePageController.createSection);
+router.put("/sections/:id", adminWrite, homePageController.updateSection);
+router.delete("/sections/:id", adminWrite, homePageController.removeSection);
+router.post("/reset", adminWrite, homePageController.reset);
 
 module.exports = router;

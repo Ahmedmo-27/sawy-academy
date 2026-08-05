@@ -1,6 +1,7 @@
-function createHttpError(statusCode, message) {
+function createHttpError(statusCode, message, extras = {}) {
   const err = new Error(message);
   err.statusCode = statusCode;
+  Object.assign(err, extras);
   return err;
 }
 

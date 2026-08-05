@@ -146,8 +146,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   function confirmLogout() {
     setLogoutOpen(false);
-    logout();
-    router.replace("/login");
+    void logout().then(() => router.replace("/login"));
   }
 
   function toggleSidebar() {

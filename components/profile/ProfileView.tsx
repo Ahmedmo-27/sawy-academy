@@ -6,6 +6,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountActionsSection } from "@/components/profile/AccountActionsSection";
+import { DevicesSection } from "@/components/profile/DevicesSection";
 import { EnrolledCoursesSection } from "@/components/profile/EnrolledCoursesSection";
 import { OrderHistorySection } from "@/components/profile/OrderHistorySection";
 import { ProfileIdentityPanel } from "@/components/profile/ProfileIdentityPanel";
@@ -45,6 +46,12 @@ export function ProfileView() {
 
             <Reveal variant="infill">
               <ServiceRequestsSection />
+            </Reveal>
+
+            <SectionCutDivider label="DEVICES" />
+
+            <Reveal variant="infill">
+              <DevicesSection />
             </Reveal>
 
             <SectionCutDivider label="ACCOUNT" />

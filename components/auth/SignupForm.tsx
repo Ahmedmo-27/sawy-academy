@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useId, useState } from "react";
+import { DeviceLimitPanel } from "@/components/auth/DeviceLimitPanel";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiClientError } from "@/lib/api/client";
+import type { RegisteredDevice } from "@/lib/api/devices";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
@@ -22,13 +24,35 @@ export function SignupForm() {
   const [fieldError, setFieldError] = useState("");
   const [authError, setAuthError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [blockedDevices, setBlockedDevices] = useState<RegisteredDevice[] | null>(
+    null
+  );
 
   const errorMessage = authError || fieldError;
+
+  async function attemptSignup(
+    trimmedName: string,
+    trimmedEmail: string,
+    signupPassword: string
+  ) {
+    const user = await signup({
+      name: trimmedName,
+      email: trimmedEmail,
+      password: signupPassword,
+    });
+
+    if (user.role === "admin") {
+      router.replace("/admin");
+    } else {
+      router.replace("/dashboard");
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAuthError("");
     setFieldError("");
+    setBlockedDevices(null);
 
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
@@ -58,18 +82,17 @@ export function SignupForm() {
 
     setSubmitting(true);
     try {
-      const user = await signup({
-        name: trimmedName,
-        email: trimmedEmail,
-        password,
-      });
-
-      if (user.role === "admin") {
-        router.replace("/admin");
-      } else {
-        router.replace("/dashboard");
-      }
+      await attemptSignup(trimmedName, trimmedEmail, password);
     } catch (err) {
+      if (
+        err instanceof ApiClientError &&
+        err.code === "DEVICE_LIMIT_REACHED" &&
+        err.devices?.length
+      ) {
+        setBlockedDevices(err.devices);
+        return;
+      }
+
       if (err instanceof ApiClientError && err.status === 409) {
         setAuthError("An account with this email already exists.");
       } else {
@@ -92,6 +115,37 @@ export function SignupForm() {
         <p className="eyebrow mb-3">Sawy Academy — Access</p>
         <p className="type-heading">Sign Up</p>
       </div>
+
+      {blockedDevices && (
+        <DeviceLimitPanel
+          devices={blockedDevices}
+          email={email.trim()}
+          password={password}
+          onRetryLogin={async () => {
+            setSubmitting(true);
+            setAuthError("");
+            try {
+              await attemptSignup(name.trim(), email.trim(), password);
+            } catch (err) {
+              if (
+                err instanceof ApiClientError &&
+                err.code === "DEVICE_LIMIT_REACHED" &&
+                err.devices?.length
+              ) {
+                setBlockedDevices(err.devices);
+                return;
+              }
+              setAuthError(
+                err instanceof Error
+                  ? err.message
+                  : "Unable to create account. Try again shortly."
+              );
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+        />
+      )}
 
       {errorMessage && (
         <p id={formErrorId} className="type-body text-clay mb-6" role="alert">
