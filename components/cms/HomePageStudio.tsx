@@ -16,6 +16,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
+import { SectionLoader } from "@/components/feedback/SectionLoader";
 import { useSiteSettings } from "@/components/cms/SiteContentProvider";
 import { listCourseGroups } from "@/lib/api/courseGroups";
 import { getHomePage } from "@/lib/api/homepage";
@@ -30,6 +31,7 @@ import type {
   Research,
 } from "@/lib/api/types";
 import { toSlug } from "@/lib/slug";
+import { runParallelStagedLoad } from "@/lib/load/stagedLoad";
 
 function text(value: unknown, fallback = "") {
   return typeof value === "string" ? value : fallback;
@@ -575,6 +577,8 @@ export function HomePageStudio() {
   const [products, setProducts] = useState<Product[]>([]);
   const [researches, setResearches] = useState<Research[]>([]);
   const [ready, setReady] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [loadStepLabel, setLoadStepLabel] = useState("Loading studio…");
 
   useEffect(() => {
     let cancelled = false;
@@ -582,13 +586,32 @@ export function HomePageStudio() {
     async function load() {
       try {
         const [home, portfolio, courseGroups, shop, research] =
-          await Promise.all([
-            getHomePage(),
-            listProjects().catch(() => [] as Project[]),
-            listCourseGroups().catch(() => [] as CourseGroup[]),
-            listProducts().catch(() => [] as Product[]),
-            listResearch().catch(() => [] as Research[]),
-          ]);
+          await runParallelStagedLoad(
+            [
+              { label: "Homepage layout", run: getHomePage },
+              {
+                label: "Portfolio projects",
+                run: () => listProjects().catch(() => [] as Project[]),
+              },
+              {
+                label: "Course groups",
+                run: () => listCourseGroups().catch(() => [] as CourseGroup[]),
+              },
+              {
+                label: "Shop products",
+                run: () => listProducts().catch(() => [] as Product[]),
+              },
+              {
+                label: "Research entries",
+                run: () => listResearch().catch(() => [] as Research[]),
+              },
+            ],
+            ({ progress, stepLabel }) => {
+              if (cancelled) return;
+              setLoadProgress(progress);
+              setLoadStepLabel(stepLabel);
+            }
+          );
 
         if (cancelled) return;
         setSections(
@@ -618,7 +641,11 @@ export function HomePageStudio() {
   if (!ready) {
     return (
       <PageContainer className="pt-[calc(var(--nav-height)+4rem)] pb-20">
-        <p className="label-caps text-charcoal-infill">Loading studio…</p>
+        <SectionLoader
+          label="Loading studio…"
+          stepLabel={loadStepLabel}
+          progress={loadProgress}
+        />
       </PageContainer>
     );
   }

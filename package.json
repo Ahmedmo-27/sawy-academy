@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node --use-system-ca ./node_modules/next/dist/bin/next dev",
     "dev:api": "node server.js",
-    "build": "next build",
-    "start": "next start",
+    "build": "node --use-system-ca ./node_modules/next/dist/bin/next build",
+    "start": "node --use-system-ca ./node_modules/next/dist/bin/next start",
     "start:api": "node server.js",
     "seed": "node seeders/index.js",
     "seed:admin": "node seeders/seedAdmin.js",

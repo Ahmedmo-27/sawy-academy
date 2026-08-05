@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Reveal } from "@/components/Reveal";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
-import { listResearch } from "@/lib/api/research";
+import { SectionLoader } from "@/components/feedback/SectionLoader";
+import { apiGet } from "@/lib/api/client";
 import type { Research, ResearchCategory } from "@/lib/api/types";
 
 const researchFilters = [
@@ -21,10 +22,15 @@ export function ResearchStudio() {
   const [active, setActive] = useState<Filter>("All");
   const [researches, setResearches] = useState<Research[]>([]);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    listResearch()
+    apiGet<Research[]>("/api/research", undefined, {
+      onProgress: (value) => {
+        if (!cancelled) setProgress(value);
+      },
+    })
       .then((data) => {
         if (!cancelled) setResearches(data);
       })
@@ -76,7 +82,13 @@ export function ResearchStudio() {
       <Section rhythm="standard" contained={false}>
         <PageContainer>
           <div className="max-w-3xl">
-            {loading && <p className="type-body py-16">Loading research…</p>}
+            {loading && (
+              <SectionLoader
+                label="Loading research…"
+                stepLabel="Fetching publications"
+                progress={progress}
+              />
+            )}
             {!loading &&
               filtered.map((item, i) => (
                 <Reveal key={item.id} variant="grid" delay={i * 50}>

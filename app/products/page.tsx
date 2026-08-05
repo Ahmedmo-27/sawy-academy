@@ -8,16 +8,22 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import { listProducts } from "@/lib/api/products";
+import { SectionLoader } from "@/components/feedback/SectionLoader";
+import { apiGet } from "@/lib/api/client";
 import type { Product } from "@/lib/api/types";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    listProducts()
+    apiGet<Product[]>("/api/products", undefined, {
+      onProgress: (value) => {
+        if (!cancelled) setProgress(value);
+      },
+    })
       .then((data) => {
         if (!cancelled) setProducts(data);
       })
@@ -42,7 +48,11 @@ export default function ProductsPage() {
         <PageContainer>
           <ThresholdFrame label="Bay 05 — Product Grid">
             {loading ? (
-              <p className="type-body py-16">Loading products…</p>
+              <SectionLoader
+                label="Loading products…"
+                stepLabel="Fetching catalogue"
+                progress={progress}
+              />
             ) : (
               <GsapStagger className="bay-grid pt-6">
                 {products.map((product) => (

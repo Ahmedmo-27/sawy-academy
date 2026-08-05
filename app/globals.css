@@ -589,6 +589,15 @@
 .loader-star-stroke-delay-2 { animation-delay: 0.6s; }
 .loader-pulse { animation: loader-pulse 1.6s ease-in-out infinite; }
 
+@keyframes process-progress-indeterminate {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(420%); }
+}
+
+.process-progress-indeterminate {
+  animation: process-progress-indeterminate 1.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .loader-star,
   .loader-star-stroke,
@@ -600,6 +609,12 @@
 
   .loader-pulse {
     opacity: 1 !important;
+  }
+
+  .process-progress-indeterminate {
+    animation: none !important;
+    transform: none !important;
+    width: 35%;
   }
 
   .project-overlay { @apply opacity-100; }

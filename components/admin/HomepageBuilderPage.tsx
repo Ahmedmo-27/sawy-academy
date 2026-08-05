@@ -9,6 +9,7 @@ import { FormField } from "@/components/admin/FormField";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAdminResource } from "@/hooks/useAdminResource";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import {
   getCtaDestinations,
   getJumpLinkDestinations,
@@ -18,13 +19,12 @@ import { toFriendlyAdminError } from "@/lib/admin/friendly";
 import {
   createHomeSection,
   deleteHomeSection,
-  getHomePage,
   reorderHomeSections,
   resetHomePage,
   updateHomeSection,
 } from "@/lib/api/homepage";
 import { getSiteSettings } from "@/lib/api/settings";
-import type { HomeSection, HomeSectionType, NavLinkItem } from "@/lib/api/types";
+import type { HomePageConfig, HomeSection, HomeSectionType, NavLinkItem } from "@/lib/api/types";
 
 const SECTION_TYPES: { value: HomeSectionType; label: string }[] = [
   { value: "hero", label: "Hero" },
@@ -486,9 +486,17 @@ function SectionFields({
 }
 
 export function HomepageBuilderPage() {
-  const loader = useCallback(() => getHomePage(), []);
-  const { data, setData, isLoading, error, refetch } =
-    useAdminResource(loader);
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<HomePageConfig>(
+        "/api/homepage",
+        "Fetching homepage layout",
+        onProgress
+      ),
+    []
+  );
+  const { data, setData, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading homepage");
   const { success, error: toastError, neutral } = useToast();
   const [busy, setBusy] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -634,7 +642,15 @@ export function HomepageBuilderPage() {
     });
   }
 
-  if (isLoading) return <AdminLoader label="Loading homepage" />;
+  if (isLoading) {
+    return (
+      <AdminLoader
+        label="Loading homepage"
+        stepLabel={stepLabel}
+        progress={progress}
+      />
+    );
+  }
   if (error) {
     return (
       <AdminErrorState

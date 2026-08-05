@@ -80,23 +80,49 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
   const [loadError, setLoadError] = useState("");
   const [saveError, setSaveError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [loadStepLabel, setLoadStepLabel] = useState("Loading form…");
   const [isSaving, setIsSaving] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const loadRecord = useCallback(async () => {
     setIsLoading(true);
     setLoadError("");
+    setLoadProgress(0);
+    setLoadStepLabel("Loading form fields…");
 
     try {
+      const fieldsWithOptions = config.fields.filter(
+        (field) => field.optionsLoader
+      );
+      const totalSteps = fieldsWithOptions.length + (lookupKey ? 1 : 0);
+      let completedSteps = 0;
+
+      const reportProgress = (stepLabel: string) => {
+        setLoadStepLabel(stepLabel);
+        setLoadProgress(
+          totalSteps === 0
+            ? 100
+            : Math.round((completedSteps / totalSteps) * 100)
+        );
+      };
+
+      reportProgress("Loading form fields…");
+
       const resolvedFields = await Promise.all(
         config.fields.map(async (field) => {
           if (!field.optionsLoader) return field;
           try {
-            return {
+            const nextField = {
               ...field,
               options: await field.optionsLoader(),
             };
+            completedSteps += 1;
+            reportProgress(`Loading ${field.label.toLowerCase()}…`);
+            return nextField;
           } catch {
+            completedSteps += 1;
+            reportProgress(`Loading ${field.label.toLowerCase()}…`);
             return field;
           }
         })
@@ -105,6 +131,7 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
 
       if (!lookupKey) {
         setForm(config.emptyForm);
+        setLoadProgress(100);
         return;
       }
 
@@ -114,14 +141,18 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
         setForm(config.toForm(cached));
       }
 
+      reportProgress("Loading record…");
+
       try {
         const nextRecord = await config.get(lookupKey);
+        completedSteps += 1;
+        setLoadProgress(100);
         setRecord(nextRecord);
         setForm(config.toForm(nextRecord));
         cacheAdminRecord(kind, lookupKey, nextRecord);
       } catch (err) {
         if (cached) {
-          // Keep the cached form so the editor stays usable.
+          setLoadProgress(100);
           return;
         }
         throw err;
@@ -201,7 +232,13 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
   }
 
   if (isLoading) {
-    return <AdminLoader label="Loading…" />;
+    return (
+      <AdminLoader
+        label="Loading…"
+        stepLabel={loadStepLabel}
+        progress={loadProgress}
+      />
+    );
   }
 
   if (loadError) {

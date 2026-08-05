@@ -11,7 +11,8 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import { listCourseGroups } from "@/lib/api/courseGroups";
+import { SectionLoader } from "@/components/feedback/SectionLoader";
+import { apiGet } from "@/lib/api/client";
 import type { Course, CourseGroup } from "@/lib/api/types";
 import { parseLevelProgress } from "@/lib/motion";
 import { toSlug } from "@/lib/slug";
@@ -86,10 +87,15 @@ function CourseListing({
 export default function CoursesPage() {
   const [courseGroups, setCourseGroups] = useState<CourseGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    listCourseGroups()
+    apiGet<CourseGroup[]>("/api/course-groups", undefined, {
+      onProgress: (value) => {
+        if (!cancelled) setProgress(value);
+      },
+    })
       .then((data) => {
         if (!cancelled) setCourseGroups(data);
       })
@@ -112,7 +118,13 @@ export default function CoursesPage() {
 
       <Section rhythm="standard" contained={false}>
         <PageContainer className="space-y-16 lg:space-y-24">
-          {loading && <p className="type-body">Loading curriculum…</p>}
+          {loading && (
+            <SectionLoader
+              label="Loading curriculum…"
+              stepLabel="Fetching course groups"
+              progress={progress}
+            />
+          )}
           {!loading &&
             courseGroups.map((group, groupIndex) => {
               const slug = groupSlug(group);

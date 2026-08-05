@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useId, useRef, useState } from "react";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
+import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
 import { uploadImage } from "@/lib/api/upload";
 
 interface ReferenceImagesFieldProps {
@@ -22,19 +23,40 @@ export function ReferenceImagesField({
   const descId = useId();
   const errorId = useId();
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStepLabel, setUploadStepLabel] = useState("");
   const [uploadError, setUploadError] = useState("");
 
   async function handleFiles(files: FileList | null) {
     if (!files?.length) return;
 
     setIsUploading(true);
+    setUploadProgress(0);
     setUploadError("");
 
+    const fileList = Array.from(files);
     const uploaded: string[] = [];
 
     try {
-      for (const file of Array.from(files)) {
-        const response = await uploadImage(file);
+      for (let index = 0; index < fileList.length; index += 1) {
+        const file = fileList[index];
+        setUploadStepLabel(
+          fileList.length > 1
+            ? `Uploading image ${index + 1} of ${fileList.length}`
+            : "Uploading image"
+        );
+
+        const response = await uploadImage(file, {
+          onProgress: (fileProgress) => {
+            const overall =
+              fileList.length === 1
+                ? fileProgress
+                : Math.round(
+                    ((index + fileProgress / 100) / fileList.length) * 100
+                  );
+            setUploadProgress(overall);
+          },
+        });
         uploaded.push(response.url);
       }
       onChange([...value, ...uploaded]);
@@ -80,7 +102,7 @@ export function ReferenceImagesField({
       >
         <div className="py-6 text-center">
           <p className="eyebrow text-clay">
-            {isUploading ? "Uploading…" : "Drop images here"}
+            {isUploading ? uploadStepLabel || "Uploading…" : "Drop images here"}
           </p>
           <p className="type-infill mt-3">Or click to select files</p>
         </div>
@@ -97,6 +119,15 @@ export function ReferenceImagesField({
         aria-labelledby={labelId}
         onChange={(event) => void handleFiles(event.target.files)}
       />
+
+      {isUploading && (
+        <ProcessProgressBar
+          className="mt-3"
+          compact
+          stepLabel={uploadStepLabel || "Uploading images"}
+          progress={uploadProgress}
+        />
+      )}
 
       {value.length > 0 && (
         <ul className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-4">

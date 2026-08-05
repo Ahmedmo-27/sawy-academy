@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useId, useRef, useState } from "react";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
+import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
 import { uploadImage } from "@/lib/api/upload";
 
 interface ImageUploadFieldProps {
@@ -29,6 +30,7 @@ export function ImageUploadField({
   const descId = useId();
   const errorId = useId();
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState("");
 
   const error = externalError || uploadError;
@@ -37,10 +39,13 @@ export function ImageUploadField({
     if (!file) return;
 
     setIsUploading(true);
+    setUploadProgress(0);
     setUploadError("");
 
     try {
-      const response = await uploadImage(file);
+      const response = await uploadImage(file, {
+        onProgress: setUploadProgress,
+      });
       onChange(response.url);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed.");
@@ -115,9 +120,12 @@ export function ImageUploadField({
       />
 
       {isUploading && (
-        <p className="label-caps mt-3 text-charcoal-muted loader-pulse" aria-live="polite">
-          Uploading
-        </p>
+        <ProcessProgressBar
+          className="mt-3"
+          compact
+          stepLabel="Uploading image"
+          progress={uploadProgress}
+        />
       )}
       {error && (
         <p id={errorId} className="type-infill mt-3 text-clay" role="alert">

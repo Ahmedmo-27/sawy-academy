@@ -6,7 +6,8 @@ import { ProjectCard } from "@/components/portfolio/ProjectCard";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import { listProjects } from "@/lib/api/portfolio";
+import { SectionLoader } from "@/components/feedback/SectionLoader";
+import { apiGet } from "@/lib/api/client";
 import type { Project, ProjectCategory } from "@/lib/api/types";
 
 const portfolioFilters = [
@@ -35,10 +36,15 @@ export function PortfolioStudio() {
   const [active, setActive] = useState<Filter>("All");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    listProjects()
+    apiGet<Project[]>("/api/portfolio", { limit: 500 }, {
+      onProgress: (value) => {
+        if (!cancelled) setProgress(value);
+      },
+    })
       .then((data) => {
         if (!cancelled) {
           setProjects(
@@ -93,7 +99,11 @@ export function PortfolioStudio() {
         <PageContainer>
           <ThresholdFrame label="Bay 02 — Project Grid">
             {loading ? (
-              <p className="type-body py-16">Loading projects…</p>
+              <SectionLoader
+                label="Loading projects…"
+                stepLabel="Fetching portfolio"
+                progress={progress}
+              />
             ) : (
               <>
                 <GsapStagger

@@ -8,7 +8,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { DataTable } from "@/components/admin/DataTable";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { useAdminResource } from "@/hooks/useAdminResource";
-import { listServiceRequests } from "@/lib/api/services";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import type { ServiceRequest } from "@/lib/api/types";
 
 function requestKey(request: ServiceRequest) {
@@ -17,8 +17,17 @@ function requestKey(request: ServiceRequest) {
 
 export function ServiceQueuePage() {
   const router = useRouter();
-  const loader = useCallback(() => listServiceRequests(), []);
-  const { data, isLoading, error, refetch } = useAdminResource(loader);
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<ServiceRequest[]>(
+        "/api/services",
+        "Fetching service requests",
+        onProgress
+      ),
+    []
+  );
+  const { data, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading…");
 
   return (
     <div>
@@ -28,7 +37,13 @@ export function ServiceQueuePage() {
         description="Messages from people asking for design, research, or collaboration help."
       />
 
-      {isLoading && <AdminLoader label="Loading…" />}
+      {isLoading && (
+        <AdminLoader
+          label="Loading…"
+          stepLabel={stepLabel}
+          progress={progress}
+        />
+      )}
       {!isLoading && error && (
         <AdminErrorState
           title="Service requests aren't available yet"

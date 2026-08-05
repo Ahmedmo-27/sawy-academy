@@ -8,8 +8,8 @@ import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { ApiClientError } from "@/lib/api/client";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import {
-  listMyDevices,
   removeMyDevice,
   type RegisteredDevice,
 } from "@/lib/api/devices";
@@ -27,8 +27,17 @@ function formatLastActive(value: string) {
 
 export function DevicesSection() {
   const { success } = useToast();
-  const loader = useCallback(() => listMyDevices(), []);
-  const { data, isLoading, error, refetch } = useAdminResource(loader);
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<{ devices: RegisteredDevice[]; currentDeviceId: string }>(
+        "/api/devices/me",
+        "Fetching registered devices",
+        onProgress
+      ),
+    []
+  );
+  const { data, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading registered devices");
   const [removeTarget, setRemoveTarget] = useState<RegisteredDevice | null>(
     null
   );
@@ -62,7 +71,13 @@ export function DevicesSection() {
   }
 
   if (isLoading) {
-    return <AdminLoader label="Loading registered devices" />;
+    return (
+      <AdminLoader
+        label="Loading registered devices"
+        stepLabel={stepLabel}
+        progress={progress}
+      />
+    );
   }
 
   if (error) {

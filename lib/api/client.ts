@@ -6,6 +6,13 @@ interface RequestOptions {
   body?: unknown | FormData;
   auth?: boolean;
   device?: boolean;
+  onProgress?: (progress: number) => void;
+}
+
+interface UploadProgressOptions {
+  onProgress?: (progress: number) => void;
+  auth?: boolean;
+  device?: boolean;
 }
 
 export class ApiClientError extends Error {
@@ -113,9 +120,7 @@ export async function apiRequest<T>(
     body,
   });
 
-  const payload = (await response.json().catch(() => null)) as
-    | ApiResponse<T>
-    | null;
+  const payload = await readJsonResponse<T>(response, options.onProgress);
 
   if (!response.ok || !payload?.success) {
     const extras = payload ? getErrorExtras(payload) : {};
@@ -175,6 +180,127 @@ export function apiDelete<T>(
   return apiRequest<T>(path, "DELETE", { ...options, body });
 }
 
+async function readJsonResponse<T>(
+  response: Response,
+  onProgress?: (progress: number) => void
+) {
+  if (!onProgress || !response.body) {
+    return (await response.json().catch(() => null)) as ApiResponse<T> | null;
+  }
+
+  const contentLength = response.headers.get("content-length");
+  const total = contentLength ? Number.parseInt(contentLength, 10) : 0;
+
+  if (!Number.isFinite(total) || total <= 0) {
+    onProgress(50);
+    const payload = (await response.json().catch(() => null)) as
+      | ApiResponse<T>
+      | null;
+    onProgress(100);
+    return payload;
+  }
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (!value) continue;
+    chunks.push(value);
+    received += value.length;
+    onProgress(Math.min(99, Math.round((received / total) * 100)));
+  }
+
+  onProgress(100);
+
+  const merged = new Uint8Array(received);
+  let offset = 0;
+  for (const chunk of chunks) {
+    merged.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  const text = new TextDecoder().decode(merged);
+  try {
+    return JSON.parse(text) as ApiResponse<T>;
+  } catch {
+    return null;
+  }
+}
+
 export function apiUpload<T>(path: string, formData: FormData) {
   return apiRequest<T>(path, "POST", { body: formData });
+}
+
+export function apiUploadWithProgress<T>(
+  path: string,
+  formData: FormData,
+  options: UploadProgressOptions = {}
+) {
+  if (typeof window === "undefined") {
+    return apiUpload<T>(path, formData);
+  }
+
+  return new Promise<T>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", withQuery(path));
+
+    const useAuth = options.auth !== false;
+    const useDevice = options.device !== false;
+
+    if (useAuth) {
+      const token = readAuthToken();
+      if (token) {
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+      }
+    }
+
+    if (useDevice) {
+      xhr.setRequestHeader("X-Device-Id", getOrCreateDeviceId());
+    }
+
+    xhr.upload.addEventListener("progress", (event) => {
+      if (!event.lengthComputable || !options.onProgress) return;
+      options.onProgress(Math.round((event.loaded / event.total) * 100));
+    });
+
+    xhr.addEventListener("load", () => {
+      let payload: ApiResponse<T> | null = null;
+
+      try {
+        payload = JSON.parse(xhr.responseText) as ApiResponse<T>;
+      } catch {
+        payload = null;
+      }
+
+      if (xhr.status >= 200 && xhr.status < 300 && payload?.success) {
+        options.onProgress?.(100);
+        resolve(payload.data as T);
+        return;
+      }
+
+      const extras = payload ? getErrorExtras(payload) : {};
+      reject(
+        new ApiClientError(
+          payload
+            ? getErrorMessage(payload, "Upload failed.")
+            : "Upload failed.",
+          xhr.status,
+          extras
+        )
+      );
+    });
+
+    xhr.addEventListener("error", () => {
+      reject(new ApiClientError("Upload failed.", 0));
+    });
+
+    xhr.addEventListener("abort", () => {
+      reject(new ApiClientError("Upload cancelled.", 0));
+    });
+
+    xhr.send(formData);
+  });
 }

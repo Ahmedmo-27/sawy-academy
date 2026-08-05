@@ -1,14 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
 import { useAdminResource } from "@/hooks/useAdminResource";
-import { listMyOrders } from "@/lib/api/orders";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import type { Order } from "@/lib/api/types";
 
 function screenshotUrl(order: Order) {
@@ -40,11 +40,28 @@ function itemLabels(order: Order) {
 }
 
 export function OrderHistorySection() {
-  const { data, isLoading, error, refetch } = useAdminResource(listMyOrders);
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<Order[]>(
+        "/api/orders",
+        "Fetching order history",
+        onProgress,
+        { userId: "me" }
+      ),
+    []
+  );
+  const { data, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading order history");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (isLoading) {
-    return <AdminLoader label="Loading order history" />;
+    return (
+      <AdminLoader
+        label="Loading order history"
+        stepLabel={stepLabel}
+        progress={progress}
+      />
+    );
   }
 
   if (error) {

@@ -8,7 +8,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { DataTable } from "@/components/admin/DataTable";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { useAdminResource } from "@/hooks/useAdminResource";
-import { listOrders } from "@/lib/api/orders";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import type { Order } from "@/lib/api/types";
 
 function orderKey(order: Order) {
@@ -17,8 +17,13 @@ function orderKey(order: Order) {
 
 export function OrderQueuePage() {
   const router = useRouter();
-  const loader = useCallback(() => listOrders(), []);
-  const { data, isLoading, error, refetch } = useAdminResource(loader);
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<Order[]>("/api/orders", "Fetching orders", onProgress),
+    []
+  );
+  const { data, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading…");
 
   return (
     <div>
@@ -28,7 +33,13 @@ export function OrderQueuePage() {
         description="Check student payment photos and approve or reject them."
       />
 
-      {isLoading && <AdminLoader label="Loading…" />}
+      {isLoading && (
+        <AdminLoader
+          label="Loading…"
+          stepLabel={stepLabel}
+          progress={progress}
+        />
+      )}
       {!isLoading && error && (
         <AdminErrorState
           title="Orders aren't available yet"

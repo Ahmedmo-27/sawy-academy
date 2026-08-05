@@ -6,9 +6,9 @@ import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "@/components/admin/DataTable";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAdminResource } from "@/hooks/useAdminResource";
+import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import { toFriendlyAdminError } from "@/lib/admin/friendly";
 import {
-  listUserDevicesAdmin,
   removeUserDeviceAdmin,
   type RegisteredDevice,
 } from "@/lib/api/devices";
@@ -32,10 +32,16 @@ interface UserDevicesPanelProps {
 export function UserDevicesPanel({ userId }: UserDevicesPanelProps) {
   const { success, error: toastError } = useToast();
   const loader = useCallback(
-    () => listUserDevicesAdmin(userId),
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      fetchWithProgress<{ userId: string; devices: RegisteredDevice[] }>(
+        `/api/admin/users/${encodeURIComponent(userId)}/devices`,
+        "Fetching registered devices",
+        onProgress
+      ),
     [userId]
   );
-  const { data, isLoading, error, refetch } = useAdminResource(loader);
+  const { data, isLoading, error, progress, stepLabel, refetch } =
+    useAdminResource(loader, "Loading registered devices");
   const [removeTarget, setRemoveTarget] = useState<RegisteredDevice | null>(
     null
   );
@@ -87,7 +93,13 @@ export function UserDevicesPanel({ userId }: UserDevicesPanelProps) {
   }
 
   if (isLoading) {
-    return <AdminLoader label="Loading registered devices" />;
+    return (
+      <AdminLoader
+        label="Loading registered devices"
+        stepLabel={stepLabel}
+        progress={progress}
+      />
+    );
   }
 
   if (error) {
