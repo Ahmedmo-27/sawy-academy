@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
@@ -38,17 +38,15 @@ function formatMemberSince(value?: string) {
 export function ProfileIdentityPanel() {
   const { updateSessionUser } = useAuth();
   const { success } = useToast();
+  const loader = useCallback(
+    (onProgress: (progress: number, stepLabel?: string) => void) =>
+      apiGet<User>("/api/users/me", undefined, {
+        onProgress: (value) => onProgress(value, "Loading identity sheet"),
+      }),
+    []
+  );
   const { data, setData, isLoading, error, progress, stepLabel, refetch } =
-    useAdminResource(
-      (onProgress) =>
-        apiGet<User>("/api/users/me", undefined, {
-          onProgress: (value) => onProgress(value, "Loading identity sheet"),
-        }),
-      "Loading identity sheet"
-    );
-  // #region agent log
-  fetch('http://127.0.0.1:7439/ingest/93dbd8bb-58d0-4883-a233-6effa3c7ca00',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ac457f'},body:JSON.stringify({sessionId:'ac457f',runId:'pre-fix',hypothesisId:'B',location:'ProfileIdentityPanel.tsx:render',message:'identity panel render',data:{isLoading,hasData:!!data,hasError:!!error,error:error||null,progress:progress??null},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
+    useAdminResource(loader, "Loading identity sheet");
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const [name, setName] = useState("");
