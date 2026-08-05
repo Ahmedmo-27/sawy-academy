@@ -7,6 +7,10 @@ const {
 
 const router = express.Router();
 
+router.get("/me", authenticate, userController.getMe);
+router.put("/me", authenticate, userController.updateMe);
+router.put("/me/password", authenticate, userController.changePassword);
+
 router.use(authenticate, requireAdmin);
 
 router.get("/", userController.getAll);

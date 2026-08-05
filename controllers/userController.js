@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const User = require("../models/User");
-const { hashPassword } = require("../lib/auth/password");
+const { hashPassword, verifyPassword } = require("../lib/auth/password");
 const {
   createHttpError,
   sendCreated,
@@ -18,8 +18,22 @@ function publicAdminUser(user) {
     name: user.name,
     email: user.email,
     role: user.role,
+    avatarUrl: user.avatarUrl || undefined,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+  };
+}
+
+function publicStudentUser(user) {
+  return {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    avatarUrl: user.avatarUrl || undefined,
+    createdAt: user.createdAt
+      ? new Date(user.createdAt).toISOString()
+      : undefined,
   };
 }
 
@@ -32,6 +46,87 @@ async function findUserByParam(idParam) {
   }
 
   return User.findOne({ email: value.toLowerCase() });
+}
+
+async function getMe(req, res, next) {
+  try {
+    const user = await User.findById(req.auth.userId);
+    if (!user) {
+      throw createHttpError(404, "User not found");
+    }
+
+    return sendSuccess(res, publicStudentUser(user));
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function updateMe(req, res, next) {
+  try {
+    validateRequired(req.body, ["name", "email"]);
+
+    const updates = {
+      name: String(req.body.name).trim(),
+      email: String(req.body.email).trim().toLowerCase(),
+    };
+
+    if (req.body.avatarUrl !== undefined) {
+      const avatarUrl = String(req.body.avatarUrl || "").trim();
+      updates.avatarUrl = avatarUrl || undefined;
+    }
+
+    if (updates.name.length < 2) {
+      throw createHttpError(400, "Name must be at least 2 characters");
+    }
+
+    const updated = await User.findByIdAndUpdate(req.auth.userId, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updated) {
+      throw createHttpError(404, "User not found");
+    }
+
+    return sendSuccess(res, publicStudentUser(updated));
+  } catch (err) {
+    if (err && err.code === 11000) {
+      return next(createHttpError(409, "An account with this email already exists"));
+    }
+    return next(err);
+  }
+}
+
+async function changePassword(req, res, next) {
+  try {
+    validateRequired(req.body, ["currentPassword", "newPassword"]);
+
+    const currentPassword = String(req.body.currentPassword);
+    const newPassword = String(req.body.newPassword);
+
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      throw createHttpError(
+        400,
+        `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+      );
+    }
+
+    const user = await User.findById(req.auth.userId);
+    if (!user) {
+      throw createHttpError(404, "User not found");
+    }
+
+    if (!verifyPassword(currentPassword, user.passwordHash)) {
+      throw createHttpError(400, "Current password is incorrect");
+    }
+
+    user.passwordHash = hashPassword(newPassword);
+    await user.save();
+
+    return sendSuccess(res, { ok: true });
+  } catch (err) {
+    return next(err);
+  }
 }
 
 async function getAll(req, res, next) {
@@ -165,4 +260,13 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { create, getAll, getById, remove, update };
+module.exports = {
+  changePassword,
+  create,
+  getAll,
+  getById,
+  getMe,
+  remove,
+  update,
+  updateMe,
+};

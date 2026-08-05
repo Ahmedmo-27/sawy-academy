@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema(
       default: "student",
       required: true,
     },
+    avatarUrl: { type: String, trim: true },
   },
   {
     timestamps: true,
