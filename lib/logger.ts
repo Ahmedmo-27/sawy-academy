@@ -18,13 +18,11 @@ function serializeError(error: unknown) {
       name: error.name,
       message: error.message,
       stack: error.stack,
-      ...(typeof error === "object" && error !== null
-        ? Object.fromEntries(
-            Object.entries(error as Record<string, unknown>).filter(
-              ([key]) => !["name", "message", "stack"].includes(key)
-            )
-          )
-        : {}),
+      ...Object.fromEntries(
+        Object.entries(error as unknown as Record<string, unknown>).filter(
+          ([key]) => !["name", "message", "stack"].includes(key)
+        )
+      ),
     };
   }
 
