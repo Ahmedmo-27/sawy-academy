@@ -1,4 +1,9 @@
+const mongoose = require("mongoose");
 const Order = require("../models/Order");
+const Course = require("../models/Course");
+const CourseGroup = require("../models/CourseGroup");
+const Enrollment = require("../models/Enrollment");
+const { toSlug } = require("../utils/slug");
 const {
   createHttpError,
   sendCreated,
@@ -88,6 +93,74 @@ function canAccessOrder(order, auth) {
   if (!auth) return false;
   if (auth.user.role === "admin") return true;
   return order.userId.toString() === auth.userId.toString();
+}
+
+async function resolveCourse(itemId) {
+  const value = String(itemId).trim();
+
+  if (mongoose.Types.ObjectId.isValid(value)) {
+    const byObjectId = await Course.findById(value);
+    if (byObjectId) return byObjectId;
+  }
+
+  return (
+    (await Course.findOne({ id: value })) ||
+    (await Course.findOne({ slug: value }))
+  );
+}
+
+async function resolveDiplomaCourses(itemId) {
+  const value = String(itemId).trim();
+  const slug = value.startsWith("diploma-")
+    ? value.slice("diploma-".length)
+    : value;
+
+  if (!slug) return [];
+
+  const groups = await CourseGroup.find({}).populate("courses");
+  const group = groups.find((entry) => toSlug(entry.title) === slug);
+
+  if (!group) return [];
+  return group.courses || [];
+}
+
+async function upsertEnrollment(userId, courseId, orderId) {
+  await Enrollment.findOneAndUpdate(
+    { userId, courseId },
+    {
+      $setOnInsert: {
+        userId,
+        courseId,
+        orderId,
+        completedLessonIds: [],
+      },
+    },
+    { upsert: true, new: true }
+  );
+}
+
+async function createEnrollmentsFromOrder(order) {
+  const userId = order.userId;
+  const orderId = order._id;
+
+  for (const item of order.items || []) {
+    if (item.kind === "product") continue;
+
+    if (item.kind === "diploma") {
+      const courses = await resolveDiplomaCourses(item.itemId);
+      for (const course of courses) {
+        await upsertEnrollment(userId, course._id, orderId);
+      }
+      continue;
+    }
+
+    if (item.kind === "course" || !item.kind) {
+      const course = await resolveCourse(item.itemId);
+      if (course) {
+        await upsertEnrollment(userId, course._id, orderId);
+      }
+    }
+  }
 }
 
 async function create(req, res, next) {
@@ -182,13 +255,13 @@ async function approve(req, res, next) {
       throw createHttpError(404, "Order not found");
     }
 
-    if (order.status === "verified") {
-      return sendSuccess(res, serializeOrder(order));
+    if (order.status !== "verified") {
+      order.status = "verified";
+      order.reason = undefined;
+      await order.save();
     }
 
-    order.status = "verified";
-    order.reason = undefined;
-    await order.save();
+    await createEnrollmentsFromOrder(order);
 
     return sendSuccess(res, serializeOrder(order));
   } catch (err) {

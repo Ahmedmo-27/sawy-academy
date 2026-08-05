@@ -16,6 +16,7 @@ const uploadRoutes = require("./routes/uploadRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const userRoutes = require("./routes/userRoutes");
 const serviceRoutes = require("./routes/serviceRoutes");
+const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const errorHandler = require("./middleware/errorHandler");
 const requestLogger = require("./middleware/requestLogger");
 const logger = require("./utils/logger");
@@ -62,6 +63,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/services", serviceRoutes);
+app.use("/api/enrollments", enrollmentRoutes);
 
 app.use(errorHandler);
 
