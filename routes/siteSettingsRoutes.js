@@ -3,10 +3,11 @@ const siteSettingsController = require("../controllers/siteSettingsController");
 const {
   authenticate,
   requireAdmin,
+  requireDevice,
 } = require("../middleware/authMiddleware");
 
 const router = express.Router();
-const adminWrite = [authenticate, requireAdmin];
+const adminWrite = [authenticate, requireDevice, requireAdmin];
 
 router.get("/", siteSettingsController.get);
 router.put("/", adminWrite, siteSettingsController.update);

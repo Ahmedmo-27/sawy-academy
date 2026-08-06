@@ -5,7 +5,8 @@ import {
   apiPost,
   apiPut,
 } from "@/lib/api/client";
-import type { Course, Lesson } from "@/lib/api/types";
+import type { Course, Lesson, Product } from "@/lib/api/types";
+import { toSlug } from "@/lib/slug";
 
 export type CourseInput = Pick<
   Course,
@@ -20,12 +21,56 @@ export type LessonInput = Pick<
 > &
   Partial<Pick<Lesson, "id" | "slug" | "summary" | "content" | "videoUrl">>;
 
-export function listCourses() {
-  return apiGet<Course[]>("/api/courses");
+/** Business product code from a string id or populated Product. */
+export function relatedProductIdOf(value: string | Product): string {
+  return typeof value === "string" ? value : value.id;
 }
 
-export function getCourse(slug: string) {
-  return apiGet<Course>(`/api/courses/${slug}`);
+export function relatedProductIdsOf(course: Course): string[] {
+  return (course.relatedProductIds ?? []).map(relatedProductIdOf).filter(Boolean);
+}
+
+export function lessonSlugOf(lesson: Lesson): string {
+  return lesson.slug || toSlug(lesson.title);
+}
+
+export function getLessonBySlug(
+  course: Course,
+  lessonSlug: string
+): Lesson | undefined {
+  return (course.lessons ?? []).find(
+    (lesson) => lessonSlugOf(lesson) === lessonSlug
+  );
+}
+
+export function formatCourseDuration(course: Course): string {
+  const lessons = course.lessons ?? [];
+  const totalMinutes = lessons.reduce((sum, lesson) => {
+    const match = lesson.duration.match(/(\d+)/);
+    return sum + (match ? Number(match[1]) : 0);
+  }, 0);
+  if (totalMinutes <= 0) {
+    return `${String(lessons.length).padStart(2, "0")} sheets`;
+  }
+  if (totalMinutes >= 60) {
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  }
+  return `${totalMinutes} min`;
+}
+
+export function listCourses(options?: {
+  onProgress?: (progress: number) => void;
+}) {
+  return apiGet<Course[]>("/api/courses", undefined, options);
+}
+
+export function getCourse(
+  slug: string,
+  options?: { onProgress?: (progress: number) => void }
+) {
+  return apiGet<Course>(`/api/courses/${slug}`, undefined, options);
 }
 
 export function createCourse(input: CourseInput) {

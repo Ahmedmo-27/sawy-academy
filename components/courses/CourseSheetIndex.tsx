@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
-import type { Lesson } from "@/lib/data/courses";
+import { lessonSlugOf } from "@/lib/api/courses";
+import type { Lesson } from "@/lib/api/types";
 
 interface CourseSheetIndexProps {
   courseSlug: string;
@@ -21,7 +22,7 @@ export function CourseSheetIndex({
         {lessons.map((lesson, i) => (
           <li key={lesson.id}>
             <Link
-              href={`/courses/${courseSlug}/${lesson.slug}`}
+              href={`/courses/${courseSlug}/${lessonSlugOf(lesson)}`}
               className={`group grid grid-cols-12 gap-4 py-5 transition-colors duration-200 hover:bg-concrete-dark/40 ${
                 i > 0 ? "hairline-t" : ""
               }`}

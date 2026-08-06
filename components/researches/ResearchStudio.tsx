@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
@@ -107,7 +108,12 @@ export function ResearchStudio() {
 
                       <div className="lg:col-span-9 lg:pr-16">
                         <h2 className="type-title mb-3 leading-snug">
-                          {item.title}
+                          <Link
+                            href={`/researches/${item.slug}`}
+                            className="hover:text-clay transition-colors duration-200"
+                          >
+                            {item.title}
+                          </Link>
                         </h2>
                         <p className="label-caps mb-4">{item.venue}</p>
                         <p className="type-infill leading-relaxed mb-4">
@@ -119,6 +125,12 @@ export function ResearchStudio() {
                             {item.collaborators}
                           </p>
                         )}
+                        <Link
+                          href={`/researches/${item.slug}`}
+                          className="action-secondary mt-4 inline-block"
+                        >
+                          Open research sheet
+                        </Link>
                       </div>
                     </div>
                   </article>

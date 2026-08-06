@@ -3,10 +3,11 @@ const homePageController = require("../controllers/homePageController");
 const {
   authenticate,
   requireAdmin,
+  requireDevice,
 } = require("../middleware/authMiddleware");
 
 const router = express.Router();
-const adminWrite = [authenticate, requireAdmin];
+const adminWrite = [authenticate, requireDevice, requireAdmin];
 
 router.get("/", homePageController.get);
 router.put("/", adminWrite, homePageController.update);

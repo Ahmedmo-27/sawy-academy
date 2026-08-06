@@ -8,11 +8,9 @@ import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  formatCourseDuration,
-  type Course,
-  type CourseGroup,
-} from "@/lib/data/courses";
+import { formatCourseDuration } from "@/lib/api/courses";
+import { asCourses, courseGroupSlug } from "@/lib/api/courseGroups";
+import type { Course, CourseGroup } from "@/lib/api/types";
 import {
   indexProgressByOrder,
   isLevelCompleted,
@@ -179,22 +177,24 @@ function LevelRowView({
  */
 export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
   const { isAuthenticated } = useAuth();
-  const instructor = group.courses[0]?.instructor ?? "";
+  const courses = useMemo(() => asCourses(group), [group]);
+  const instructor = courses[0]?.instructor ?? "";
+  const slug = courseGroupSlug(group);
 
   const levels: LevelRow[] = useMemo(
     () =>
-      group.courses.map((course, i) => ({
+      courses.map((course, i) => ({
         order: i + 1,
         course,
         sheetRef: formatSheetRef(i, "L"),
       })),
-    [group.courses]
+    [courses]
   );
 
   const progressByOrder = useMemo(() => {
     const records = stubTrackProgress(
-      group.slug,
-      group.courses.map((c) => c.id)
+      slug,
+      courses.map((c) => c.id)
     );
     return indexProgressByOrder(
       levels.map((l) => ({
@@ -204,7 +204,7 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
       })),
       records
     );
-  }, [group.slug, group.courses, levels]);
+  }, [slug, courses, levels]);
 
   return (
     <div className="space-y-16 lg:space-y-20">

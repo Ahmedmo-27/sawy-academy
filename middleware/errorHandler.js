@@ -1,4 +1,5 @@
 const logger = require("../utils/logger");
+const { clearSessionCookie } = require("../lib/auth/sessionCookie");
 
 function errorHandler(err, req, res, next) {
   const statusCode = err.statusCode || err.status || 500;
@@ -10,6 +11,10 @@ function errorHandler(err, req, res, next) {
 
   if (err.code) errorBody.code = err.code;
   if (err.devices) errorBody.devices = err.devices;
+
+  if (err.code === "DEVICE_REMOVED" || err.code === "SESSION_REVOKED") {
+    clearSessionCookie(res);
+  }
 
   const details = {
     method: req.method,

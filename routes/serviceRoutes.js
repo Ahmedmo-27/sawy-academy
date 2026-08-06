@@ -4,18 +4,16 @@ const {
   authenticate,
   optionalAuthenticate,
   requireAdmin,
+  requireDevice,
 } = require("../middleware/authMiddleware");
 
 const router = express.Router();
+const studentAuth = [authenticate, requireDevice];
+const adminWrite = [authenticate, requireDevice, requireAdmin];
 
 router.post("/", optionalAuthenticate, serviceController.create);
-router.get("/", authenticate, serviceController.getAll);
-router.get("/:id", authenticate, serviceController.getById);
-router.patch(
-  "/:id",
-  authenticate,
-  requireAdmin,
-  serviceController.updateStatus
-);
+router.get("/", ...studentAuth, serviceController.getAll);
+router.get("/:id", ...studentAuth, serviceController.getById);
+router.patch("/:id", ...adminWrite, serviceController.updateStatus);
 
 module.exports = router;

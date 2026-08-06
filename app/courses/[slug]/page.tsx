@@ -1,3 +1,6 @@
+"use client";
+
+import { use, useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
 import { CourseMaterials } from "@/components/courses/CourseMaterials";
@@ -12,60 +15,40 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
+import { SectionLoader } from "@/components/feedback/SectionLoader";
+import { ApiClientError } from "@/lib/api/client";
+import { getCourse, relatedProductIdsOf } from "@/lib/api/courses";
 import {
-  getAllCourses,
-  getCourseBySlug,
-  getCourseGroupBySlug,
-  courseGroups,
-  type Course,
-  type CourseGroup,
-} from "@/lib/data/courses";
+  asCourses,
+  courseGroupSlug,
+  listCourseGroups,
+} from "@/lib/api/courseGroups";
+import type { Course, CourseGroup } from "@/lib/api/types";
+import { logger } from "@/lib/logger";
 import { parseLevelProgress } from "@/lib/motion";
 
 interface CourseDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  const courseParams = getAllCourses().map((course) => ({ slug: course.slug }));
-  const groupParams = courseGroups.map((group) => ({ slug: group.slug }));
-  return [...groupParams, ...courseParams];
-}
-
-export async function generateMetadata({ params }: CourseDetailPageProps) {
-  const { slug } = await params;
-  const group = getCourseGroupBySlug(slug);
-  if (group) {
-    return {
-      title: `${group.title} — Sawy Academy`,
-      description: group.subtitle,
-    };
-  }
-  const course = getCourseBySlug(slug);
-  if (!course) return { title: "Course" };
-  return {
-    title: `${course.title} — Sawy Academy`,
-    description: course.description,
-  };
-}
-
 function groupHeaderMeta(group: CourseGroup): {
   eyebrow: string;
   description: string;
 } {
-  const instructor = group.courses[0]?.instructor;
+  const courses = asCourses(group);
+  const instructor = courses[0]?.instructor;
   const instructorBit = instructor ? `${instructor}. ` : "";
 
   if (group.type === "diploma") {
     const priceBit = group.bundlePrice ? ` · ${group.bundlePrice}` : "";
     return {
-      eyebrow: `Diploma · ${String(group.courses.length).padStart(2, "0")} sheets${priceBit}`,
+      eyebrow: `Diploma · ${String(courses.length).padStart(2, "0")} sheets${priceBit}`,
       description: `${instructorBit}${group.subtitle}`,
     };
   }
 
   return {
-    eyebrow: `Leveled programme · ${String(group.courses.length).padStart(2, "0")} levels`,
+    eyebrow: `Leveled programme · ${String(courses.length).padStart(2, "0")} levels`,
     description: `${instructorBit}${group.subtitle}`,
   };
 }
@@ -99,6 +82,9 @@ function GroupCourseDetail({ group }: { group: CourseGroup }) {
 }
 
 function StandaloneCourseDetail({ course }: { course: Course }) {
+  const lessons = course.lessons ?? [];
+  const productIds = relatedProductIdsOf(course);
+
   return (
     <>
       <PageHeader
@@ -131,14 +117,11 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
 
           <ThresholdFrame label={`Bay — ${course.title}`}>
             <div className="hairline-border p-6 lg:p-10 mt-4">
-              <CourseSheetIndex
-                courseSlug={course.slug}
-                lessons={course.lessons}
-              />
+              <CourseSheetIndex courseSlug={course.slug} lessons={lessons} />
             </div>
           </ThresholdFrame>
 
-          {course.relatedProductIds.length > 0 && (
+          {productIds.length > 0 && (
             <>
               <SectionCutDivider label="MATERIALS" />
               <div>
@@ -147,9 +130,7 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
                 <h2 className="type-heading mb-8">Materials &amp; tools</h2>
                 <ThresholdFrame label="Stock list — Course">
                   <div className="pt-4">
-                    <CourseMaterials
-                      relatedProductIds={course.relatedProductIds}
-                    />
+                    <CourseMaterials relatedProductIds={productIds} />
                   </div>
                 </ThresholdFrame>
               </div>
@@ -161,18 +142,104 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
   );
 }
 
-export default async function CourseDetailPage({
-  params,
-}: CourseDetailPageProps) {
-  const { slug } = await params;
+export default function CourseDetailPage({ params }: CourseDetailPageProps) {
+  const { slug } = use(params);
+  const [group, setGroup] = useState<CourseGroup | null>(null);
+  const [course, setCourse] = useState<Course | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "missing">(
+    "loading"
+  );
+  const [progress, setProgress] = useState(0);
 
-  const group = getCourseGroupBySlug(slug);
+  useEffect(() => {
+    let cancelled = false;
+    logger.info("Course detail page loading", {
+      page: `/courses/${slug}`,
+      endpoint: "/api/courses/groups",
+    });
+
+    listCourseGroups({
+      onProgress: (value) => {
+        if (!cancelled) setProgress(Math.min(value, 60));
+      },
+    })
+      .then(async (groups) => {
+        const matchedGroup = groups.find(
+          (item) => courseGroupSlug(item) === slug
+        );
+        if (matchedGroup) {
+          if (cancelled) return;
+          setGroup(matchedGroup);
+          setCourse(null);
+          setStatus("ready");
+          logger.info("Course detail page group loaded", {
+            page: `/courses/${slug}`,
+            groupTitle: matchedGroup.title,
+          });
+          return;
+        }
+
+        try {
+          const matchedCourse = await getCourse(slug);
+          if (cancelled) return;
+          setCourse(matchedCourse);
+          setGroup(null);
+          setStatus("ready");
+          setProgress(100);
+          logger.info("Course detail page course loaded", {
+            page: `/courses/${slug}`,
+            endpoint: `/api/courses/${slug}`,
+            courseTitle: matchedCourse.title,
+          });
+        } catch (error) {
+          if (cancelled) return;
+          if (error instanceof ApiClientError && error.status === 404) {
+            setStatus("missing");
+            return;
+          }
+          logger.error("Course detail page failed to load course", {
+            page: `/courses/${slug}`,
+            endpoint: `/api/courses/${slug}`,
+            error,
+          });
+          setStatus("missing");
+        }
+      })
+      .catch((error) => {
+        logger.error("Course detail page failed to load groups", {
+          page: `/courses/${slug}`,
+          endpoint: "/api/courses/groups",
+          error,
+        });
+        if (!cancelled) setStatus("missing");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  if (status === "missing") notFound();
+
+  if (status === "loading") {
+    return (
+      <PageContainer className="pt-32 pb-20">
+        <SectionLoader
+          label="Loading course…"
+          stepLabel="Fetching curriculum"
+          progress={progress}
+        />
+      </PageContainer>
+    );
+  }
+
   if (group) {
     return <GroupCourseDetail group={group} />;
   }
 
-  const course = getCourseBySlug(slug);
-  if (!course) notFound();
+  if (course) {
+    return <StandaloneCourseDetail course={course} />;
+  }
 
-  return <StandaloneCourseDetail course={course} />;
+  notFound();
 }

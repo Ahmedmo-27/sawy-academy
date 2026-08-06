@@ -5,11 +5,13 @@ import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { SectionCutDivider } from "@/components/decorative/SectionCutDivider";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
+import { formatCourseDuration } from "@/lib/api/courses";
 import {
-  formatCourseDuration,
+  asCourses,
+  courseGroupSlug,
   getGroupRelatedProductIds,
-  type CourseGroup,
-} from "@/lib/data/courses";
+} from "@/lib/api/courseGroups";
+import type { CourseGroup } from "@/lib/api/types";
 import { formatSheetRef } from "@/lib/sheet";
 
 interface DiplomaCourseDetailProps {
@@ -22,9 +24,10 @@ interface DiplomaCourseDetailProps {
  * Materials use group.relatedProductIds when set, else the union of sub-courses.
  */
 export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
-  const instructor = group.courses[0]?.instructor ?? "";
+  const courses = asCourses(group);
+  const instructor = courses[0]?.instructor ?? "";
   const materialIds = getGroupRelatedProductIds(group);
-  const enrollId = `diploma-${group.slug}`;
+  const enrollId = `diploma-${courseGroupSlug(group)}`;
 
   return (
     <div className="space-y-16 lg:space-y-20">
@@ -47,7 +50,7 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
               </p>
             )}
             <p className="label-caps">
-              {String(group.courses.length).padStart(2, "0")} sheets in set
+              {String(courses.length).padStart(2, "0")} sheets in set
             </p>
             {group.bundlePrice && (
               <EnrollButton
@@ -67,11 +70,10 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
         <div className="hairline-border p-6 lg:p-10 mt-4">
           <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
           <p className="label-caps mb-6 text-charcoal-infill">
-            Drawing set cover — {String(group.courses.length).padStart(2, "0")}{" "}
-            sheets
+            Drawing set cover — {String(courses.length).padStart(2, "0")} sheets
           </p>
           <ul>
-            {group.courses.map((course, i) => {
+            {courses.map((course, i) => {
               const sheetRef = formatSheetRef(i, "D");
               const duration = formatCourseDuration(course);
 

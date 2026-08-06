@@ -1,3 +1,6 @@
+"use client";
+
+import { use, useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import { SpecifiedMaterialsStrip } from "@/components/courses/CourseMaterials";
 import { LessonNav } from "@/components/courses/LessonNav";
@@ -7,52 +10,97 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
+import { SectionLoader } from "@/components/feedback/SectionLoader";
+import { ApiClientError } from "@/lib/api/client";
 import {
-  getAllCourses,
-  getCourseBySlug,
+  getCourse,
   getLessonBySlug,
-} from "@/lib/data/courses";
+  relatedProductIdsOf,
+} from "@/lib/api/courses";
+import type { Course, Lesson } from "@/lib/api/types";
+import { logger } from "@/lib/logger";
 
 interface LessonPageProps {
   params: Promise<{ slug: string; lessonSlug: string }>;
 }
 
-export function generateStaticParams() {
-  return getAllCourses().flatMap((course) =>
-    course.lessons.map((lesson) => ({
-      slug: course.slug,
-      lessonSlug: lesson.slug,
-    }))
+export default function LessonPage({ params }: LessonPageProps) {
+  const { slug, lessonSlug } = use(params);
+  const [course, setCourse] = useState<Course | null>(null);
+  const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "missing">(
+    "loading"
   );
-}
+  const [progress, setProgress] = useState(0);
 
-export async function generateMetadata({ params }: LessonPageProps) {
-  const { slug, lessonSlug } = await params;
-  const course = getCourseBySlug(slug);
-  const lesson = course ? getLessonBySlug(course, lessonSlug) : undefined;
-  if (!lesson || !course) return { title: "Lesson" };
-  return {
-    title: `${lesson.sheetRef} ${lesson.title} — ${course.title}`,
-    description: lesson.summary,
-  };
-}
+  useEffect(() => {
+    let cancelled = false;
+    logger.info("Lesson page loading", {
+      page: `/courses/${slug}/${lessonSlug}`,
+      endpoint: `/api/courses/${slug}`,
+    });
 
-export default async function LessonPage({ params }: LessonPageProps) {
-  const { slug, lessonSlug } = await params;
-  const course = getCourseBySlug(slug);
-  if (!course) notFound();
+    getCourse(slug, {
+      onProgress: (value) => {
+        if (!cancelled) setProgress(value);
+      },
+    })
+      .then((data) => {
+        if (cancelled) return;
+        const matched = getLessonBySlug(data, lessonSlug);
+        if (!matched) {
+          setStatus("missing");
+          return;
+        }
+        setCourse(data);
+        setLesson(matched);
+        setStatus("ready");
+        logger.info("Lesson page loaded", {
+          page: `/courses/${slug}/${lessonSlug}`,
+          lessonTitle: matched.title,
+        });
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        if (error instanceof ApiClientError && error.status === 404) {
+          setStatus("missing");
+          return;
+        }
+        logger.error("Lesson page failed to load course", {
+          page: `/courses/${slug}/${lessonSlug}`,
+          endpoint: `/api/courses/${slug}`,
+          error,
+        });
+        setStatus("missing");
+      });
 
-  const lesson = getLessonBySlug(course, lessonSlug);
-  if (!lesson) notFound();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, lessonSlug]);
 
-  const index = course.lessons.findIndex((l) => l.id === lesson.id);
-  const prev = index > 0 ? course.lessons[index - 1] : undefined;
-  const next =
-    index < course.lessons.length - 1
-      ? course.lessons[index + 1]
-      : undefined;
+  if (status === "missing") notFound();
 
-  const paragraphs = lesson.content.split(/\n\n+/).filter(Boolean);
+  if (status === "loading" || !course || !lesson) {
+    return (
+      <PageContainer className="pt-32 pb-20">
+        <SectionLoader
+          label="Loading lesson…"
+          stepLabel="Fetching course sheet"
+          progress={progress}
+        />
+      </PageContainer>
+    );
+  }
+
+  const lessons = [...(course.lessons ?? [])].sort(
+    (a, b) => a.order - b.order
+  );
+  const index = lessons.findIndex((l) => l.id === lesson.id);
+  const prev = index > 0 ? lessons[index - 1] : undefined;
+  const next = index >= 0 && index < lessons.length - 1 ? lessons[index + 1] : undefined;
+  const productIds = relatedProductIdsOf(course);
+  const paragraphs = (lesson.content ?? "").split(/\n\n+/).filter(Boolean);
 
   return (
     <>
@@ -83,7 +131,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
                 <p className="label-caps mb-2">Set</p>
                 <p className="type-infill">
                   {String(lesson.order).padStart(2, "0")} /{" "}
-                  {String(course.lessons.length).padStart(2, "0")}
+                  {String(lessons.length).padStart(2, "0")}
                 </p>
               </div>
             </div>
@@ -97,7 +145,9 @@ export default async function LessonPage({ params }: LessonPageProps) {
         <PageContainer>
           <ThresholdFrame label={`Drawing — ${lesson.sheetRef}`}>
             <article className="hairline-border p-6 lg:p-10 mt-4 max-w-3xl">
-              <p className="type-lead mb-10">{lesson.summary}</p>
+              {lesson.summary && (
+                <p className="type-lead mb-10">{lesson.summary}</p>
+              )}
 
               <div className="space-y-6">
                 {paragraphs.map((paragraph) => (
@@ -121,11 +171,9 @@ export default async function LessonPage({ params }: LessonPageProps) {
                 </div>
               )}
 
-              {course.relatedProductIds.length > 0 && (
+              {productIds.length > 0 && (
                 <div className="mt-12 hairline-t pt-8">
-                  <SpecifiedMaterialsStrip
-                    relatedProductIds={course.relatedProductIds}
-                  />
+                  <SpecifiedMaterialsStrip relatedProductIds={productIds} />
                 </div>
               )}
 

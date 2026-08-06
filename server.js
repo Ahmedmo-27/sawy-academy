@@ -70,6 +70,9 @@ app.use("/api/cart", cartRoutes);
 app.use(errorHandler);
 
 async function startServer() {
+  const { assertJwtSecretConfigured } = require("./lib/auth/jwt");
+  assertJwtSecretConfigured();
+
   const mongoUri = process.env.MONGODB_URI;
 
   if (!mongoUri) {

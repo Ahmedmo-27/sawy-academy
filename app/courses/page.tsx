@@ -12,21 +12,14 @@ import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { SectionLoader } from "@/components/feedback/SectionLoader";
-import { listCourseGroups } from "@/lib/api/courseGroups";
+import {
+  asCourses,
+  courseGroupSlug,
+  listCourseGroups,
+} from "@/lib/api/courseGroups";
 import type { Course, CourseGroup } from "@/lib/api/types";
 import { logger } from "@/lib/logger";
 import { parseLevelProgress } from "@/lib/motion";
-import { toSlug } from "@/lib/slug";
-
-function asCourses(group: CourseGroup): Course[] {
-  return (group.courses ?? []).filter(
-    (item): item is Course => typeof item === "object" && item !== null
-  );
-}
-
-function groupSlug(group: CourseGroup) {
-  return group.slug || toSlug(group.title);
-}
 
 function CourseListing({
   courses,
@@ -143,7 +136,7 @@ export default function CoursesPage() {
           )}
           {!loading &&
             courseGroups.map((group, groupIndex) => {
-              const slug = groupSlug(group);
+              const slug = courseGroupSlug(group);
               const courses = asCourses(group);
               return (
                 <div key={group._id ?? group.id ?? slug}>
