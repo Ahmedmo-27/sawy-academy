@@ -24,14 +24,17 @@ export interface SignupCredentials {
 /**
  * POST /api/auth/login — { email, password, deviceId?, userAgent? }
  * POST /api/auth/signup — { name, email, password, deviceId?, userAgent? }
- * GET  /api/auth/me     — validates the current session (Bearer + X-Device-Id)
- * POST /api/auth/logout — revokes the current session
+ * GET  /api/auth/me     — validates the current session (httpOnly cookie + X-Device-Id)
+ * POST /api/auth/logout — revokes the current session and clears the cookie
  *
  * Success data shape (wrapped in ApiResponse):
- *   { token: string, user: { id?, name, email?, role }, deviceId? }
+ *   { token?: string, user: { id?, name, email?, role }, deviceId? }
+ *
+ * The JWT is delivered via an httpOnly `sawy_session` cookie. The body token
+ * is optional compatibility payload and is not stored by the client.
  */
 export interface AuthSessionResponse {
-  token: string;
+  token?: string;
   user: AuthUser;
   /** Present when the server generated a device id for this browser. */
   deviceId?: string;

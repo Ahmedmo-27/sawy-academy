@@ -1,10 +1,14 @@
 const express = require("express");
 const cartController = require("../controllers/cartController");
-const { authenticate } = require("../middleware/authMiddleware");
+const {
+  authenticate,
+  requireDevice,
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
+const studentAuth = [authenticate, requireDevice];
 
-router.get("/", authenticate, cartController.getCart);
-router.put("/", authenticate, cartController.putCart);
+router.get("/", ...studentAuth, cartController.getCart);
+router.put("/", ...studentAuth, cartController.putCart);
 
 module.exports = router;

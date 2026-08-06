@@ -1,5 +1,7 @@
 import { ApiClientError, apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
+import { relatedProductIdsOf } from "@/lib/api/courses";
 import type { Course, CourseGroup } from "@/lib/api/types";
+import { toSlug } from "@/lib/slug";
 
 export type CourseGroupInput = {
   title: string;
@@ -21,6 +23,31 @@ function normalizeGroupId(value: unknown) {
   return "";
 }
 
+/** Public route slug — stored slug when present, else derived from title. */
+export function courseGroupSlug(group: CourseGroup): string {
+  return group.slug || toSlug(group.title);
+}
+
+export function asCourses(group: CourseGroup): Course[] {
+  return (group.courses ?? []).filter(
+    (item): item is Course => typeof item === "object" && item !== null
+  );
+}
+
+/** Unique product ids for a diploma — group-level first, else union of sub-courses. */
+export function getGroupRelatedProductIds(group: CourseGroup): string[] {
+  if (group.relatedProductIds && group.relatedProductIds.length > 0) {
+    return group.relatedProductIds;
+  }
+  const seen = new Set<string>();
+  for (const course of asCourses(group)) {
+    for (const id of relatedProductIdsOf(course)) {
+      seen.add(id);
+    }
+  }
+  return Array.from(seen);
+}
+
 export function listCourseGroups(options?: {
   onProgress?: (progress: number) => void;
 }) {
@@ -36,6 +63,20 @@ export async function getCourseGroup(id: string) {
     const candidates = [group._id, group.id].map(normalizeGroupId);
     return candidates.includes(target);
   });
+
+  if (!found) {
+    throw new ApiClientError("Course group not found", 404);
+  }
+
+  return found;
+}
+
+export async function getCourseGroupBySlug(
+  slug: string,
+  options?: { onProgress?: (progress: number) => void }
+) {
+  const groups = await listCourseGroups(options);
+  const found = groups.find((group) => courseGroupSlug(group) === slug);
 
   if (!found) {
     throw new ApiClientError("Course group not found", 404);

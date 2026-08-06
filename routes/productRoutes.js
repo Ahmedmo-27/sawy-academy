@@ -3,10 +3,11 @@ const productController = require("../controllers/productController");
 const {
   authenticate,
   requireAdmin,
+  requireDevice,
 } = require("../middleware/authMiddleware");
 
 const router = express.Router();
-const adminWrite = [authenticate, requireAdmin];
+const adminWrite = [authenticate, requireDevice, requireAdmin];
 
 router.get("/", productController.getAll);
 router.get("/:slug", productController.getBySlug);

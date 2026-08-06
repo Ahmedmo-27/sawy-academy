@@ -42,11 +42,20 @@ export class ApiClientError extends Error {
   }
 }
 
-const TOKEN_KEY = "sawy-academy-auth-token";
+/** Legacy localStorage key — cleared on boot; tokens live in httpOnly cookies. */
+const LEGACY_TOKEN_KEY = "sawy-academy-auth-token";
 
-function readAuthToken() {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
+const SESSION_INVALID_CODES = new Set(["DEVICE_REMOVED", "SESSION_REVOKED"]);
+
+function clearLegacyAuthToken() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(LEGACY_TOKEN_KEY);
+}
+
+function dispatchSessionInvalid(code?: string) {
+  if (typeof window === "undefined") return;
+  if (!code || !SESSION_INVALID_CODES.has(code)) return;
+  window.dispatchEvent(new CustomEvent("sawy:session-invalid"));
 }
 
 function withQuery(path: string, query?: RequestOptions["query"]) {
@@ -89,6 +98,8 @@ export async function apiRequest<T>(
   method: string,
   options: RequestOptions = {}
 ) {
+  clearLegacyAuthToken();
+
   let body: BodyInit | undefined;
   const headers = new Headers();
   const startedAt = typeof performance !== "undefined" ? performance.now() : Date.now();
@@ -104,13 +115,6 @@ export async function apiRequest<T>(
 
   const useAuth = options.auth !== false;
   const useDevice = options.device !== false;
-
-  if (useAuth) {
-    const token = readAuthToken();
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
-    }
-  }
 
   if (useDevice && typeof window !== "undefined") {
     headers.set("X-Device-Id", getOrCreateDeviceId());
@@ -134,6 +138,7 @@ export async function apiRequest<T>(
       method,
       headers,
       body,
+      credentials: "include",
     });
   } catch (error) {
     logger.error("API request network failure", {
@@ -172,12 +177,7 @@ export async function apiRequest<T>(
       logger.warn("API request rejected", logDetails);
     }
 
-    if (
-      extras.code === "DEVICE_REMOVED" &&
-      typeof window !== "undefined"
-    ) {
-      window.dispatchEvent(new CustomEvent("sawy:session-invalid"));
-    }
+    dispatchSessionInvalid(extras.code);
     throw new ApiClientError(message, response.status, extras);
   }
 
@@ -295,19 +295,14 @@ export function apiUploadWithProgress<T>(
     return apiUpload<T>(path, formData);
   }
 
+  clearLegacyAuthToken();
+
   return new Promise<T>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", withQuery(path));
+    xhr.withCredentials = true;
 
-    const useAuth = options.auth !== false;
     const useDevice = options.device !== false;
-
-    if (useAuth) {
-      const token = readAuthToken();
-      if (token) {
-        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-      }
-    }
 
     if (useDevice) {
       xhr.setRequestHeader("X-Device-Id", getOrCreateDeviceId());
@@ -334,6 +329,7 @@ export function apiUploadWithProgress<T>(
       }
 
       const extras = payload ? getErrorExtras(payload) : {};
+      dispatchSessionInvalid(extras.code);
       reject(
         new ApiClientError(
           payload

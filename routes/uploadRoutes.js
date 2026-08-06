@@ -1,6 +1,9 @@
 const express = require("express");
 const uploadController = require("../controllers/uploadController");
-const { authenticate } = require("../middleware/authMiddleware");
+const {
+  authenticate,
+  requireDevice,
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -9,6 +12,7 @@ const router = express.Router();
 router.post(
   "/",
   authenticate,
+  requireDevice,
   uploadController.uploadMiddleware,
   uploadController.create
 );

@@ -7,12 +7,17 @@ export type ResearchInput = Pick<
 > &
   Partial<Pick<Research, "collaborators">>;
 
-export function listResearch() {
-  return apiGet<Research[]>("/api/research");
+export function listResearch(options?: {
+  onProgress?: (progress: number) => void;
+}) {
+  return apiGet<Research[]>("/api/research", undefined, options);
 }
 
-export function getResearch(slug: string) {
-  return apiGet<Research>(`/api/research/${slug}`);
+export function getResearch(
+  slug: string,
+  options?: { onProgress?: (progress: number) => void }
+) {
+  return apiGet<Research>(`/api/research/${slug}`, undefined, options);
 }
 
 export function createResearch(input: ResearchInput) {

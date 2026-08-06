@@ -1,5 +1,6 @@
 import Link from "next/link";
-import type { Lesson } from "@/lib/data/courses";
+import { lessonSlugOf } from "@/lib/api/courses";
+import type { Lesson } from "@/lib/api/types";
 
 interface LessonNavProps {
   courseSlug: string;
@@ -15,7 +16,7 @@ export function LessonNav({ courseSlug, prev, next }: LessonNavProps) {
     >
       {prev ? (
         <Link
-          href={`/courses/${courseSlug}/${prev.slug}`}
+          href={`/courses/${courseSlug}/${lessonSlugOf(prev)}`}
           className="action-secondary"
         >
           ← {prev.sheetRef} · {prev.title}
@@ -27,7 +28,7 @@ export function LessonNav({ courseSlug, prev, next }: LessonNavProps) {
       )}
       {next ? (
         <Link
-          href={`/courses/${courseSlug}/${next.slug}`}
+          href={`/courses/${courseSlug}/${lessonSlugOf(next)}`}
           className="action-primary sm:ml-auto"
         >
           {next.sheetRef} · {next.title} →

@@ -3,15 +3,18 @@ const userController = require("../controllers/userController");
 const {
   authenticate,
   requireAdmin,
+  requireDevice,
 } = require("../middleware/authMiddleware");
 
 const router = express.Router();
+const studentAuth = [authenticate, requireDevice];
+const adminAuth = [authenticate, requireDevice, requireAdmin];
 
-router.get("/me", authenticate, userController.getMe);
-router.put("/me", authenticate, userController.updateMe);
-router.put("/me/password", authenticate, userController.changePassword);
+router.get("/me", ...studentAuth, userController.getMe);
+router.put("/me", ...studentAuth, userController.updateMe);
+router.put("/me/password", ...studentAuth, userController.changePassword);
 
-router.use(authenticate, requireAdmin);
+router.use(...adminAuth);
 
 router.get("/", userController.getAll);
 router.get("/:id", userController.getById);

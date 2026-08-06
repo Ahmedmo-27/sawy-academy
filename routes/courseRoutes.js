@@ -5,10 +5,11 @@ const lessonController = require("../controllers/lessonController");
 const {
   authenticate,
   requireAdmin,
+  requireDevice,
 } = require("../middleware/authMiddleware");
 
 const router = express.Router();
-const adminWrite = [authenticate, requireAdmin];
+const adminWrite = [authenticate, requireDevice, requireAdmin];
 
 router.get("/", courseController.getAll);
 router.get("/groups", courseController.getGroups);

@@ -3,10 +3,11 @@ const researchController = require("../controllers/researchController");
 const {
   authenticate,
   requireAdmin,
+  requireDevice,
 } = require("../middleware/authMiddleware");
 
 const router = express.Router();
-const adminWrite = [authenticate, requireAdmin];
+const adminWrite = [authenticate, requireDevice, requireAdmin];
 
 router.get("/", researchController.getAll);
 router.get("/:slug", researchController.getBySlug);
