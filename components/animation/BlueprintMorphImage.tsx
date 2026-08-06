@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import { gsap, ScrollTrigger, registerGsap } from "@/lib/gsap/config";
+import { gsap, registerGsap } from "@/lib/gsap/config";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface BlueprintMorphImageProps {

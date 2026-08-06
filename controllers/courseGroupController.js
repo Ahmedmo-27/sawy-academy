@@ -3,6 +3,7 @@ const Course = require("../models/Course");
 const CourseGroup = require("../models/CourseGroup");
 const {
   createHttpError,
+  pickFields,
   sendCreated,
   sendSuccess,
   validateRequired,
@@ -11,6 +12,7 @@ const {
 require("../models/Lesson");
 
 const requiredFields = ["title", "subtitle", "type"];
+const allowedFields = ["title", "subtitle", "type", "bundlePrice", "courses"];
 
 async function resolveCourseIds(courseIds) {
   if (!Array.isArray(courseIds)) {
@@ -67,15 +69,10 @@ async function create(req, res, next) {
   try {
     validateRequired(req.body, requiredFields);
 
-    const payload = {
-      title: req.body.title,
-      subtitle: req.body.subtitle,
-      type: req.body.type,
-      bundlePrice: req.body.bundlePrice,
-    };
+    const payload = pickFields(req.body, allowedFields);
 
-    if (Object.prototype.hasOwnProperty.call(req.body, "courses")) {
-      payload.courses = await resolveCourseIds(req.body.courses);
+    if (Object.prototype.hasOwnProperty.call(payload, "courses")) {
+      payload.courses = await resolveCourseIds(payload.courses);
     }
 
     const group = await CourseGroup.create(payload);
@@ -94,10 +91,10 @@ async function update(req, res, next) {
       throw createHttpError(404, "Course group not found");
     }
 
-    const payload = { ...req.body };
+    const payload = pickFields(req.body, allowedFields);
 
-    if (Object.prototype.hasOwnProperty.call(req.body, "courses")) {
-      payload.courses = await resolveCourseIds(req.body.courses);
+    if (Object.prototype.hasOwnProperty.call(payload, "courses")) {
+      payload.courses = await resolveCourseIds(payload.courses);
     }
 
     const updated = await populateGroup(

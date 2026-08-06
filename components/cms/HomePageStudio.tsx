@@ -32,6 +32,7 @@ import type {
 } from "@/lib/api/types";
 import { toSlug } from "@/lib/slug";
 import { runParallelStagedLoad } from "@/lib/load/stagedLoad";
+import { safeHref } from "@/lib/safeHref";
 
 function text(value: unknown, fallback = "") {
   return typeof value === "string" ? value : fallback;
@@ -55,6 +56,7 @@ function SectionHeader({
   href: string;
   linkLabel: string;
 }) {
+  const safeLink = safeHref(href);
   return (
     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
       <div className="flex items-start gap-6">
@@ -66,9 +68,9 @@ function SectionHeader({
           </GsapReveal>
         </div>
       </div>
-      {href && linkLabel && (
+      {safeLink && linkLabel && (
         <GsapReveal type="text" delay={0.06}>
-          <Link href={href} className="action-secondary shrink-0">
+          <Link href={safeLink} className="action-secondary shrink-0">
             {linkLabel}
           </Link>
         </GsapReveal>
@@ -133,17 +135,17 @@ function HeroSection({
               className="min-w-0 max-w-full"
             >
               <div className="flex flex-col sm:flex-row sm:flex-nowrap items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-                {text(content.primaryCtaHref) && (
+                {safeHref(content.primaryCtaHref) && (
                   <Link
-                    href={text(content.primaryCtaHref)}
+                    href={safeHref(content.primaryCtaHref)}
                     className="cta-entrance w-full sm:w-auto justify-center sm:justify-start"
                   >
                     {text(content.primaryCtaLabel, "View")}
                   </Link>
                 )}
-                {text(content.secondaryCtaHref) && (
+                {safeHref(content.secondaryCtaHref) && (
                   <Link
-                    href={text(content.secondaryCtaHref)}
+                    href={safeHref(content.secondaryCtaHref)}
                     className="action-secondary self-start sm:self-center py-3 sm:py-0"
                   >
                     {text(content.secondaryCtaLabel, "Browse")}
@@ -168,13 +170,17 @@ function HeroSection({
                     {text(content.floorPlanLabel, "Floor plan")}
                   </p>
                   <ul className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-2">
-                    {jumpLinks.map((link, i) => (
-                      <li key={`${link.href}-${i}`} className="min-w-0">
-                        <a href={text(link.href)} className="action-secondary">
-                          {text(link.label)}
-                        </a>
-                      </li>
-                    ))}
+                    {jumpLinks.map((link, i) => {
+                      const href = safeHref(link.href);
+                      if (!href) return null;
+                      return (
+                        <li key={`${href}-${i}`} className="min-w-0">
+                          <a href={href} className="action-secondary">
+                            {text(link.label)}
+                          </a>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </nav>
               </GsapReveal>
@@ -257,7 +263,7 @@ function PortfolioSection({
             room={text(content.roomNumber, "02")}
             eyebrow={text(content.eyebrow, "Work")}
             title={text(content.title, "Portfolio")}
-            href={text(content.href, "/portfolio")}
+            href={safeHref(content.href, "/portfolio")}
             linkLabel={text(content.linkLabel, "All projects")}
           />
           <ThresholdFrame
@@ -306,7 +312,7 @@ function CoursesSection({
             room={text(content.roomNumber, "03")}
             eyebrow={text(content.eyebrow, "Education")}
             title={text(content.title, "Courses")}
-            href={text(content.href, "/courses")}
+            href={safeHref(content.href, "/courses")}
             linkLabel={text(content.linkLabel, "Full curriculum")}
           />
           <ThresholdFrame label={text(content.thresholdLabel, "Programme index")}>
@@ -388,7 +394,7 @@ function ProductsSection({
             room={text(content.roomNumber, "04")}
             eyebrow={text(content.eyebrow, "Studio shop")}
             title={text(content.title, "Products")}
-            href={text(content.href, "/products")}
+            href={safeHref(content.href, "/products")}
             linkLabel={text(content.linkLabel, "Full catalogue")}
           />
           <ThresholdFrame
@@ -437,7 +443,7 @@ function ResearchSection({
             room={text(content.roomNumber, "05")}
             eyebrow={text(content.eyebrow, "Scholarship")}
             title={text(content.title, "Research")}
-            href={text(content.href, "/researches")}
+            href={safeHref(content.href, "/researches")}
             linkLabel={text(content.linkLabel, "All publications")}
           />
           <ThresholdFrame
@@ -493,7 +499,7 @@ function ContactSection({
             room={text(content.roomNumber, "06")}
             eyebrow={text(content.eyebrow, "Correspondence")}
             title={text(content.title, "Contact")}
-            href={text(content.href, "/contact")}
+            href={safeHref(content.href, "/contact")}
             linkLabel={text(content.linkLabel, "Send a message")}
           />
           <GsapReveal type="card">
@@ -503,7 +509,7 @@ function ContactSection({
                   {text(content.body)}
                 </p>
                 <Link
-                  href={text(content.href, "/contact")}
+                  href={safeHref(content.href, "/contact")}
                   className="cta-entrance"
                 >
                   {text(content.ctaLabel, "Open contact form")}
@@ -554,7 +560,7 @@ function CustomSection({ content }: { content: Record<string, unknown> }) {
             room={text(content.roomNumber, "")}
             eyebrow={text(content.eyebrow)}
             title={text(content.title)}
-            href={text(content.href)}
+            href={safeHref(content.href)}
             linkLabel={text(content.linkLabel)}
           />
           {text(content.body) && (

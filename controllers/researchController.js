@@ -3,12 +3,23 @@ const {
   buildCategoryFilter,
   createHttpError,
   getPagination,
+  pickFields,
   sendCreated,
   sendSuccess,
   validateRequired,
 } = require("./controllerUtils");
 
 const requiredFields = ["id", "title", "year", "category", "venue", "abstract"];
+const allowedFields = [
+  "id",
+  "title",
+  "year",
+  "category",
+  "venue",
+  "abstract",
+  "collaborators",
+  "slug",
+];
 
 async function getAll(req, res, next) {
   try {
@@ -42,7 +53,7 @@ async function getBySlug(req, res, next) {
 async function create(req, res, next) {
   try {
     validateRequired(req.body, requiredFields);
-    const research = await Research.create(req.body);
+    const research = await Research.create(pickFields(req.body, allowedFields));
     return sendCreated(res, research);
   } catch (err) {
     return next(err);
@@ -53,7 +64,7 @@ async function update(req, res, next) {
   try {
     const research = await Research.findOneAndUpdate(
       { slug: req.params.slug },
-      req.body,
+      pickFields(req.body, allowedFields),
       { new: true, runValidators: true }
     );
 
