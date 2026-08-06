@@ -4,12 +4,24 @@ const Lesson = require("../models/Lesson");
 const { toSlug } = require("../utils/slug");
 const {
   createHttpError,
+  pickFields,
   sendCreated,
   sendSuccess,
   validateRequired,
 } = require("./controllerUtils");
 
 const requiredFields = ["id", "title", "sheetRef", "duration", "order"];
+const allowedFields = [
+  "id",
+  "slug",
+  "title",
+  "sheetRef",
+  "duration",
+  "order",
+  "summary",
+  "content",
+  "videoUrl",
+];
 
 async function findCourseBySlug(slug) {
   const course = await Course.findOne({ slug: String(slug).trim() });
@@ -87,7 +99,7 @@ async function update(req, res, next) {
   try {
     const course = await findCourseBySlug(req.params.slug);
     const lesson = await findLessonForCourse(course, req.params.lessonId);
-    const updates = { ...req.body };
+    const updates = pickFields(req.body, allowedFields);
 
     if (updates.title && !updates.slug) {
       updates.slug = toSlug(String(updates.title));

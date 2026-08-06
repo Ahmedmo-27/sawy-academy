@@ -6,12 +6,23 @@ require("../models/Lesson");
 const {
   createHttpError,
   getPagination,
+  pickFields,
   sendCreated,
   sendSuccess,
   validateRequired,
 } = require("./controllerUtils");
 
 const requiredFields = ["id", "title", "description", "level", "instructor", "price"];
+const allowedFields = [
+  "id",
+  "slug",
+  "title",
+  "description",
+  "level",
+  "instructor",
+  "price",
+  "relatedProductIds",
+];
 
 function populateCourse(query, includeLessons = false) {
   const populatedQuery = query.populate("relatedProductIds");
@@ -97,10 +108,12 @@ async function getBySlug(req, res, next) {
 async function create(req, res, next) {
   try {
     validateRequired(req.body, requiredFields);
-    const payload = {
-      ...req.body,
-      relatedProductIds: await resolveRelatedProductIds(req.body.relatedProductIds),
-    };
+    const payload = pickFields(req.body, allowedFields);
+    if (Object.prototype.hasOwnProperty.call(payload, "relatedProductIds")) {
+      payload.relatedProductIds = await resolveRelatedProductIds(
+        payload.relatedProductIds
+      );
+    }
     const course = await Course.create(payload);
     const populatedCourse = await populateCourse(Course.findById(course._id), true);
     return sendCreated(res, populatedCourse);
@@ -111,10 +124,10 @@ async function create(req, res, next) {
 
 async function update(req, res, next) {
   try {
-    const payload = { ...req.body };
-    if (Object.prototype.hasOwnProperty.call(req.body, "relatedProductIds")) {
+    const payload = pickFields(req.body, allowedFields);
+    if (Object.prototype.hasOwnProperty.call(payload, "relatedProductIds")) {
       payload.relatedProductIds = await resolveRelatedProductIds(
-        req.body.relatedProductIds
+        payload.relatedProductIds
       );
     }
 

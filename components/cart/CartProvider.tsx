@@ -49,12 +49,13 @@ const SYNC_DEBOUNCE_MS = 400;
 const CartContext = createContext<CartContextValue | null>(null);
 
 function normalizeItem(item: CartItemInput): CartItem {
+  const quantity = Number(item.quantity);
   return {
     id: item.id,
     name: item.name,
     price: item.price ?? "",
     kind: item.kind,
-    quantity: Math.max(1, item.quantity ?? 1),
+    quantity: Math.max(1, Number.isFinite(quantity) ? quantity : 1),
     category: item.category,
     image: item.image,
   };
@@ -182,11 +183,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => {
       const existing = prev.find((entry) => entry.id === item.id);
       if (existing) {
+        const added = Math.max(1, item.quantity ?? 1);
         return prev.map((entry) =>
           entry.id === item.id
             ? {
                 ...entry,
-                quantity: entry.quantity + (item.quantity ?? 1),
+                quantity: Math.max(1, entry.quantity) + added,
                 // Refresh display fields if a newer add provides them.
                 name: item.name ?? entry.name,
                 price: item.price ?? entry.price,
@@ -211,7 +213,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return prev.filter((item) => item.id !== id);
       }
       return prev.map((item) =>
-        item.id === id ? { ...item, quantity } : item
+        item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
       );
     });
   }, []);
@@ -228,14 +230,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const subtotal = useMemo(
     () =>
       items.reduce(
-        (sum, item) => sum + parsePrice(item.price) * item.quantity,
+        (sum, item) =>
+          sum + parsePrice(item.price) * Math.max(1, item.quantity),
         0
       ),
     [items]
   );
 
   const count = useMemo(
-    () => items.reduce((sum, item) => sum + item.quantity, 0),
+    () => items.reduce((sum, item) => sum + Math.max(1, item.quantity), 0),
     [items]
   );
 

@@ -24,6 +24,20 @@ function validateRequired(body, fields) {
   }
 }
 
+/** Copy only allowlisted keys that are present on `body` (ignores undefined). */
+function pickFields(body, fields) {
+  const source = body && typeof body === "object" ? body : {};
+  const picked = {};
+
+  for (const field of fields) {
+    if (Object.prototype.hasOwnProperty.call(source, field) && source[field] !== undefined) {
+      picked[field] = source[field];
+    }
+  }
+
+  return picked;
+}
+
 function getPagination(query) {
   const limit = Math.max(Number(query.limit) || 20, 1);
   const page = Math.max(Number(query.page) || 1, 1);
@@ -47,6 +61,7 @@ module.exports = {
   buildCategoryFilter,
   createHttpError,
   getPagination,
+  pickFields,
   sendCreated,
   sendSuccess,
   validateRequired,

@@ -3,12 +3,14 @@ const {
   buildCategoryFilter,
   createHttpError,
   getPagination,
+  pickFields,
   sendCreated,
   sendSuccess,
   validateRequired,
 } = require("./controllerUtils");
 
 const requiredFields = ["id", "name", "description", "price", "category", "image"];
+const allowedFields = ["id", "name", "description", "price", "category", "image"];
 
 async function getAll(req, res, next) {
   try {
@@ -42,7 +44,7 @@ async function getBySlug(req, res, next) {
 async function create(req, res, next) {
   try {
     validateRequired(req.body, requiredFields);
-    const product = await Product.create(req.body);
+    const product = await Product.create(pickFields(req.body, allowedFields));
     return sendCreated(res, product);
   } catch (err) {
     return next(err);
@@ -53,7 +55,7 @@ async function update(req, res, next) {
   try {
     const product = await Product.findOneAndUpdate(
       { id: req.params.slug },
-      req.body,
+      pickFields(req.body, allowedFields),
       { new: true, runValidators: true }
     );
 

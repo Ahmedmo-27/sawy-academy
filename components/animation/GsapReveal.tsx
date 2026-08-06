@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, ScrollTrigger, registerGsap } from "@/lib/gsap/config";
+import { gsap, registerGsap } from "@/lib/gsap/config";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export type GsapRevealType = "heading" | "text" | "image" | "card" | "clip";

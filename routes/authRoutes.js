@@ -5,8 +5,15 @@ const {
   optionalAuthenticate,
   requireDevice,
 } = require("../middleware/authMiddleware");
+const { ensureCsrfCookie } = require("../lib/auth/csrf");
+const { sendSuccess } = require("../controllers/controllerUtils");
 
 const router = express.Router();
+
+router.get("/csrf", (req, res) => {
+  const csrfToken = ensureCsrfCookie(req, res);
+  return sendSuccess(res, { csrfToken });
+});
 
 router.post("/login", authController.login);
 router.post("/signup", authController.signup);

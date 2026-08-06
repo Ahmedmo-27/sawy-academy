@@ -44,12 +44,65 @@ export class ApiClientError extends Error {
 
 /** Legacy localStorage key — cleared on boot; tokens live in httpOnly cookies. */
 const LEGACY_TOKEN_KEY = "sawy-academy-auth-token";
+const CSRF_COOKIE_NAME = "sawy_csrf";
+const CSRF_HEADER_NAME = "X-CSRF-Token";
 
 const SESSION_INVALID_CODES = new Set(["DEVICE_REMOVED", "SESSION_REVOKED"]);
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+let csrfEnsurePromise: Promise<string | null> | null = null;
 
 function clearLegacyAuthToken() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(LEGACY_TOKEN_KEY);
+}
+
+function readCsrfCookie(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(
+    new RegExp(
+      `(?:^|; )${CSRF_COOKIE_NAME.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}=([^;]*)`
+    )
+  );
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+/** Ensure a readable CSRF cookie exists, then return its value for the request header. */
+async function ensureCsrfToken(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+
+  const existing = readCsrfCookie();
+  if (existing) return existing;
+
+  if (!csrfEnsurePromise) {
+    csrfEnsurePromise = (async () => {
+      try {
+        const response = await fetch("/api/auth/csrf", {
+          method: "GET",
+          credentials: "include",
+        });
+        const payload = (await response.json().catch(() => null)) as {
+          success?: boolean;
+          data?: { csrfToken?: string };
+        } | null;
+        return payload?.data?.csrfToken || readCsrfCookie();
+      } catch {
+        return readCsrfCookie();
+      } finally {
+        csrfEnsurePromise = null;
+      }
+    })();
+  }
+
+  return csrfEnsurePromise;
+}
+
+async function applyCsrfHeader(headers: Headers, method: string) {
+  if (SAFE_METHODS.has(method.toUpperCase())) return;
+  const token = await ensureCsrfToken();
+  if (token) {
+    headers.set(CSRF_HEADER_NAME, token);
+  }
 }
 
 function dispatchSessionInvalid(code?: string) {
@@ -119,6 +172,8 @@ export async function apiRequest<T>(
   if (useDevice && typeof window !== "undefined") {
     headers.set("X-Device-Id", getOrCreateDeviceId());
   }
+
+  await applyCsrfHeader(headers, method);
 
   const url = withQuery(path, options.query);
   const route =
@@ -297,58 +352,65 @@ export function apiUploadWithProgress<T>(
 
   clearLegacyAuthToken();
 
-  return new Promise<T>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", withQuery(path));
-    xhr.withCredentials = true;
+  return (async () => {
+    const csrfToken = await ensureCsrfToken();
 
-    const useDevice = options.device !== false;
+    return new Promise<T>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", withQuery(path));
+      xhr.withCredentials = true;
 
-    if (useDevice) {
-      xhr.setRequestHeader("X-Device-Id", getOrCreateDeviceId());
-    }
+      const useDevice = options.device !== false;
 
-    xhr.upload.addEventListener("progress", (event) => {
-      if (!event.lengthComputable || !options.onProgress) return;
-      options.onProgress(Math.round((event.loaded / event.total) * 100));
-    });
-
-    xhr.addEventListener("load", () => {
-      let payload: ApiResponse<T> | null = null;
-
-      try {
-        payload = JSON.parse(xhr.responseText) as ApiResponse<T>;
-      } catch {
-        payload = null;
+      if (useDevice) {
+        xhr.setRequestHeader("X-Device-Id", getOrCreateDeviceId());
+      }
+      if (csrfToken) {
+        xhr.setRequestHeader(CSRF_HEADER_NAME, csrfToken);
       }
 
-      if (xhr.status >= 200 && xhr.status < 300 && payload?.success) {
-        options.onProgress?.(100);
-        resolve(payload.data as T);
-        return;
-      }
+      xhr.upload.addEventListener("progress", (event) => {
+        if (!event.lengthComputable || !options.onProgress) return;
+        options.onProgress(Math.round((event.loaded / event.total) * 100));
+      });
 
-      const extras = payload ? getErrorExtras(payload) : {};
-      dispatchSessionInvalid(extras.code);
-      reject(
-        new ApiClientError(
-          payload
-            ? getErrorMessage(payload, "Upload failed.")
-            : "Upload failed.",
-          xhr.status,
-          extras
-        )
-      );
+      xhr.addEventListener("load", () => {
+        let payload: ApiResponse<T> | null = null;
+
+        try {
+          payload = JSON.parse(xhr.responseText) as ApiResponse<T>;
+        } catch {
+          payload = null;
+        }
+
+        if (xhr.status >= 200 && xhr.status < 300 && payload?.success) {
+          options.onProgress?.(100);
+          resolve(payload.data as T);
+          return;
+        }
+
+        const extras = payload ? getErrorExtras(payload) : {};
+        dispatchSessionInvalid(extras.code);
+        reject(
+          new ApiClientError(
+            payload
+              ? getErrorMessage(payload, "Upload failed.")
+              : "Upload failed.",
+            xhr.status,
+            extras
+          )
+        );
+      });
+
+      xhr.addEventListener("error", () => {
+        reject(new ApiClientError("Upload failed.", 0));
+      });
+
+      xhr.addEventListener("abort", () => {
+        reject(new ApiClientError("Upload cancelled.", 0));
+      });
+
+      xhr.send(formData);
     });
-
-    xhr.addEventListener("error", () => {
-      reject(new ApiClientError("Upload failed.", 0));
-    });
-
-    xhr.addEventListener("abort", () => {
-      reject(new ApiClientError("Upload cancelled.", 0));
-    });
-
-    xhr.send(formData);
-  });
+  })();
 }

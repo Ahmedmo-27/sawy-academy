@@ -20,6 +20,7 @@ const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const errorHandler = require("./middleware/errorHandler");
 const requestLogger = require("./middleware/requestLogger");
+const requireCsrf = require("./middleware/csrfMiddleware");
 const logger = require("./utils/logger");
 
 dotenv.config();
@@ -42,10 +43,17 @@ app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Device-Id",
+      "X-CSRF-Token",
+    ],
   })
 );
 app.use(express.json());
 app.use(requestLogger);
+app.use(requireCsrf);
 
 app.get("/api/health", (req, res) => {
   res.json({ success: true, data: { status: "ok" } });

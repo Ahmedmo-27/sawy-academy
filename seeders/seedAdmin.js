@@ -4,7 +4,6 @@ const { hashPassword } = require("../lib/auth/password");
 const DEFAULT_ADMIN = {
   name: "Sawy Academy Admin",
   email: "admin@sawy.academy",
-  password: "SawyAdmin!2026",
 };
 
 async function seedAdmin() {
@@ -12,7 +11,11 @@ async function seedAdmin() {
   const email = (
     process.env.SEED_ADMIN_EMAIL || DEFAULT_ADMIN.email
   ).toLowerCase();
-  const password = process.env.SEED_ADMIN_PASSWORD || DEFAULT_ADMIN.password;
+  const password = process.env.SEED_ADMIN_PASSWORD;
+
+  if (!password) {
+    throw new Error("SEED_ADMIN_PASSWORD is required to seed the admin user");
+  }
 
   const user = await User.findOneAndUpdate(
     { email },
