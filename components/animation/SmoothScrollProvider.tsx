@@ -38,11 +38,23 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     gsap.ticker.add(ticker);
     gsap.ticker.lagSmoothing(0);
 
+    // Only resize Lenis when ScrollTrigger refreshes for a real layout change
+    // (ignoreMobileResize already filters chrome show/hide).
     const onRefresh = () => lenis.resize();
     ScrollTrigger.addEventListener("refresh", onRefresh);
     ScrollTrigger.refresh();
 
+    let lastWidth = window.innerWidth;
+    const onWindowResize = () => {
+      if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+      lenis.resize();
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener("resize", onWindowResize);
+
     return () => {
+      window.removeEventListener("resize", onWindowResize);
       ScrollTrigger.removeEventListener("refresh", onRefresh);
       gsap.ticker.remove(ticker);
       lenis.destroy();

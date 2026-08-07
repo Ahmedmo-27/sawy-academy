@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ScrollTrigger, registerGsap } from "@/lib/gsap/config";
 import { SmoothScrollProvider } from "./SmoothScrollProvider";
+import { StableViewport } from "./StableViewport";
 import { BlueprintGridLayer } from "./BlueprintGridLayer";
 import { FloatingGeometryLayer } from "./FloatingGeometryLayer";
 import { ScrollProgressScale } from "./ScrollProgressScale";
@@ -23,6 +24,7 @@ export function ScrollAnimationShell({ children }: ScrollAnimationShellProps) {
 
   return (
     <SmoothScrollProvider>
+      <StableViewport />
       <BlueprintGridLayer />
       <FloatingGeometryLayer />
       <ScrollProgressScale />

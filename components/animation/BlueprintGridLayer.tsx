@@ -34,7 +34,7 @@ export function BlueprintGridLayer() {
   return (
     <div
       ref={gridRef}
-      className="pointer-events-none fixed inset-0 z-0 will-change-transform"
+      className="pointer-events-none fixed inset-x-0 top-0 z-0 h-[var(--app-height)] will-change-transform"
       aria-hidden="true"
       style={{
         opacity: 0.045,

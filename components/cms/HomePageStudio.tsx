@@ -197,7 +197,7 @@ function HeroSection({
               delay={0.18}
               className="min-w-0 max-w-full"
             >
-              <ImageFrame className="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[3/4] max-h-[min(32vh,240px)] sm:max-h-[min(42vh,320px)] lg:max-h-[min(68vh,680px)] bg-concrete-dark/20">
+              <ImageFrame className="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[3/4] max-h-[min(32svh,240px)] sm:max-h-[min(42svh,320px)] lg:max-h-[min(68svh,680px)] bg-concrete-dark/20">
                 {heroImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img

@@ -80,7 +80,7 @@ export function FloatingGeometryLayer() {
   return (
     <div
       ref={setRefs}
-      className="pointer-events-none fixed inset-0 z-[1] overflow-hidden will-change-transform"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[1] h-[var(--app-height)] overflow-hidden will-change-transform"
       aria-hidden="true"
     >
       <svg
