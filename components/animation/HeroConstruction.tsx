@@ -82,7 +82,7 @@ export function HeroConstruction({ className = "" }: HeroConstructionProps) {
     >
       <svg
         ref={svgRef}
-        className="absolute right-0 top-16 w-[55%] max-w-xl h-auto opacity-50 hidden md:block will-change-transform"
+        className="absolute right-[-8%] top-10 w-[85%] max-w-sm h-auto opacity-35 sm:right-0 sm:top-16 sm:w-[55%] sm:max-w-xl sm:opacity-50 will-change-transform"
         viewBox="0 0 480 360"
         fill="none"
       >

@@ -49,14 +49,7 @@
   --grid-columns: 12;
   --grid-gap: 1px;
 
-  --nav-height: 4rem;
-  --nav-height-lg: 5rem;
-}
-
-@media (min-width: 1024px) {
-  :root {
-    --nav-height: var(--nav-height-lg);
-  }
+  --nav-height: 5.5rem;
 }
 
 @layer base {
@@ -64,6 +57,11 @@
     scroll-behavior: smooth;
     /* clip (not hidden) so position:sticky in admin sidebar keeps working */
     overflow-x: clip;
+  }
+
+  html.lenis,
+  html.lenis body {
+    scroll-behavior: auto;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -128,7 +126,7 @@
   .type-display {
     @apply font-serif font-light text-charcoal;
     font-size: clamp(1.625rem, 4.5vw + 0.5rem, var(--text-display));
-    line-height: 1.08;
+    line-height: 1.02;
     letter-spacing: -0.02em;
     overflow-wrap: anywhere;
   }
@@ -136,32 +134,32 @@
   .type-heading {
     @apply font-serif font-light text-charcoal;
     font-size: clamp(1.5rem, 3.5vw, var(--text-heading));
-    line-height: 1.12;
+    line-height: 1.06;
     letter-spacing: -0.01em;
   }
 
   .type-title {
     @apply font-serif text-charcoal;
     font-size: var(--text-title);
-    line-height: 1.2;
+    line-height: 1.15;
   }
 
   .type-lead {
     font-size: var(--text-lead);
-    line-height: 1.6;
+    line-height: 1.45;
     @apply text-charcoal-muted;
   }
 
   .type-body {
     font-size: var(--text-body);
-    line-height: 1.65;
+    line-height: 1.5;
     overflow-wrap: break-word;
     @apply text-charcoal-muted;
   }
 
   .type-infill {
     font-size: var(--text-infill);
-    line-height: 1.5;
+    line-height: 1.4;
     @apply text-charcoal-infill;
   }
 
@@ -640,4 +638,25 @@
   .action-primary::after {
     transition: none !important;
   }
+}
+
+/* ── Borrowed motion system (Lenis / GSAP / Cipher–Trionn) ── */
+
+.split-text-reveal {
+  overflow: visible;
+}
+
+.split-text-reveal [class*="line"],
+.split-text-reveal [class*="word"],
+.split-text-reveal [class*="char"] {
+  will-change: transform, opacity;
+}
+
+.horiz-pin__track > * {
+  flex-shrink: 0;
+}
+
+.magnetic {
+  display: block;
+  width: 100%;
 }

@@ -58,7 +58,7 @@ export default function ProductsPage() {
                 {products.map((product) => (
                   <div
                     key={product.id}
-                    className="col-span-12 sm:col-span-6 lg:col-span-3 bg-concrete group"
+                    className="col-span-6 lg:col-span-3 bg-concrete group"
                   >
                     <ProductCard
                       id={product.id}

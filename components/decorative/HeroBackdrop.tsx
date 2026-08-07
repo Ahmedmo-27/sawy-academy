@@ -40,15 +40,15 @@ export function HeroBackdrop({ variant = "page" }: HeroBackdropProps) {
       <motion.div className="absolute inset-0 z-[1]" style={{ y: midY }}>
         {variant === "home" ? (
           <>
-            <FloorPlanSketch className="right-0 top-24 w-[48%] max-w-lg opacity-40 hidden lg:block" />
-            <AxonometricSketch className="hidden sm:block right-0 bottom-8 w-28 opacity-15 md:left-0 md:right-auto md:bottom-16 md:w-52 md:opacity-30" />
-            <BlueprintDraw className="right-16 top-36 w-64 opacity-60 hidden lg:block" />
+            <FloorPlanSketch className="right-0 top-16 w-[70%] max-w-lg opacity-30 sm:top-24 sm:w-[48%] sm:opacity-40" />
+            <AxonometricSketch className="right-0 bottom-6 w-24 opacity-20 sm:bottom-8 sm:w-28 sm:opacity-15 md:left-0 md:right-auto md:bottom-16 md:w-52 md:opacity-30" />
+            <BlueprintDraw className="right-4 top-28 w-44 opacity-45 sm:right-16 sm:top-36 sm:w-64 sm:opacity-60" />
           </>
         ) : (
           <>
-            <FloorPlanSketch className="right-0 top-16 w-60 opacity-30 hidden lg:block" />
-            <AxonometricSketch className="-left-16 bottom-12 w-40 opacity-25 hidden md:block" />
-            <BlueprintDraw className="right-20 top-32 w-52 opacity-40 hidden lg:block" />
+            <FloorPlanSketch className="right-0 top-12 w-48 opacity-25 sm:top-16 sm:w-60 sm:opacity-30" />
+            <AxonometricSketch className="-left-10 bottom-8 w-32 opacity-20 sm:-left-16 sm:bottom-12 sm:w-40 sm:opacity-25" />
+            <BlueprintDraw className="right-6 top-24 w-40 opacity-35 sm:right-20 sm:top-32 sm:w-52 sm:opacity-40" />
           </>
         )}
       </motion.div>

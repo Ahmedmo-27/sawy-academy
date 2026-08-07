@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { notFound } from "next/navigation";
+import { BioGeometryShape } from "@/components/BioGeometryShape";
 import { PageHeader } from "@/components/PageHeader";
 import { CourseMaterials } from "@/components/courses/CourseMaterials";
 import { CourseSheetIndex } from "@/components/courses/CourseSheetIndex";
@@ -55,6 +56,7 @@ function groupHeaderMeta(group: CourseGroup): {
 
 function GroupCourseDetail({ group }: { group: CourseGroup }) {
   const meta = groupHeaderMeta(group);
+  const isLeveled = group.type === "leveled";
 
   return (
     <>
@@ -69,12 +71,38 @@ function GroupCourseDetail({ group }: { group: CourseGroup }) {
       />
 
       <Section rhythm="standard" contained={false}>
-        <PageContainer>
-          {group.type === "diploma" ? (
-            <DiplomaCourseDetail group={group} />
-          ) : (
-            <LeveledCourseDetail group={group} />
-          )}
+        <PageContainer className="relative">
+          <BioGeometryShape
+            kind={isLeveled ? "bg3" : "spiral"}
+            variant="draw"
+            size={isLeveled ? 260 : 300}
+            stroke="var(--color-clay)"
+            opacity={0.5}
+            drawEnd={0.5}
+            parallax={240}
+            parallaxX={36}
+            parallaxRotate={10}
+            className="fixed right-[max(0.5rem,calc((100vw-72rem)/2-2rem))] top-[20%] z-0 hidden md:block"
+          />
+          <BioGeometryShape
+            kind="coil"
+            variant="draw"
+            size={200}
+            stroke="var(--color-clay-muted)"
+            opacity={0.42}
+            drawEnd={0.7}
+            parallax={160}
+            parallaxX={-44}
+            parallaxRotate={-8}
+            className="fixed left-[max(0.5rem,calc((100vw-72rem)/2-1.5rem))] bottom-[16%] z-0 hidden md:block"
+          />
+          <div className="relative z-[1]">
+            {group.type === "diploma" ? (
+              <DiplomaCourseDetail group={group} />
+            ) : (
+              <LeveledCourseDetail group={group} />
+            )}
+          </div>
         </PageContainer>
       </Section>
     </>
@@ -96,8 +124,33 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
       <ThresholdDoorway label="DRAWING SET" />
 
       <Section rhythm="standard" contained={false}>
-        <PageContainer className="space-y-16 lg:space-y-20">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+        <PageContainer className="relative space-y-16 lg:space-y-20">
+          <BioGeometryShape
+            kind="spiral"
+            variant="draw"
+            size={280}
+            stroke="var(--color-clay)"
+            opacity={0.5}
+            drawEnd={0.5}
+            parallax={220}
+            parallaxX={40}
+            parallaxRotate={12}
+            className="fixed right-[max(0.5rem,calc((100vw-72rem)/2-2rem))] top-[20%] z-0 hidden md:block"
+          />
+          <BioGeometryShape
+            kind="c7"
+            variant="draw"
+            size={220}
+            stroke="var(--color-clay-muted)"
+            opacity={0.45}
+            drawEnd={0.7}
+            parallax={150}
+            parallaxX={-48}
+            parallaxRotate={-7}
+            className="fixed left-[max(0.5rem,calc((100vw-72rem)/2-1.5rem))] bottom-[16%] z-0 hidden md:block"
+          />
+
+          <div className="relative z-[1] flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
             <div>
               <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
               <p className="label-caps mb-2">{course.level}</p>
@@ -116,7 +169,7 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
           </div>
 
           <ThresholdFrame label={`Bay — ${course.title}`}>
-            <div className="hairline-border p-6 lg:p-10 mt-4">
+            <div className="relative z-[1] hairline-border p-6 lg:p-10 mt-4">
               <CourseSheetIndex courseSlug={course.slug} lessons={lessons} />
             </div>
           </ThresholdFrame>
@@ -124,7 +177,7 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
           {productIds.length > 0 && (
             <>
               <SectionCutDivider label="MATERIALS" />
-              <div>
+              <div className="relative z-[1]">
                 <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
                 <p className="eyebrow mb-2">Specified equipment</p>
                 <h2 className="type-heading mb-8">Materials &amp; tools</h2>

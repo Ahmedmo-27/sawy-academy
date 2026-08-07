@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GsapReveal, GsapStagger } from "@/components/animation/GsapReveal";
 import { HeroConstruction } from "@/components/animation/HeroConstruction";
+import { SplitTextReveal } from "@/components/animation/SplitTextReveal";
+import { HorizontalPinGallery } from "@/components/animation/HorizontalPinGallery";
+import { PinScrubStats } from "@/components/animation/PinScrubStats";
 import { HeroBackdrop } from "@/components/decorative/HeroBackdrop";
 import { GridColumns } from "@/components/decorative/GridColumns";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
@@ -63,9 +66,9 @@ function SectionHeader({
         <span className="dim-label pt-1">{room}</span>
         <div>
           <p className="eyebrow mb-2">{eyebrow}</p>
-          <GsapReveal type="heading">
+          <SplitTextReveal type="lines">
             <h2 className="type-heading">{title}</h2>
-          </GsapReveal>
+          </SplitTextReveal>
         </div>
       </div>
       {safeLink && linkLabel && (
@@ -226,16 +229,20 @@ function PhilosophySection({ content }: { content: Record<string, unknown> }) {
                 {text(content.roomNumber, "01")}
               </span>
             </div>
-            <GsapReveal type="heading" className="lg:col-span-7">
+            <div className="lg:col-span-7">
               <blockquote>
-                <p className="type-display leading-snug mb-6">
-                  {text(content.quote)}
-                </p>
-                <footer className="eyebrow text-clay">
-                  — {text(content.attribution)}
-                </footer>
+                <GsapReveal type="heading">
+                  <p className="type-display leading-snug mb-6">
+                    {text(content.quote)}
+                  </p>
+                </GsapReveal>
+                <GsapReveal type="text" delay={0.08}>
+                  <footer className="eyebrow text-clay">
+                    — {text(content.attribution)}
+                  </footer>
+                </GsapReveal>
               </blockquote>
-            </GsapReveal>
+            </div>
             <div className="room-void lg:col-span-4" aria-hidden="true" />
           </div>
         </PageContainer>
@@ -253,6 +260,7 @@ function PortfolioSection({
 }) {
   const limit = num(content.featuredLimit, 3);
   const featured = limit > 0 ? projects.slice(0, limit) : projects;
+  const usePinGallery = featured.length >= 2;
 
   return (
     <>
@@ -269,27 +277,130 @@ function PortfolioSection({
           <ThresholdFrame
             label={text(content.thresholdLabel, "Featured")}
           >
-            <GsapStagger className="bay-grid pt-6">
-              {featured.map((project) => (
-                <div
-                  key={project.id}
-                  className="col-span-12 md:col-span-4 bg-concrete"
-                >
-                  <ProjectCard
-                    title={project.title}
-                    category={project.category}
-                    year={project.year}
-                    image={project.image}
-                    sheetRef={project.sheetRef ?? ""}
-                    href={`/portfolio/${project.slug}`}
-                  />
-                </div>
-              ))}
-            </GsapStagger>
+            {usePinGallery ? (
+              <div className="pt-6">
+                <HorizontalPinGallery>
+                  {featured.map((project) => (
+                    <div
+                      key={project.id}
+                      className="w-[min(82vw,22rem)] shrink-0 bg-concrete sm:w-[min(42vw,28rem)]"
+                    >
+                      <ProjectCard
+                        title={project.title}
+                        category={project.category}
+                        year={project.year}
+                        image={project.image}
+                        sheetRef={project.sheetRef ?? ""}
+                        href={`/portfolio/${project.slug}`}
+                      />
+                    </div>
+                  ))}
+                </HorizontalPinGallery>
+              </div>
+            ) : (
+              <GsapStagger className="bay-grid pt-6">
+                {featured.map((project) => (
+                  <div
+                    key={project.id}
+                    className="col-span-12 md:col-span-4 bg-concrete"
+                  >
+                    <ProjectCard
+                      title={project.title}
+                      category={project.category}
+                      year={project.year}
+                      image={project.image}
+                      sheetRef={project.sheetRef ?? ""}
+                      href={`/portfolio/${project.slug}`}
+                    />
+                  </div>
+                ))}
+              </GsapStagger>
+            )}
           </ThresholdFrame>
         </PageContainer>
       </Section>
     </>
+  );
+}
+
+function StudioPulseSection({
+  projects,
+  groups,
+  researches,
+}: {
+  projects: Project[];
+  groups: CourseGroup[];
+  researches: Research[];
+}) {
+  const featuredProject = projects[0];
+  const featuredGroup = groups[0];
+  const featuredResearch = researches[0];
+  // Course / research records may lack cover art — borrow studio photos so each card still has a visual.
+  const courseVisual = projects[1] ?? featuredProject;
+  const researchVisual = projects[2] ?? projects[1] ?? featuredProject;
+
+  const items = [
+    {
+      value: `${Math.max(projects.length, 1)}+`,
+      label: "Featured works",
+      meta: featuredProject
+        ? `${featuredProject.title} · ${featuredProject.year}`
+        : "Studio archive",
+      detail: featuredProject
+        ? `${featuredProject.category} work from the portfolio — scroll to hold on each measure of output.`
+        : "Built work from the studio archive.",
+      image: featuredProject?.image,
+      imageAlt: featuredProject?.title,
+      href: "/portfolio",
+      linkLabel: "Open portfolio",
+    },
+    {
+      value: `${Math.max(groups.length, 1)}`,
+      label: "Course programmes",
+      meta: featuredGroup?.title ?? "Curriculum",
+      detail:
+        featuredGroup?.subtitle ??
+        "Structured programmes spanning diploma and leveled study.",
+      image: courseVisual?.image,
+      imageAlt: courseVisual?.title ?? "Course programmes",
+      href: featuredGroup ? groupHref(featuredGroup) : "/courses",
+      linkLabel: "Browse courses",
+    },
+    {
+      value: `${Math.max(researches.length, 1)}+`,
+      label: "Research notes",
+      meta: featuredResearch
+        ? `${featuredResearch.title} · ${featuredResearch.year}`
+        : "Inquiry ledger",
+      detail: featuredResearch
+        ? `${featuredResearch.venue}. ${featuredResearch.abstract.slice(0, 140)}${
+            featuredResearch.abstract.length > 140 ? "…" : ""
+          }`
+        : "Published notes, conferences, and ongoing inquiry.",
+      image: researchVisual?.image,
+      imageAlt: researchVisual?.title ?? "Research notes",
+      href: featuredResearch?.slug
+        ? `/researches/${featuredResearch.slug}`
+        : "/researches",
+      linkLabel: "Read research",
+    },
+  ];
+
+  return (
+    <Section id="studio-pulse" rhythm="intimate" contained={false}>
+      <PageContainer>
+        <div className="mb-8 flex items-start gap-6">
+          <span className="dim-label pt-1">01.5</span>
+          <div>
+            <p className="eyebrow mb-2">Studio pulse</p>
+            <SplitTextReveal type="words">
+              <h2 className="type-heading">Scale of practice</h2>
+            </SplitTextReveal>
+          </div>
+        </div>
+        <PinScrubStats items={items} />
+      </PageContainer>
+    </Section>
   );
 }
 
@@ -330,7 +441,7 @@ function CoursesSection({
                   >
                     <p className="eyebrow mb-2">{group.subtitle}</p>
                     <h3 className="type-title mb-3">{group.title}</h3>
-                    <p className="type-infill leading-relaxed mb-6 flex-1">
+                    <p className="type-infill mb-6 flex-1">
                       {first && "description" in first
                         ? String(first.description ?? "")
                         : ""}
@@ -404,7 +515,7 @@ function ProductsSection({
               {featured.map((product) => (
                 <div
                   key={product.id}
-                  className="col-span-12 sm:col-span-6 lg:col-span-3 bg-concrete group"
+                  className="col-span-6 lg:col-span-3 bg-concrete group"
                 >
                   <ProductCard
                     id={product.id}
@@ -461,13 +572,13 @@ function ResearchSection({
                         </span>
                       </div>
                       <div className="lg:col-span-9">
-                        <h3 className="type-title mb-2 leading-snug">
+                        <h3 className="type-title mb-2">
                           {item.title}
                         </h3>
                         <p className="label-caps mb-3 text-charcoal-infill">
                           {item.venue}
                         </p>
-                        <p className="type-infill leading-relaxed line-clamp-2">
+                        <p className="type-infill line-clamp-2">
                           {item.abstract}
                         </p>
                       </div>
@@ -505,7 +616,7 @@ function ContactSection({
           <GsapReveal type="card">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-hairline">
               <div className="bg-concrete p-8 lg:p-10 lg:col-span-7 elevation-surface">
-                <p className="type-infill leading-relaxed max-w-lg mb-8">
+                <p className="type-infill max-w-lg mb-8">
                   {text(content.body)}
                 </p>
                 <Link
@@ -528,7 +639,7 @@ function ContactSection({
                   </div>
                   <div>
                     <dt className="label-caps mb-2">Studio</dt>
-                    <dd className="type-infill leading-relaxed">
+                    <dd className="type-infill">
                       {branding.address.line1}
                       <br />
                       {branding.address.line2}, {branding.address.country}
@@ -565,7 +676,7 @@ function CustomSection({ content }: { content: Record<string, unknown> }) {
           />
           {text(content.body) && (
             <GsapReveal type="text">
-              <p className="type-body max-w-2xl leading-relaxed">
+              <p className="type-body max-w-2xl">
                 {text(content.body)}
               </p>
             </GsapReveal>
@@ -658,52 +769,57 @@ export function HomePageStudio() {
 
   return (
     <>
-      {sections.map((section) => {
+      {sections.map((section, index) => {
         const content = section.content ?? {};
-        switch (section.type) {
-          case "hero":
-            return <HeroSection key={section.id} content={content} />;
-          case "philosophy":
-            return <PhilosophySection key={section.id} content={content} />;
-          case "portfolio":
-            return (
-              <PortfolioSection
-                key={section.id}
-                content={content}
+        const node = (() => {
+          switch (section.type) {
+            case "hero":
+              return <HeroSection content={content} />;
+            case "philosophy":
+              return <PhilosophySection content={content} />;
+            case "portfolio":
+              return (
+                <PortfolioSection content={content} projects={projects} />
+              );
+            case "courses":
+              return <CoursesSection content={content} groups={groups} />;
+            case "products":
+              return (
+                <ProductsSection content={content} products={products} />
+              );
+            case "research":
+              return (
+                <ResearchSection
+                  content={content}
+                  researches={researches}
+                />
+              );
+            case "contact":
+              return <ContactSection content={content} />;
+            case "custom":
+              return <CustomSection content={content} />;
+            default:
+              return null;
+          }
+        })();
+
+        const next = sections[index + 1];
+        const insertPulse =
+          section.type === "philosophy" ||
+          (section.type === "hero" && next?.type === "portfolio");
+
+        return (
+          <div key={section.id}>
+            {node}
+            {insertPulse ? (
+              <StudioPulseSection
                 projects={projects}
-              />
-            );
-          case "courses":
-            return (
-              <CoursesSection
-                key={section.id}
-                content={content}
                 groups={groups}
-              />
-            );
-          case "products":
-            return (
-              <ProductsSection
-                key={section.id}
-                content={content}
-                products={products}
-              />
-            );
-          case "research":
-            return (
-              <ResearchSection
-                key={section.id}
-                content={content}
                 researches={researches}
               />
-            );
-          case "contact":
-            return <ContactSection key={section.id} content={content} />;
-          case "custom":
-            return <CustomSection key={section.id} content={content} />;
-          default:
-            return null;
-        }
+            ) : null}
+          </div>
+        );
       })}
     </>
   );
