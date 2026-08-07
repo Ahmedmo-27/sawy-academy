@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { GsapStagger } from "@/components/animation/GsapReveal";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ProductCard } from "@/components/products/ProductCard";
 import { listProducts } from "@/lib/api/products";
@@ -46,11 +47,11 @@ export function CourseMaterials({ relatedProductIds }: CourseMaterialsProps) {
   if (materials.length === 0) return null;
 
   return (
-    <div className="bay-grid">
+    <GsapStagger className="bay-grid">
       {materials.map((product) => (
         <div
           key={product.id}
-          className="col-span-6 lg:col-span-3 bg-concrete"
+          className="col-span-12 sm:col-span-6 lg:col-span-3 bg-concrete"
         >
           <ProductCard
             id={product.id}
@@ -62,7 +63,7 @@ export function CourseMaterials({ relatedProductIds }: CourseMaterialsProps) {
           />
         </div>
       ))}
-    </div>
+    </GsapStagger>
   );
 }
 

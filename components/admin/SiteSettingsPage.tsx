@@ -6,6 +6,7 @@ import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { FormField } from "@/components/admin/FormField";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { fetchWithProgress } from "@/lib/load/withFetchProgress";
@@ -263,7 +264,7 @@ export function SiteSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "branding" | "seo" | "navigation" | "pages" | "contact"
+    "branding" | "seo" | "navigation" | "pages" | "contact" | "services"
   >("branding");
 
   const settings = data ?? DEFAULT_SITE_SETTINGS;
@@ -282,6 +283,7 @@ export function SiteSettingsPage() {
         footer: settings.footer,
         pageHeaders: settings.pageHeaders,
         contactPage: settings.contactPage,
+        servicesPage: settings.servicesPage,
       });
       setData(saved);
       success("Site settings saved");
@@ -332,6 +334,7 @@ export function SiteSettingsPage() {
     { id: "navigation" as const, label: "Nav & footer" },
     { id: "pages" as const, label: "Page headers" },
     { id: "contact" as const, label: "Contact page" },
+    { id: "services" as const, label: "Services media" },
   ];
 
   return (
@@ -579,6 +582,38 @@ export function SiteSettingsPage() {
               patch({ contactPage: { ...settings.contactPage, intro: value } })
             }
           />
+        </div>
+      )}
+
+      {activeTab === "services" && (
+        <div className="max-w-3xl space-y-8">
+          <p className="type-infill text-charcoal-muted">
+            Still photography for the public services page. Empty slots show
+            construction-line sketches until uploaded.
+          </p>
+          {(
+            [
+              ["designImageUrl", "Design service card"],
+              ["researchImageUrl", "Research service card"],
+              ["processBriefImageUrl", "Process — Brief"],
+              ["processReviewImageUrl", "Process — Review"],
+              ["processDeliveryImageUrl", "Process — Delivery"],
+            ] as const
+          ).map(([key, label]) => (
+            <ImageUploadField
+              key={key}
+              label={label}
+              value={settings.servicesPage?.[key] ?? ""}
+              onChange={(value) =>
+                patch({
+                  servicesPage: {
+                    ...settings.servicesPage,
+                    [key]: value,
+                  },
+                })
+              }
+            />
+          ))}
         </div>
       )}
 

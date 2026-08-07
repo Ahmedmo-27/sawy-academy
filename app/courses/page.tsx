@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BioGeometryShape } from "@/components/BioGeometryShape";
 import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
-import { Reveal } from "@/components/Reveal";
+import { GsapReveal, GsapStagger } from "@/components/animation/GsapReveal";
+import { SplitTextReveal } from "@/components/animation/SplitTextReveal";
 import { EnrollButton } from "@/components/courses/EnrollButton";
+import { MediaBay } from "@/components/decorative/MediaBay";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -25,57 +27,67 @@ import { parseLevelProgress } from "@/lib/motion";
 function CourseListing({
   courses,
   numbered,
+  groupImage,
 }: {
   courses: Course[];
   numbered?: boolean;
+  groupImage?: string;
 }) {
   return (
-    <div>
+    <GsapStagger className="space-y-0">
       {courses.map((course, i) => (
-        <Reveal key={course.id} variant="grid" delay={i * 50}>
-          <div
-            className={`grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 py-8 ${
-              i > 0 ? "hairline-t" : ""
-            }`}
-          >
-            {numbered && (
-              <div className="lg:col-span-1">
-                <span className="label-caps text-clay">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-              </div>
-            )}
-            <div className="lg:col-span-7">
-              <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
-              <h3 className="type-title mb-2">
-                <Link
-                  href={`/courses/${course.slug}`}
-                  className="hover:text-clay transition-colors duration-200"
-                >
-                  {course.title}
-                </Link>
-              </h3>
-              <p className="type-infill leading-relaxed">{course.description}</p>
+        <div
+          key={course.id}
+          className={`grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 py-8 ${
+            i > 0 ? "hairline-t" : ""
+          }`}
+        >
+          {numbered && (
+            <div className="lg:col-span-1">
+              <span className="label-caps text-clay">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+            </div>
+          )}
+          <div className={`${numbered ? "lg:col-span-2" : "lg:col-span-2"}`}>
+            <MediaBay
+              src={course.image || groupImage}
+              alt={course.title}
+              className="aspect-square max-w-[9rem] sm:max-w-[7rem]"
+              fallback="course"
+              morph
+            />
+          </div>
+          <div className="lg:col-span-5">
+            <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
+            <h3 className="type-title mb-2">
               <Link
                 href={`/courses/${course.slug}`}
-                className="action-secondary mt-4 inline-block"
+                className="hover:text-clay transition-colors duration-200"
               >
-                Open course details
+                {course.title}
               </Link>
-            </div>
-            <div className="lg:col-span-4 flex flex-col lg:items-end gap-3">
-              <span className="label-caps">{course.level}</span>
-              <LevelProgressLine
-                progress={parseLevelProgress(course.level)}
-                className="lg:ml-auto w-full max-w-[140px]"
-              />
-              <span className="type-infill">{course.instructor}</span>
-              <span className="type-body text-charcoal">{course.price}</span>
-            </div>
+            </h3>
+            <p className="type-infill leading-relaxed">{course.description}</p>
+            <Link
+              href={`/courses/${course.slug}`}
+              className="action-secondary mt-4 inline-block"
+            >
+              Open course details
+            </Link>
           </div>
-        </Reveal>
+          <div className="lg:col-span-4 flex flex-col lg:items-end gap-3">
+            <span className="label-caps">{course.level}</span>
+            <LevelProgressLine
+              progress={parseLevelProgress(course.level)}
+              className="lg:ml-auto w-full max-w-[140px]"
+            />
+            <span className="type-infill">{course.instructor}</span>
+            <span className="type-body text-charcoal">{course.price}</span>
+          </div>
+        </div>
       ))}
-    </div>
+    </GsapStagger>
   );
 }
 
@@ -181,27 +193,40 @@ export default function CoursesPage() {
                     />
                   )}
 
-                  <Reveal variant="structural">
-                    <div className="relative z-[1] mb-8">
-                      <p className="eyebrow mb-2">{group.subtitle}</p>
-                      <h2 className="type-heading">
+                  <GsapReveal type="heading">
+                    <div className="relative z-[1] mb-8 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end">
+                      <div className="lg:col-span-8">
+                        <p className="eyebrow mb-2">{group.subtitle}</p>
+                        <SplitTextReveal type="lines">
+                          <h2 className="type-heading">
+                            <Link
+                              href={`/courses/${slug}`}
+                              className="hover:text-clay transition-colors duration-200"
+                            >
+                              {group.title}
+                            </Link>
+                          </h2>
+                        </SplitTextReveal>
                         <Link
                           href={`/courses/${slug}`}
-                          className="hover:text-clay transition-colors duration-200"
+                          className="action-primary mt-5 inline-block"
                         >
-                          {group.title}
+                          Open course details
                         </Link>
-                      </h2>
-                      <Link
-                        href={`/courses/${slug}`}
-                        className="action-primary mt-5 inline-block"
-                      >
-                        Open course details
-                      </Link>
+                      </div>
+                      <div className="lg:col-span-4">
+                        <MediaBay
+                          src={group.image}
+                          alt={group.title}
+                          className="aspect-[16/10]"
+                          fallback="course"
+                          morph
+                        />
+                      </div>
                     </div>
-                  </Reveal>
+                  </GsapReveal>
 
-                  <Reveal variant="structural" delay={80}>
+                  <GsapReveal type="card" delay={0.08}>
                     <ThresholdFrame
                       label={
                         group.type === "diploma"
@@ -270,10 +295,11 @@ export default function CoursesPage() {
                         <CourseListing
                           courses={courses}
                           numbered={group.type === "diploma"}
+                          groupImage={group.image}
                         />
                       </div>
                     </ThresholdFrame>
-                  </Reveal>
+                  </GsapReveal>
                 </div>
               );
             })}

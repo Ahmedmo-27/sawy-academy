@@ -10,6 +10,7 @@ import { DiplomaCourseDetail } from "@/components/courses/DiplomaCourseDetail";
 import { EnrollButton } from "@/components/courses/EnrollButton";
 import { LeveledCourseDetail } from "@/components/courses/LeveledCourseDetail";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
+import { MediaBay } from "@/components/decorative/MediaBay";
 import { SectionCutDivider } from "@/components/decorative/SectionCutDivider";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -125,6 +126,17 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
 
       <Section rhythm="standard" contained={false}>
         <PageContainer className="relative space-y-16 lg:space-y-20">
+          <MediaBay
+            src={course.image}
+            alt={course.title}
+            className="relative z-[1] aspect-[16/10] lg:aspect-[21/9]"
+            fallback="course"
+            morph
+            priority
+            revealOnLoad
+            sizes="100vw"
+          />
+
           <BioGeometryShape
             kind="spiral"
             variant="draw"

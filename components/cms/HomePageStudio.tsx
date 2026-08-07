@@ -10,9 +10,11 @@ import { PinScrubStats } from "@/components/animation/PinScrubStats";
 import { HeroBackdrop } from "@/components/decorative/HeroBackdrop";
 import { GridColumns } from "@/components/decorative/GridColumns";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
+import { MediaBay } from "@/components/decorative/MediaBay";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { PortraitSilhouette } from "@/components/decorative/PortraitSilhouette";
+import { Magnetic } from "@/components/animation/Magnetic";
 import { ProjectCard } from "@/components/portfolio/ProjectCard";
 import { ProductCard } from "@/components/products/ProductCard";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -104,7 +106,7 @@ function HeroSection({
       <GridColumns />
 
       <PageContainer className="relative z-10 pt-[calc(var(--nav-height)+3rem+env(safe-area-inset-top))] sm:pt-32 lg:pt-40 pb-8 sm:pb-12 lg:pb-16">
-        <div className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:gap-6 lg:items-center">
+        <div className="grid min-w-0 grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-6 lg:items-center">
           <div className="order-2 min-w-0 max-w-full lg:order-none lg:col-span-5 lg:pr-4">
             <GsapReveal type="text" immediate className="min-w-0 max-w-full">
               <p className="eyebrow mb-3 break-words">
@@ -137,7 +139,7 @@ function HeroSection({
               delay={0.4}
               className="min-w-0 max-w-full"
             >
-              <div className="flex flex-col sm:flex-row sm:flex-nowrap items-stretch sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:flex-nowrap items-stretch sm:items-center gap-4 sm:gap-4 mb-6 sm:mb-8">
                 {safeHref(content.primaryCtaHref) && (
                   <Link
                     href={safeHref(content.primaryCtaHref)}
@@ -190,14 +192,14 @@ function HeroSection({
             )}
           </div>
 
-          <div className="order-1 min-w-0 max-w-full lg:order-none lg:col-span-7 mx-auto w-full max-w-[14rem] sm:max-w-xs md:max-w-sm lg:mx-0 lg:max-w-none lg:-translate-y-8">
+          <div className="order-1 min-w-0 max-w-full lg:order-none lg:col-span-7 mx-auto w-full max-w-xs sm:max-w-sm md:max-w-md lg:mx-0 lg:max-w-none lg:-translate-y-8">
             <GsapReveal
               type="image"
               immediate
               delay={0.18}
               className="min-w-0 max-w-full"
             >
-              <ImageFrame className="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[3/4] max-h-[min(32svh,240px)] sm:max-h-[min(42svh,320px)] lg:max-h-[min(68svh,680px)] bg-concrete-dark/20">
+              <ImageFrame className="aspect-[4/3] sm:aspect-[4/3] lg:aspect-[3/4] max-h-[min(40svh,280px)] sm:max-h-[min(42svh,320px)] lg:max-h-[min(68svh,680px)] bg-concrete-dark/20">
                 {heroImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -243,7 +245,17 @@ function PhilosophySection({ content }: { content: Record<string, unknown> }) {
                 </GsapReveal>
               </blockquote>
             </div>
-            <div className="room-void lg:col-span-4" aria-hidden="true" />
+            <div className="lg:col-span-4">
+              <GsapReveal type="image">
+                <MediaBay
+                  src={text(content.philosophyImageUrl)}
+                  alt="Philosophy diagram"
+                  className="aspect-[4/3] lg:aspect-[4/5]"
+                  fallback="plan"
+                  morph
+                />
+              </GsapReveal>
+            </div>
           </div>
         </PageContainer>
       </Section>
@@ -283,7 +295,7 @@ function PortfolioSection({
                   {featured.map((project) => (
                     <div
                       key={project.id}
-                      className="w-[min(82vw,22rem)] shrink-0 bg-concrete sm:w-[min(42vw,28rem)]"
+                      className="w-[min(88vw,24rem)] shrink-0 bg-concrete sm:w-[min(42vw,28rem)]"
                     >
                       <ProjectCard
                         title={project.title}
@@ -335,9 +347,15 @@ function StudioPulseSection({
   const featuredProject = projects[0];
   const featuredGroup = groups[0];
   const featuredResearch = researches[0];
-  // Course / research records may lack cover art — borrow studio photos so each card still has a visual.
-  const courseVisual = projects[1] ?? featuredProject;
-  const researchVisual = projects[2] ?? projects[1] ?? featuredProject;
+  const courseVisual =
+    featuredGroup?.image ||
+    projects[1]?.image ||
+    featuredProject?.image;
+  const researchVisual =
+    featuredResearch?.image ||
+    projects[2]?.image ||
+    projects[1]?.image ||
+    featuredProject?.image;
 
   const items = [
     {
@@ -361,8 +379,8 @@ function StudioPulseSection({
       detail:
         featuredGroup?.subtitle ??
         "Structured programmes spanning diploma and leveled study.",
-      image: courseVisual?.image,
-      imageAlt: courseVisual?.title ?? "Course programmes",
+      image: courseVisual,
+      imageAlt: featuredGroup?.title ?? "Course programmes",
       href: featuredGroup ? groupHref(featuredGroup) : "/courses",
       linkLabel: "Browse courses",
     },
@@ -377,8 +395,8 @@ function StudioPulseSection({
             featuredResearch.abstract.length > 140 ? "…" : ""
           }`
         : "Published notes, conferences, and ongoing inquiry.",
-      image: researchVisual?.image,
-      imageAlt: researchVisual?.title ?? "Research notes",
+      image: researchVisual,
+      imageAlt: featuredResearch?.title ?? "Research notes",
       href: featuredResearch?.slug
         ? `/researches/${featuredResearch.slug}`
         : "/researches",
@@ -439,6 +457,13 @@ function CoursesSection({
                     key={group._id ?? group.id ?? group.title}
                     className="bg-concrete p-6 lg:p-8 flex flex-col elevation-surface"
                   >
+                    <MediaBay
+                      src={group.image}
+                      alt={group.title}
+                      className="aspect-[16/10] mb-6"
+                      fallback="course"
+                      morph
+                    />
                     <p className="eyebrow mb-2">{group.subtitle}</p>
                     <h3 className="type-title mb-3">{group.title}</h3>
                     <p className="type-infill mb-6 flex-1">
@@ -515,7 +540,7 @@ function ProductsSection({
               {featured.map((product) => (
                 <div
                   key={product.id}
-                  className="col-span-6 lg:col-span-3 bg-concrete group"
+                  className="col-span-12 sm:col-span-6 lg:col-span-3 bg-concrete group"
                 >
                   <ProductCard
                     id={product.id}
@@ -560,16 +585,25 @@ function ResearchSection({
           <ThresholdFrame
             label={text(content.thresholdLabel, "Bibliography")}
           >
-            <div className="mt-6 max-w-3xl">
+            <div className="mt-6 space-y-0">
               {featured.map((item, i) => (
                 <GsapReveal key={item.id} type="card" delay={i * 0.055}>
                   <article className={`py-8 ${i > 0 ? "hairline-t" : ""}`}>
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
-                      <div className="lg:col-span-3 flex gap-4 lg:flex-col lg:gap-2">
-                        <span className="label-caps">{item.category}</span>
-                        <span className="label-caps text-charcoal-infill">
-                          {item.year}
-                        </span>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+                      <div className="lg:col-span-3">
+                        <MediaBay
+                          src={item.image}
+                          alt={item.title}
+                          className="aspect-[4/3] sm:aspect-[4/5] max-w-[18rem] sm:max-w-[12rem]"
+                          fallback="research"
+                          morph
+                        />
+                        <div className="mt-4 flex gap-4 lg:flex-col lg:gap-2">
+                          <span className="label-caps">{item.category}</span>
+                          <span className="label-caps text-charcoal-infill">
+                            {item.year}
+                          </span>
+                        </div>
                       </div>
                       <div className="lg:col-span-9">
                         <h3 className="type-title mb-2">
@@ -615,18 +649,29 @@ function ContactSection({
           />
           <GsapReveal type="card">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-hairline">
-              <div className="bg-concrete p-8 lg:p-10 lg:col-span-7 elevation-surface">
+              <div className="bg-concrete p-6 lg:p-10 lg:col-span-5 elevation-surface">
                 <p className="type-infill max-w-lg mb-8">
                   {text(content.body)}
                 </p>
-                <Link
-                  href={safeHref(content.href, "/contact")}
-                  className="cta-entrance"
-                >
-                  {text(content.ctaLabel, "Open contact form")}
-                </Link>
+                <Magnetic>
+                  <Link
+                    href={safeHref(content.href, "/contact")}
+                    className="cta-entrance"
+                  >
+                    {text(content.ctaLabel, "Open contact form")}
+                  </Link>
+                </Magnetic>
               </div>
-              <div className="bg-concrete-dark/40 p-8 lg:p-10 lg:col-span-5">
+              <div className="bg-concrete lg:col-span-3">
+                <MediaBay
+                  src={text(content.contactImageUrl)}
+                  alt="Studio"
+                  className="aspect-[16/10] lg:aspect-[3/4] h-full min-h-[14rem]"
+                  fallback="service"
+                  morph
+                />
+              </div>
+              <div className="bg-concrete-dark/40 p-6 lg:p-10 lg:col-span-4">
                 <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
                 <dl className="space-y-6">
                   <div>
@@ -681,6 +726,15 @@ function CustomSection({ content }: { content: Record<string, unknown> }) {
               </p>
             </GsapReveal>
           )}
+          <GsapReveal type="image" delay={0.08} className="mt-10">
+            <MediaBay
+              src={text(content.customImageUrl)}
+              alt={text(content.title, "Studio media")}
+              className="aspect-[16/10] lg:aspect-[21/9]"
+              fallback="plan"
+              morph
+            />
+          </GsapReveal>
         </PageContainer>
       </Section>
     </>

@@ -115,13 +115,13 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
     },
     login: {
       eyebrow: "Access",
-      title: "Login",
+      title: "Sign in",
       description:
-        "Sign in to the studio register with your academy credentials.",
+        "Enter the studio register with your academy credentials.",
     },
     signup: {
       eyebrow: "Access",
-      title: "Sign Up",
+      title: "Join the studio",
       description:
         "Create a student account to enroll, order materials, and follow studio work.",
     },
@@ -129,5 +129,12 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   contactPage: {
     intro:
       "Whether you are seeking design consultation, research partnership, or wish to discuss enrollment at Sawy Academy — I welcome thoughtful correspondence.",
+  },
+  servicesPage: {
+    designImageUrl: "",
+    researchImageUrl: "",
+    processBriefImageUrl: "",
+    processReviewImageUrl: "",
+    processDeliveryImageUrl: "",
   },
 };

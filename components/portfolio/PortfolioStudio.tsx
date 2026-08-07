@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { GsapStagger } from "@/components/animation/GsapReveal";
+import { HorizontalPinGallery } from "@/components/animation/HorizontalPinGallery";
 import { ProjectCard } from "@/components/portfolio/ProjectCard";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
@@ -25,7 +26,7 @@ const spanMap = {
 };
 
 const aspectMap = {
-  tall: "aspect-[3/4]",
+  tall: "aspect-[4/3] md:aspect-[3/4]",
   wide: "aspect-[16/9] lg:aspect-[2/1]",
   square: "aspect-square",
 };
@@ -63,6 +64,8 @@ export function PortfolioStudio() {
     };
   }, []);
 
+  const featured = useMemo(() => projects.slice(0, 4), [projects]);
+
   const filtered = useMemo(() => {
     if (active === "All") return projects;
     return projects.filter((p) => p.category === (active as ProjectCategory));
@@ -70,10 +73,38 @@ export function PortfolioStudio() {
 
   return (
     <>
+      {!loading && featured.length >= 2 && (
+        <Section rhythm="intimate" contained={false}>
+          <PageContainer>
+            <ThresholdFrame label="Bay 01 — Featured">
+              <div className="pt-6">
+                <HorizontalPinGallery>
+                  {featured.map((project) => (
+                    <div
+                      key={project.id}
+                      className="w-[min(88vw,24rem)] shrink-0 bg-concrete sm:w-[min(42vw,28rem)]"
+                    >
+                      <ProjectCard
+                        title={project.title}
+                        category={project.category}
+                        year={project.year}
+                        image={project.image}
+                        sheetRef={project.sheetRef ?? ""}
+                        href={`/portfolio/${project.slug}`}
+                      />
+                    </div>
+                  ))}
+                </HorizontalPinGallery>
+              </div>
+            </ThresholdFrame>
+          </PageContainer>
+        </Section>
+      )}
+
       <Section rhythm="compressed" contained={false} className="hairline-b">
         <PageContainer>
           <nav
-            className="flex flex-wrap gap-x-8 gap-y-2 py-2"
+            className="flex flex-wrap gap-x-8 gap-y-3 py-3"
             aria-label="Filter projects"
           >
             {portfolioFilters.map((filter) => (

@@ -4,7 +4,8 @@ import type { Product } from "@/lib/api/types";
 export type ProductInput = Pick<
   Product,
   "id" | "name" | "description" | "price" | "category" | "image"
->;
+> &
+  Partial<Pick<Product, "gallery">>;
 
 export function listProducts() {
   return apiGet<Product[]>("/api/products");

@@ -35,7 +35,7 @@ export function SectionCutDivider({
           transition={{ duration: 0.8, ease: easeOut }}
         />
 
-        <div className="mx-2 flex shrink-0 items-center sm:mx-3">
+        <div className="mx-3 flex shrink-0 items-center sm:mx-4">
           <HatchMarks
             count={5}
             className="sm:hidden"
@@ -49,7 +49,7 @@ export function SectionCutDivider({
 
           {label ? (
             <motion.span
-              className="label-caps mx-2 whitespace-nowrap text-charcoal/25 sm:mx-3"
+              className="label-caps mx-3 whitespace-nowrap text-charcoal/25 sm:mx-4"
               variants={{
                 hidden: { opacity: 0 },
                 visible: { opacity: 1 },

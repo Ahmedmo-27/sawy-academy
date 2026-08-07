@@ -6,6 +6,7 @@ const {
   footer,
   pageHeaders,
   contactPage,
+  servicesPage,
 } = require("../seeders/data/siteDefaults");
 const { createHttpError, sendSuccess } = require("./controllerUtils");
 
@@ -18,6 +19,7 @@ function defaults() {
     footer,
     pageHeaders,
     contactPage,
+    servicesPage,
   };
 }
 
@@ -83,6 +85,12 @@ async function update(req, res, next) {
       settings.contactPage = {
         ...settings.contactPage?.toObject?.() ?? settings.contactPage,
         ...payload.contactPage,
+      };
+    }
+    if (payload.servicesPage) {
+      settings.servicesPage = {
+        ...settings.servicesPage?.toObject?.() ?? settings.servicesPage ?? {},
+        ...payload.servicesPage,
       };
     }
 

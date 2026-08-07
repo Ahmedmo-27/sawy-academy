@@ -11,6 +11,20 @@ interface HorizontalPinGalleryProps {
   distanceFactor?: number;
 }
 
+/** Fixed header clearance so pin starts when the nav meets the cards. */
+function getNavOffsetPx(): number {
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue("--nav-height")
+    .trim();
+  if (!raw) return 88;
+  if (raw.endsWith("rem")) {
+    const root =
+      parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    return parseFloat(raw) * root;
+  }
+  return parseFloat(raw) || 88;
+}
+
 /**
  * Pin + horizontal scrub — snappy scrub, shorter pin distance so it
  * doesn't feel stuck mid-gallery.
@@ -44,7 +58,9 @@ export function HorizontalPinGallery({
       ease: "none",
       scrollTrigger: {
         trigger: pin,
-        start: "top top",
+        // Pin just under the fixed navbar so horizontal scrub begins
+        // when the nav reaches the top of the cards — not under it.
+        start: () => `top ${getNavOffsetPx()}`,
         end: () => `+=${Math.max(getScroll() * 1.05, pin.clientWidth * 0.55)}`,
         pin: true,
         scrub: 0.2,
@@ -70,11 +86,11 @@ export function HorizontalPinGallery({
     <div ref={sectionRef} className={`horiz-pin ${className}`}>
       <div
         ref={pinRef}
-        className="horiz-pin__viewport relative flex h-[min(100svh,820px)] w-full items-center overflow-hidden"
+        className="horiz-pin__viewport relative flex h-[min(calc(70svh-var(--nav-height)),560px)] w-full items-center overflow-hidden sm:h-[min(calc(85svh-var(--nav-height)),720px)] lg:h-[min(calc(100svh-var(--nav-height)),820px)]"
       >
         <div
           ref={trackRef}
-          className="horiz-pin__track flex w-max flex-row gap-4 will-change-transform sm:gap-6"
+          className="horiz-pin__track flex w-max flex-row gap-5 will-change-transform sm:gap-6"
         >
           {children}
         </div>

@@ -5,6 +5,7 @@ const courseGroupSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     subtitle: { type: String, required: true, trim: true },
     type: { type: String, enum: ["diploma", "leveled"], required: true },
+    image: { type: String, trim: true },
     courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
     bundlePrice: { type: String, trim: true },
   },

@@ -5,7 +5,9 @@ export type ProjectInput = Pick<
   Project,
   "id" | "title" | "category" | "year" | "image"
 > &
-  Partial<Pick<Project, "aspect">>;
+  Partial<
+    Pick<Project, "aspect" | "gallery" | "beforeImage" | "afterImage">
+  >;
 
 export function listProjects() {
   return apiGet<Project[]>("/api/portfolio", { limit: 500 });

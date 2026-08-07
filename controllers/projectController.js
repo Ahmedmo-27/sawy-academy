@@ -18,6 +18,9 @@ const allowedFields = [
   "category",
   "year",
   "image",
+  "gallery",
+  "beforeImage",
+  "afterImage",
   "aspect",
   "order",
 ];

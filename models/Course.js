@@ -10,6 +10,7 @@ const courseSchema = new mongoose.Schema(
     level: { type: String, required: true, trim: true },
     instructor: { type: String, required: true, trim: true },
     price: { type: String, required: true, trim: true },
+    image: { type: String, trim: true },
     lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lesson" }],
     relatedProductIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   },

@@ -219,7 +219,7 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
       <div className="relative h-svh overflow-hidden">
         <div
           ref={cardsRef}
-          className="absolute inset-x-0 mx-auto min-h-0 w-full max-w-6xl px-3 sm:px-6 lg:px-8"
+          className="absolute inset-x-0 mx-auto min-h-0 w-full max-w-6xl px-4 sm:px-6 lg:px-8"
           style={{
             top: "calc(var(--nav-height) + 0.75rem + env(safe-area-inset-top, 0px))",
             bottom: "max(2.5rem, env(safe-area-inset-bottom, 0px))",
@@ -249,7 +249,7 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
                 </div>
               ) : null}
 
-              <div className="shrink-0 px-4 py-4 sm:px-7 sm:py-6 lg:px-8 lg:py-7 [@media(max-height:720px)]:px-4 [@media(max-height:720px)]:py-3">
+              <div className="shrink-0 px-5 py-5 sm:px-7 sm:py-6 lg:px-8 lg:py-7 [@media(max-height:720px)]:px-4 [@media(max-height:720px)]:py-3">
                 <p className="type-display text-clay mb-1.5 sm:mb-2 [@media(max-height:720px)]:mb-1">
                   {item.value}
                 </p>

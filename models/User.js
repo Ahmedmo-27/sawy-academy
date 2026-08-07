@@ -18,6 +18,13 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     avatarUrl: { type: String, trim: true },
+    /** Max registered devices for students. Admins are not limited. */
+    deviceLimit: {
+      type: Number,
+      default: 2,
+      min: 1,
+      max: 20,
+    },
   },
   {
     timestamps: true,

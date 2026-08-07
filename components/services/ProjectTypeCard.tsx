@@ -1,6 +1,8 @@
 "use client";
 
+import { MediaBay } from "@/components/decorative/MediaBay";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
+import type { MediaFallbackKind } from "@/components/decorative/MediaFallbackSketch";
 
 interface ProjectTypeCardProps {
   sheetRef: string;
@@ -8,6 +10,8 @@ interface ProjectTypeCardProps {
   description: string;
   selected: boolean;
   onSelect: () => void;
+  imageUrl?: string;
+  fallback?: MediaFallbackKind;
 }
 
 export function ProjectTypeCard({
@@ -16,6 +20,8 @@ export function ProjectTypeCard({
   description,
   selected,
   onSelect,
+  imageUrl,
+  fallback = "service",
 }: ProjectTypeCardProps) {
   const bracket =
     "absolute w-6 h-6 pointer-events-none transition-colors duration-200";
@@ -25,7 +31,7 @@ export function ProjectTypeCard({
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`relative w-full text-left p-8 lg:p-10 transition-colors duration-200 ${
+      className={`relative w-full text-left p-6 lg:p-10 transition-colors duration-200 ${
         selected
           ? "bg-concrete-dark"
           : "bg-concrete hover:bg-concrete-dark/50"
@@ -56,6 +62,13 @@ export function ProjectTypeCard({
         aria-hidden="true"
       />
 
+      <MediaBay
+        src={imageUrl}
+        alt={title}
+        className="aspect-[16/10] mb-6"
+        fallback={fallback}
+        morph
+      />
       <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
       <p className="label-caps mb-2 text-charcoal-infill">{sheetRef}</p>
       <h2 className="type-title">{title}</h2>

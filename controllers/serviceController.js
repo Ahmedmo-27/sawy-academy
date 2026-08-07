@@ -55,6 +55,29 @@ function formatResearchDetails(payload) {
   return lines.join("\n");
 }
 
+function formatDeviceAccessDetails(payload) {
+  const lines = [];
+  const kind =
+    payload.requestKind === "increase"
+      ? "Request extra device slot"
+      : payload.requestKind === "replace"
+        ? "Replace a registered device"
+        : String(payload.requestKind || "Device access");
+  appendLine(lines, "Request", kind);
+  if (payload.deviceToReplaceLabel || payload.deviceToReplaceId) {
+    appendLine(
+      lines,
+      "Device to replace",
+      payload.deviceToReplaceLabel || payload.deviceToReplaceId
+    );
+  }
+  if (payload.deviceToReplaceId && payload.deviceToReplaceLabel) {
+    appendLine(lines, "Device id", payload.deviceToReplaceId);
+  }
+  appendLine(lines, "Reason", payload.reason || payload.additionalNotes);
+  return lines.join("\n");
+}
+
 function formatSubmissionDetails(payload) {
   if (!payload || typeof payload !== "object") {
     return "";
@@ -68,12 +91,20 @@ function formatSubmissionDetails(payload) {
     return formatResearchDetails(payload);
   }
 
+  if (payload.type === "device-access") {
+    return formatDeviceAccessDetails(payload);
+  }
+
   return JSON.stringify(payload, null, 2);
 }
 
 function normalizeServiceType(payload) {
   if (!payload || typeof payload !== "object") {
     return "general";
+  }
+
+  if (payload.type === "device-access") {
+    return "device access";
   }
 
   if (payload.type === "research") {
@@ -94,6 +125,36 @@ async function create(req, res, next) {
     const name = String(payload.name).trim();
     const email = String(payload.email).trim().toLowerCase();
     const type = normalizeServiceType(payload);
+
+    if (payload.type === "device-access") {
+      if (!req.auth?.userId) {
+        throw createHttpError(
+          401,
+          "Sign in on a registered device to request a device change."
+        );
+      }
+
+      const reason = String(payload.reason || "").trim();
+      if (!reason) {
+        throw createHttpError(400, "A reason is required for device access requests");
+      }
+
+      const requestKind = String(payload.requestKind || "").trim();
+      if (requestKind !== "replace" && requestKind !== "increase") {
+        throw createHttpError(
+          400,
+          "Choose whether you want to replace a device or request an extra slot"
+        );
+      }
+
+      if (requestKind === "replace" && !String(payload.deviceToReplaceId || "").trim()) {
+        throw createHttpError(
+          400,
+          "Select which registered device you want to replace"
+        );
+      }
+    }
+
     const details = formatSubmissionDetails(payload);
 
     const request = await ServiceRequest.create({

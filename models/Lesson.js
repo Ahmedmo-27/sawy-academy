@@ -11,6 +11,7 @@ const lessonSchema = new mongoose.Schema(
     summary: { type: String, required: true, trim: true },
     content: { type: String, required: true },
     videoUrl: { type: String, trim: true },
+    previewImage: { type: String, trim: true },
   },
   {
     timestamps: true,

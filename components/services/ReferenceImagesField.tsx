@@ -130,7 +130,7 @@ export function ReferenceImagesField({
       )}
 
       {value.length > 0 && (
-        <ul className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {value.map((url, index) => (
             <li key={url} className="relative">
               <ImageFrame>

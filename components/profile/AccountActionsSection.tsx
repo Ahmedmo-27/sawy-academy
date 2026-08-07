@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
+import { ProfileSectionShell } from "@/components/profile/ProfileSectionShell";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { changePassword } from "@/lib/api/users";
@@ -47,7 +47,6 @@ export function AccountActionsSection() {
     setStatus("submitting");
 
     try {
-      // TODO: Confirm PUT /api/users/me/password once auth API ships.
       await changePassword({
         currentPassword,
         newPassword,
@@ -75,11 +74,11 @@ export function AccountActionsSection() {
   }
 
   return (
-    <ThresholdFrame label="ACCOUNT ACTIONS" labelAsHeading>
-      <div className="hairline-border mt-4 bg-concrete/80">
+    <ProfileSectionShell id="account" label="Account">
+      <div className="mt-4 grid gap-px bg-hairline lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <form
           onSubmit={(event) => void handlePasswordSubmit(event)}
-          className="p-8 space-y-6 hairline-b"
+          className="space-y-6 bg-concrete/80 p-6 sm:p-8"
         >
           <div>
             <p className="eyebrow text-clay mb-2">Change password</p>
@@ -111,7 +110,7 @@ export function AccountActionsSection() {
                   ? "account-password-error"
                   : undefined
               }
-              className="w-full max-w-md bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
+              className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
             />
           </div>
 
@@ -134,7 +133,7 @@ export function AccountActionsSection() {
                   ? "account-password-error"
                   : undefined
               }
-              className="w-full max-w-md bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
+              className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
             />
           </div>
 
@@ -160,12 +159,16 @@ export function AccountActionsSection() {
                   ? "account-password-error"
                   : undefined
               }
-              className="w-full max-w-md bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
+              className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
             />
           </div>
 
           {(validationError || status === "error") && (
-            <p id="account-password-error" className="type-body text-clay" role="alert">
+            <p
+              id="account-password-error"
+              className="type-body text-clay"
+              role="alert"
+            >
               {validationError || errorMessage}
             </p>
           )}
@@ -179,11 +182,17 @@ export function AccountActionsSection() {
           </button>
         </form>
 
-        <div className="p-8">
-          <p className="eyebrow text-clay mb-3">Session</p>
+        <div className="flex flex-col justify-between bg-concrete-dark/40 p-6 sm:p-8">
+          <div>
+            <p className="eyebrow text-clay mb-2">Session</p>
+            <p className="type-infill max-w-sm">
+              End this browser session when you are finished. You can sign back
+              in anytime from the studio threshold.
+            </p>
+          </div>
           <button
             type="button"
-            className="action-secondary"
+            className="action-secondary mt-8 self-start"
             onClick={() => setLogoutOpen(true)}
           >
             Log out
@@ -202,6 +211,6 @@ export function AccountActionsSection() {
         onCancel={() => setLogoutOpen(false)}
         onConfirm={confirmLogout}
       />
-    </ThresholdFrame>
+    </ProfileSectionShell>
   );
 }

@@ -10,7 +10,7 @@ const {
 } = require("./controllerUtils");
 
 const requiredFields = ["id", "name", "description", "price", "category", "image"];
-const allowedFields = ["id", "name", "description", "price", "category", "image"];
+const allowedFields = ["id", "name", "description", "price", "category", "image", "gallery"];
 
 async function getAll(req, res, next) {
   try {

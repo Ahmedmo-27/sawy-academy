@@ -21,6 +21,7 @@ const allowedFields = [
   "summary",
   "content",
   "videoUrl",
+  "previewImage",
 ];
 
 async function findCourseBySlug(slug) {

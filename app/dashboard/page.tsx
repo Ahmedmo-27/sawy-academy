@@ -7,8 +7,8 @@ import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { PageHeader } from "@/components/PageHeader";
 
 /**
- * Student hub after login. Full profile, enrollments, and history live at
- * /dashboard/profile.
+ * Student hub (reachable from account nav). After login/signup, students land
+ * on home; full profile, enrollments, and history live at /dashboard/profile.
  */
 export default function DashboardPage() {
   return (

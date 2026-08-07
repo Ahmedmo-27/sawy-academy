@@ -14,6 +14,8 @@ const researchSchema = new mongoose.Schema(
     venue: { type: String, required: true, trim: true },
     abstract: { type: String, required: true, trim: true },
     collaborators: { type: String, trim: true },
+    image: { type: String, trim: true },
+    figures: [{ type: String, trim: true }],
     slug: { type: String, required: true, unique: true, trim: true },
   },
   {

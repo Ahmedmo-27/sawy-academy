@@ -9,6 +9,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { CoursePickerField } from "@/components/admin/CoursePickerField";
 import { FormField } from "@/components/admin/FormField";
+import { ImageGalleryField } from "@/components/admin/ImageGalleryField";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { LessonsManager } from "@/components/admin/LessonsManager";
 import { UserDevicesPanel } from "@/components/admin/UserDevicesPanel";
@@ -288,6 +289,20 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
                         {field.hint}
                       </p>
                     )}
+                  </div>
+                );
+              }
+
+              if (field.type === "gallery") {
+                return (
+                  <div key={field.name} className="md:col-span-2">
+                    <ImageGalleryField
+                      label={field.label}
+                      value={form[field.name] ?? "[]"}
+                      error={errors[field.name]}
+                      description={field.hint}
+                      onChange={(value) => updateForm(field.name, value)}
+                    />
                   </div>
                 );
               }

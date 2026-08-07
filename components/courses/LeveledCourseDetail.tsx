@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { EnrollButton } from "@/components/courses/EnrollButton";
 import { CompleteMarker } from "@/components/decorative/CompleteMarker";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
+import { MediaBay } from "@/components/decorative/MediaBay";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { useAuth } from "@/hooks/useAuth";
@@ -208,6 +209,17 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
 
   return (
     <div className="space-y-16 lg:space-y-20">
+      <MediaBay
+        src={group.image}
+        alt={group.title}
+        className="aspect-[16/10] lg:aspect-[21/9]"
+        fallback="course"
+        morph
+        priority
+        revealOnLoad
+        sizes="100vw"
+      />
+
       <div className="hairline-border p-6 lg:p-10">
         <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
         <p className="label-caps mb-2">Leveled progression</p>

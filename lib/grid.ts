@@ -7,10 +7,10 @@ export const SITE_MAX =
 
 /**
  * Horizontal gutter scales with viewport.
- * Uses the 8px modular scale: px-2=16px, px-3=24px, px-4=32px, …
- * Avoid px-4 on phones — with this scale it is 32px/side and starves content.
+ * Uses the 8px modular scale: px-3=24px, px-4=32px, px-5=40px, …
+ * Phone gutters stay at 24px so content isn't squeezed against the edges.
  */
-export const GUTTER = "px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6";
+export const GUTTER = "px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8";
 
 /** Shared shell for nav + page containers */
 export const SITE_SHELL = `mx-auto w-full min-w-0 ${SITE_MAX} ${GUTTER}`;

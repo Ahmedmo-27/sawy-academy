@@ -63,6 +63,7 @@ function defaultContent(type: HomeSectionType): Record<string, unknown> {
         roomNumber: "01",
         quote: "",
         attribution: "",
+        philosophyImageUrl: "",
       };
     case "custom":
       return {
@@ -74,6 +75,7 @@ function defaultContent(type: HomeSectionType): Record<string, unknown> {
         href: "",
         linkLabel: "",
         anchorId: "",
+        customImageUrl: "",
       };
     default:
       return {
@@ -87,6 +89,7 @@ function defaultContent(type: HomeSectionType): Record<string, unknown> {
         featuredLimit: 3,
         body: "",
         ctaLabel: "",
+        contactImageUrl: "",
       };
   }
 }
@@ -370,6 +373,14 @@ function SectionFields({
           value={text(c, "attribution")}
           onChange={(value) => set("attribution", value)}
         />
+        <div className="md:col-span-2">
+          <ImageUploadField
+            label="Philosophy image"
+            description="Optional diagram or photo for the void column."
+            value={text(c, "philosophyImageUrl")}
+            onChange={(value) => set("philosophyImageUrl", value)}
+          />
+        </div>
       </div>
     );
   }
@@ -477,6 +488,26 @@ function SectionFields({
             placeholder="e.g. studio"
             onChange={(value) => set("anchorId", value)}
           />
+        )}
+        {section.type === "contact" && (
+          <div className="md:col-span-2">
+            <ImageUploadField
+              label="Contact studio image"
+              description="Optional photo beside the contact panel."
+              value={text(c, "contactImageUrl")}
+              onChange={(value) => set("contactImageUrl", value)}
+            />
+          </div>
+        )}
+        {section.type === "custom" && (
+          <div className="md:col-span-2">
+            <ImageUploadField
+              label="Custom section image"
+              description="Optional full-width media bay under the body."
+              value={text(c, "customImageUrl")}
+              onChange={(value) => set("customImageUrl", value)}
+            />
+          </div>
         )}
       </div>
     );

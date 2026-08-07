@@ -6,7 +6,7 @@ import { AdminLoader } from "@/components/admin/AdminLoader";
 import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
-import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
+import { ProfileSectionShell } from "@/components/profile/ProfileSectionShell";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { useToast } from "@/components/feedback/ToastProvider";
@@ -33,6 +33,13 @@ function formatMemberSince(value?: string) {
     month: "short",
     year: "numeric",
   });
+}
+
+function initialsFrom(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "SA";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
 }
 
 export function ProfileIdentityPanel() {
@@ -120,7 +127,6 @@ export function ProfileIdentityPanel() {
     setIsSaving(true);
 
     try {
-      // Match admin detail forms: await API, then replace local state from response.
       const updated = await updateMe({
         name: name.trim(),
         email: email.trim(),
@@ -147,18 +153,20 @@ export function ProfileIdentityPanel() {
 
   if (isLoading) {
     return (
-      <AdminLoader
-        label="Loading identity sheet"
-        stepLabel={stepLabel}
-        progress={progress}
-      />
+      <div id="identity" className="scroll-mt-28 lg:scroll-mt-32">
+        <AdminLoader
+          label="Loading identity sheet"
+          stepLabel={stepLabel}
+          progress={progress}
+        />
+      </div>
     );
   }
 
   if (error || !data) {
     return (
-      <ThresholdFrame label="IDENTITY">
-        <div className="hairline-border bg-concrete p-8">
+      <ProfileSectionShell id="identity" label="Identity">
+        <div className="hairline-border bg-concrete p-6 mt-4 sm:p-8">
           <p className="eyebrow text-clay">Unable to load profile</p>
           <p className="type-infill mt-3">{error || "Profile was not found."}</p>
           <button
@@ -169,44 +177,62 @@ export function ProfileIdentityPanel() {
             Retry
           </button>
         </div>
-      </ThresholdFrame>
+      </ProfileSectionShell>
     );
   }
 
   return (
-    <ThresholdFrame label="Drawing Title Block — Identity" labelAsHeading>
+    <ProfileSectionShell id="identity" label="Drawing title block — Identity">
       <form
         onSubmit={(event) => void handleSave(event)}
-        className="hairline-border p-8 mt-4 bg-concrete/80"
+        className="hairline-border mt-4 overflow-hidden bg-concrete/80"
       >
-        <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hairline bg-concrete-dark/35 px-6 py-4 sm:px-8">
+          <div>
+            <p className="eyebrow text-clay">Student register</p>
+            <p className="type-infill mt-1 text-charcoal-infill">
+              Edit your portrait and contact details, then save the sheet.
+            </p>
+          </div>
+          <ScaleBar scale="1:100" className="max-w-[100px] opacity-70" />
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[10rem_minmax(0,1fr)] gap-8 hairline-b pb-8 mb-8">
+        <div className="grid grid-cols-1 gap-10 p-6 sm:p-8 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-12">
           <div>
             <p className="label-caps mb-3">Portrait</p>
             <button
               type="button"
-              className="block w-full text-left"
+              className="group relative block w-full text-left"
               onClick={() => fileRef.current?.click()}
               aria-label="Change profile photo"
               aria-describedby="profile-photo-hint"
             >
               <ImageFrame>
-                <div className="relative aspect-square bg-concrete-dark">
+                <div className="relative aspect-[4/3] bg-concrete-dark sm:aspect-square lg:aspect-[4/5]">
                   {avatarUrl ? (
                     <Image
                       src={avatarUrl}
                       alt="Current profile photo"
                       fill
                       unoptimized
-                      sizes="10rem"
-                      className="object-cover"
+                      sizes="(min-width: 1024px) 13rem, 40vw"
+                      className="object-cover transition-opacity duration-300 group-hover:opacity-90"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                      <p className="label-caps text-charcoal-infill">Add photo</p>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center">
+                      <span className="font-serif text-3xl italic text-charcoal/25">
+                        {initialsFrom(name || data.name)}
+                      </span>
+                      <p className="label-caps text-charcoal-infill">
+                        Add photo
+                      </p>
                     </div>
                   )}
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/55 to-transparent px-3 py-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+                    <span className="label-caps text-concrete">
+                      Change photo
+                    </span>
+                  </span>
                 </div>
               </ImageFrame>
             </button>
@@ -222,8 +248,13 @@ export function ProfileIdentityPanel() {
                 void handlePhotoSelect(event.target.files?.[0])
               }
             />
-            <p id="profile-photo-hint" className="label-caps mt-3 text-charcoal-infill">
-              {isUploading ? "Uploading photo…" : "Click to change. Image files only."}
+            <p
+              id="profile-photo-hint"
+              className="label-caps mt-3 text-charcoal-infill"
+            >
+              {isUploading
+                ? "Uploading photo…"
+                : "Click portrait to change. Image files only."}
             </p>
             {isUploading && (
               <ProcessProgressBar
@@ -240,86 +271,106 @@ export function ProfileIdentityPanel() {
             )}
           </div>
 
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="profile-name" className="label-caps block mb-2">
-                Full name
-                <span className="text-clay"> *</span>
-              </label>
-              <input
-                id="profile-name"
-                type="text"
-                value={name}
-                onChange={(event) => {
-                  setName(event.target.value);
-                }}
-                required
-                aria-required="true"
-                className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
-              />
+          <div className="flex min-w-0 flex-col">
+            <div className="mb-8 hairline-b pb-6">
+              <p className="label-caps mb-2 text-charcoal-infill">On sheet as</p>
+              <p className="type-title font-serif text-2xl sm:text-3xl italic leading-tight">
+                {name.trim() || data.name}
+              </p>
             </div>
 
-            <div>
-              <label htmlFor="profile-email" className="label-caps block mb-2">
-                Email
-                <span className="text-clay"> *</span>
-              </label>
-              <input
-                id="profile-email"
-                type="email"
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  if (emailError) validateEmail(event.target.value);
-                }}
-                onBlur={() => validateEmail(email)}
-                required
-                aria-required="true"
-                aria-invalid={Boolean(emailError)}
-                aria-describedby={emailError ? "profile-email-error" : undefined}
-                className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
-              />
-              {emailError && (
-                <p
-                  id="profile-email-error"
-                  className="type-body text-clay mt-2"
-                  role="alert"
-                >
-                  {emailError}
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="profile-name" className="label-caps block mb-2">
+                  Full name
+                  <span className="text-clay"> *</span>
+                </label>
+                <input
+                  id="profile-name"
+                  type="text"
+                  value={name}
+                  onChange={(event) => {
+                    setName(event.target.value);
+                  }}
+                  required
+                  aria-required="true"
+                  className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="profile-email" className="label-caps block mb-2">
+                  Email
+                  <span className="text-clay"> *</span>
+                </label>
+                <input
+                  id="profile-email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    if (emailError) validateEmail(event.target.value);
+                  }}
+                  onBlur={() => validateEmail(email)}
+                  required
+                  aria-required="true"
+                  aria-invalid={Boolean(emailError)}
+                  aria-describedby={
+                    emailError ? "profile-email-error" : undefined
+                  }
+                  className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
+                />
+                {emailError && (
+                  <p
+                    id="profile-email-error"
+                    className="type-body text-clay mt-2"
+                    role="alert"
+                  >
+                    {emailError}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-8 grid grid-cols-2 gap-6 hairline-t pt-6">
+              <div>
+                <p className="label-caps mb-2">Member since</p>
+                <p className="type-infill font-serif italic">
+                  {formatMemberSince(data.createdAt)}
+                </p>
+              </div>
+              <div>
+                <p className="label-caps mb-2">Sheet status</p>
+                <p className="type-infill">
+                  {isDirty ? "Unsaved edits" : "Current"}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-auto flex flex-wrap items-center gap-6 pt-8">
+              <button
+                type="submit"
+                className="cta-entrance"
+                disabled={
+                  !isDirty || isSaving || isUploading || Boolean(emailError)
+                }
+              >
+                {isSaving ? "Saving…" : "Save profile"}
+              </button>
+              {isDirty && !isSaving && (
+                <p className="type-infill text-charcoal-infill">
+                  Changes pending on this sheet
+                </p>
+              )}
+              {saveError && (
+                <p className="type-body text-clay" role="alert">
+                  {saveError}
                 </p>
               )}
             </div>
           </div>
         </div>
-
-        <div className="grid grid-cols-2 gap-6 hairline-b pb-8 mb-8">
-          <div>
-            <p className="label-caps mb-2">Member since</p>
-            <p className="type-infill font-serif italic">
-              {formatMemberSince(data.createdAt)}
-            </p>
-          </div>
-          <div>
-            <p className="label-caps mb-2">Scale</p>
-            <p className="type-infill">1:100</p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-6">
-          <button
-            type="submit"
-            className="cta-entrance"
-            disabled={!isDirty || isSaving || isUploading || Boolean(emailError)}
-          >
-            {isSaving ? "Saving…" : "Save profile"}
-          </button>
-          {saveError && (
-            <p className="type-body text-clay" role="alert">
-              {saveError}
-            </p>
-          )}
-        </div>
       </form>
-    </ThresholdFrame>
+    </ProfileSectionShell>
   );
 }

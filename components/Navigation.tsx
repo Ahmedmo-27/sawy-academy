@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { useCart } from "@/components/cart/CartProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteSettings } from "@/components/cms/SiteContentProvider";
@@ -258,12 +259,14 @@ function FlyoutMenu({
 
 export function Navigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [flyoutOpenId, setFlyoutOpenId] = useState<string | null>(null);
+  const [logoutOpen, setLogoutOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const { count } = useCart();
-  const { isAuthenticated, isAdmin, user } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { settings } = useSiteSettings();
   const navItems = settings.navigation?.items ?? [];
 
@@ -278,6 +281,12 @@ export function Navigation() {
       ? user.name?.split(" ")[0] || "Account"
       : "Login";
   const cartActive = isActive(pathname, "/cart");
+
+  function confirmLogout() {
+    setLogoutOpen(false);
+    setOpen(false);
+    void logout().then(() => router.replace("/"));
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -356,6 +365,16 @@ export function Navigation() {
               label={accountLabel}
               active={isActive(pathname, accountHref)}
             />
+
+            {isAuthenticated && (
+              <button
+                type="button"
+                className="eyebrow text-charcoal-infill transition-colors duration-200 hover:text-charcoal"
+                onClick={() => setLogoutOpen(true)}
+              >
+                Log out
+              </button>
+            )}
           </div>
         </div>
 
@@ -373,7 +392,7 @@ export function Navigation() {
       {open && (
         <div
           id="mobile-nav"
-          className="lg:hidden hairline-t bg-concrete/98 px-6 pb-5 pt-3"
+          className="lg:hidden hairline-t bg-concrete/98 px-3 pb-6 pt-4 sm:px-4"
         >
           <ul className="flex flex-col gap-1">
             {navItems.map((item) => {
@@ -387,7 +406,7 @@ export function Navigation() {
                   <li key={item.id}>
                     <button
                       type="button"
-                      className={`w-full flex items-center justify-between eyebrow py-2 ${
+                      className={`w-full flex items-center justify-between eyebrow py-3 ${
                         active ? "text-clay" : "text-charcoal-infill"
                       }`}
                       aria-expanded={expanded}
@@ -417,7 +436,7 @@ export function Navigation() {
                             <li key={child.id || child.href}>
                               <Link
                                 href={child.href}
-                                className={`eyebrow block py-2 ${
+                                className={`eyebrow block py-2.5 ${
                                   isActive(pathname, child.href)
                                     ? "text-clay"
                                     : "text-charcoal-infill"
@@ -438,7 +457,7 @@ export function Navigation() {
                 <li key={item.id}>
                   <Link
                     href={item.href}
-                    className={`eyebrow block py-2 ${
+                    className={`eyebrow block py-3 ${
                       isActive(pathname, item.href)
                         ? "text-clay"
                         : "text-charcoal-infill"
@@ -451,7 +470,7 @@ export function Navigation() {
             })}
           </ul>
 
-          <div className="hairline-t mt-4 pt-4 flex items-center justify-between">
+          <div className="hairline-t mt-4 pt-4 flex flex-wrap items-center justify-between gap-4">
             <Link
               href="/cart"
               className={`inline-flex items-center gap-2 eyebrow ${
@@ -467,19 +486,43 @@ export function Navigation() {
               {count > 0 ? `Cart (${count})` : "Cart"}
             </Link>
 
-            <Link
-              href={accountHref}
-              className={`eyebrow ${
-                isActive(pathname, accountHref)
-                  ? "text-clay"
-                  : "text-charcoal-infill"
-              }`}
-            >
-              {accountLabel}
-            </Link>
+            <div className="flex items-center gap-5">
+              <Link
+                href={accountHref}
+                className={`eyebrow ${
+                  isActive(pathname, accountHref)
+                    ? "text-clay"
+                    : "text-charcoal-infill"
+                }`}
+              >
+                {accountLabel}
+              </Link>
+
+              {isAuthenticated && (
+                <button
+                  type="button"
+                  className="eyebrow text-charcoal-infill"
+                  onClick={() => setLogoutOpen(true)}
+                >
+                  Log out
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={logoutOpen}
+        title="Log out?"
+        message="You will need to sign in again to access your account."
+        confirmLabel="Log out"
+        cancelLabel="Cancel"
+        variant="public"
+        confirmTone="primary"
+        onCancel={() => setLogoutOpen(false)}
+        onConfirm={confirmLogout}
+      />
     </motion.header>
   );
 }
