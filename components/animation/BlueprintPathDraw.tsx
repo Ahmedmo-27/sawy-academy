@@ -4,12 +4,12 @@ import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger, registerGsap } from "@/lib/gsap/config";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-
 interface BlueprintPathDrawProps {
   className?: string;
   variant?: "section" | "compact";
 }
 
+/** Horizontal cut mark — decorations stay centered at every viewport width. */
 export function BlueprintPathDraw({
   className = "",
   variant = "section",
@@ -54,25 +54,58 @@ export function BlueprintPathDraw({
 
   if (reduced) {
     return (
-      <div className={`h-px bg-hairline w-full ${className}`} aria-hidden="true" />
+      <div className={`h-px w-full bg-hairline ${className}`} aria-hidden="true" />
     );
   }
 
   return (
     <svg
       ref={svgRef}
-      className={`w-full h-8 ${className}`}
+      className={`mx-auto h-8 w-full max-w-full ${className}`}
       viewBox="0 0 400 32"
       fill="none"
-      preserveAspectRatio="none"
+      preserveAspectRatio="xMidYMid meet"
       aria-hidden="true"
     >
-      <path className="bp-draw" d="M0 16 H400" stroke="#d4d0c8" strokeWidth="0.75" />
-      <path className="bp-draw" d="M40 8 V24 M360 8 V24" stroke="#8b5a4a" strokeWidth="0.5" opacity="0.6" />
+      {/* Baseline */}
+      <path
+        className="bp-draw"
+        d="M20 16 H380"
+        stroke="#d4d0c8"
+        strokeWidth="0.75"
+      />
+      {/* Symmetric end ticks */}
+      <path
+        className="bp-draw"
+        d="M40 8 V24 M360 8 V24"
+        stroke="#8b5a4a"
+        strokeWidth="0.5"
+        opacity="0.6"
+      />
       {variant === "section" && (
         <>
-          <path className="bp-draw" d="M80 16 L95 10 L110 16 L95 22 Z" stroke="var(--color-construction)" strokeWidth="0.5" />
-          <path className="bp-draw" d="M290 16 H340" stroke="var(--color-construction)" strokeWidth="0.5" strokeDasharray="3 3" />
+          {/* Center diamond */}
+          <path
+            className="bp-draw"
+            d="M185 16 L200 8 L215 16 L200 24 Z"
+            stroke="var(--color-construction)"
+            strokeWidth="0.5"
+          />
+          {/* Mirrored dashed segments */}
+          <path
+            className="bp-draw"
+            d="M55 16 H95"
+            stroke="var(--color-construction)"
+            strokeWidth="0.5"
+            strokeDasharray="3 3"
+          />
+          <path
+            className="bp-draw"
+            d="M305 16 H345"
+            stroke="var(--color-construction)"
+            strokeWidth="0.5"
+            strokeDasharray="3 3"
+          />
         </>
       )}
     </svg>

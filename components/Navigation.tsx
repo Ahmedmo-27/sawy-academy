@@ -44,8 +44,8 @@ function Chevron({ open }: { open: boolean }) {
 function CartGlyph() {
   return (
     <svg
-      width="24"
-      height="24"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden="true"
@@ -78,7 +78,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className={`relative eyebrow pb-1 transition-colors duration-200 ${
+      className={`relative eyebrow pb-0.5 transition-colors duration-200 ${
         active ? "text-clay" : "text-charcoal-infill hover:text-charcoal"
       }`}
     >
@@ -194,7 +194,7 @@ function FlyoutMenu({
       <button
         ref={buttonRef}
         type="button"
-        className={`relative eyebrow pb-1 inline-flex items-center gap-1.5 transition-colors duration-200 ${
+        className={`relative eyebrow pb-0.5 inline-flex items-center gap-1.5 transition-colors duration-200 ${
           active ? "text-clay" : "text-charcoal-infill hover:text-charcoal"
         }`}
         aria-haspopup="menu"
@@ -305,7 +305,7 @@ export function Navigation() {
       transition={prefersReducedMotion ? { duration: 0 } : navTransition}
     >
       <nav
-        className="site-container flex items-center justify-between gap-6 lg:gap-10 h-16 lg:h-20"
+        className="site-container flex h-[var(--nav-height)] items-center justify-between gap-6 lg:gap-10"
         aria-label="Primary"
       >
         <Wordmark />
@@ -329,7 +329,7 @@ export function Navigation() {
 
           <span className="h-4 w-px bg-hairline" aria-hidden="true" />
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-5">
             <Link
               href="/cart"
               aria-label={

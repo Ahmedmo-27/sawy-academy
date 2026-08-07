@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ScrollTrigger, registerGsap } from "@/lib/gsap/config";
+import { SmoothScrollProvider } from "./SmoothScrollProvider";
 import { BlueprintGridLayer } from "./BlueprintGridLayer";
 import { FloatingGeometryLayer } from "./FloatingGeometryLayer";
 import { ScrollProgressScale } from "./ScrollProgressScale";
@@ -16,16 +17,16 @@ export function ScrollAnimationShell({ children }: ScrollAnimationShellProps) {
 
   useEffect(() => {
     registerGsap();
-    const t = setTimeout(() => ScrollTrigger.refresh(), 100);
+    const t = setTimeout(() => ScrollTrigger.refresh(), 120);
     return () => clearTimeout(t);
   }, [pathname]);
 
   return (
-    <>
+    <SmoothScrollProvider>
       <BlueprintGridLayer />
       <FloatingGeometryLayer />
       <ScrollProgressScale />
       <div className="relative z-10">{children}</div>
-    </>
+    </SmoothScrollProvider>
   );
 }

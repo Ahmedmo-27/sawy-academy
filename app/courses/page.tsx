@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { BioGeometryShape } from "@/components/BioGeometryShape";
 import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { Reveal } from "@/components/Reveal";
 import { EnrollButton } from "@/components/courses/EnrollButton";
@@ -126,7 +127,33 @@ export default function CoursesPage() {
       <ThresholdDoorway label="CURRICULUM" />
 
       <Section rhythm="standard" contained={false}>
-        <PageContainer className="space-y-16 lg:space-y-24">
+        <PageContainer className="relative space-y-16 lg:space-y-24">
+          {/* Fixed drafting accents — stay in view and scrub with scroll */}
+          <BioGeometryShape
+            kind="coil"
+            variant="draw"
+            size={280}
+            stroke="var(--color-clay)"
+            opacity={0.5}
+            drawEnd={0.5}
+            parallax={220}
+            parallaxX={40}
+            parallaxRotate={12}
+            className="fixed right-[max(0.5rem,calc((100vw-72rem)/2-2rem))] top-[22%] z-0 hidden md:block"
+          />
+          <BioGeometryShape
+            kind="c7"
+            variant="draw"
+            size={240}
+            stroke="var(--color-clay-muted)"
+            opacity={0.45}
+            drawEnd={0.7}
+            parallax={140}
+            parallaxX={-50}
+            parallaxRotate={-6}
+            className="fixed left-[max(0.5rem,calc((100vw-72rem)/2-1.5rem))] bottom-[18%] z-0 hidden md:block"
+          />
+
           {loading && (
             <SectionLoader
               label="Loading curriculum…"
@@ -139,7 +166,10 @@ export default function CoursesPage() {
               const slug = courseGroupSlug(group);
               const courses = asCourses(group);
               return (
-                <div key={group._id ?? group.id ?? slug}>
+                <div
+                  key={group._id ?? group.id ?? slug}
+                  className="relative"
+                >
                   {groupIndex > 0 && (
                     <ThresholdDoorway
                       label={
@@ -152,7 +182,7 @@ export default function CoursesPage() {
                   )}
 
                   <Reveal variant="structural">
-                    <div className="mb-8">
+                    <div className="relative z-[1] mb-8">
                       <p className="eyebrow mb-2">{group.subtitle}</p>
                       <h2 className="type-heading">
                         <Link
@@ -180,7 +210,7 @@ export default function CoursesPage() {
                       }
                     >
                       <div
-                        className={`hairline-border p-6 lg:p-10 mt-4 ${
+                        className={`relative z-[1] hairline-border p-6 lg:p-10 mt-4 ${
                           group.type === "diploma" ? "section-intimate" : ""
                         }`}
                       >

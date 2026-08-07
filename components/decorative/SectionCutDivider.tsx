@@ -14,7 +14,6 @@ export function SectionCutDivider({
   label,
 }: SectionCutDividerProps) {
   const patternId = `section-lattice-${useId().replace(/:/g, "")}`;
-  const hatchCount = 9;
   const prefersReducedMotion = useReducedMotion();
 
   return (
@@ -25,63 +24,56 @@ export function SectionCutDivider({
       whileInView="visible"
       viewport={viewportOnce}
     >
-      <div className="flex items-center w-full h-6">
+      {/* Centered label with equal flex rails on both sides */}
+      <div className="relative flex w-full items-center justify-center">
         <motion.div
-          className="flex-1 h-px bg-hairline origin-left"
+          className="h-px min-w-0 flex-1 origin-left bg-hairline"
           variants={{
             hidden: { scaleX: 0 },
             visible: { scaleX: 1 },
           }}
           transition={{ duration: 0.8, ease: easeOut }}
         />
-        <div className="flex items-end gap-[6px] mx-3 h-full pb-0">
-          {Array.from({ length: hatchCount }).map((_, i) => (
+
+        <div className="mx-2 flex shrink-0 items-center sm:mx-3">
+          <HatchMarks
+            count={5}
+            className="sm:hidden"
+            prefersReducedMotion={!!prefersReducedMotion}
+          />
+          <HatchMarks
+            count={9}
+            className="hidden sm:flex"
+            prefersReducedMotion={!!prefersReducedMotion}
+          />
+
+          {label ? (
             <motion.span
-              key={i}
-              className="block w-px h-3 bg-charcoal/12 origin-bottom"
+              className="label-caps mx-2 whitespace-nowrap text-charcoal/25 sm:mx-3"
               variants={{
-                hidden: { scaleY: 0, opacity: 0 },
-                visible: { scaleY: 1, opacity: 1 },
+                hidden: { opacity: 0 },
+                visible: { opacity: 1 },
               }}
-              transition={{
-                duration: 0.5,
-                ease: easeOut,
-                delay: prefersReducedMotion ? 0 : 0.3 + i * 0.04,
-              }}
-            />
-          ))}
+              transition={{ duration: 0.6, ease: easeOut, delay: 0.5 }}
+            >
+              {label}
+            </motion.span>
+          ) : null}
+
+          <HatchMarks
+            count={5}
+            className="sm:hidden"
+            prefersReducedMotion={!!prefersReducedMotion}
+          />
+          <HatchMarks
+            count={9}
+            className="hidden sm:flex"
+            prefersReducedMotion={!!prefersReducedMotion}
+          />
         </div>
-        {label && (
-          <motion.span
-            className="label-caps text-charcoal/25 mx-2 whitespace-nowrap"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1 },
-            }}
-            transition={{ duration: 0.6, ease: easeOut, delay: 0.5 }}
-          >
-            {label}
-          </motion.span>
-        )}
-        <div className="flex items-end gap-[6px] mx-3 h-full pb-0">
-          {Array.from({ length: hatchCount }).map((_, i) => (
-            <motion.span
-              key={i}
-              className="block w-px h-3 bg-charcoal/12 origin-bottom"
-              variants={{
-                hidden: { scaleY: 0, opacity: 0 },
-                visible: { scaleY: 1, opacity: 1 },
-              }}
-              transition={{
-                duration: 0.5,
-                ease: easeOut,
-                delay: prefersReducedMotion ? 0 : 0.3 + i * 0.04,
-              }}
-            />
-          ))}
-        </div>
+
         <motion.div
-          className="flex-1 h-px bg-hairline origin-right"
+          className="h-px min-w-0 flex-1 origin-right bg-hairline"
           variants={{
             hidden: { scaleX: 0 },
             visible: { scaleX: 1 },
@@ -89,9 +81,10 @@ export function SectionCutDivider({
           transition={{ duration: 0.8, ease: easeOut, delay: 0.1 }}
         />
       </div>
+
       <motion.svg
-        className="w-full h-3 mt-1 opacity-15"
-        preserveAspectRatio="none"
+        className="mx-auto mt-1 h-3 w-full max-w-full opacity-15"
+        preserveAspectRatio="xMidYMid meet"
         viewBox="0 0 400 12"
         xmlns="http://www.w3.org/2000/svg"
         variants={{
@@ -107,8 +100,22 @@ export function SectionCutDivider({
             height="12"
             patternUnits="userSpaceOnUse"
           >
-            <line x1="0" y1="6" x2="20" y2="6" stroke="#d4d0c8" strokeWidth="0.35" />
-            <line x1="10" y1="0" x2="10" y2="12" stroke="#d4d0c8" strokeWidth="0.35" />
+            <line
+              x1="0"
+              y1="6"
+              x2="20"
+              y2="6"
+              stroke="#d4d0c8"
+              strokeWidth="0.35"
+            />
+            <line
+              x1="10"
+              y1="0"
+              x2="10"
+              y2="12"
+              stroke="#d4d0c8"
+              strokeWidth="0.35"
+            />
             <polygon
               points="10,2 12,6 10,10 8,6"
               fill="none"
@@ -120,5 +127,35 @@ export function SectionCutDivider({
         <rect width="100%" height="12" fill={`url(#${patternId})`} />
       </motion.svg>
     </motion.div>
+  );
+}
+
+function HatchMarks({
+  count,
+  className = "",
+  prefersReducedMotion,
+}: {
+  count: number;
+  className?: string;
+  prefersReducedMotion: boolean;
+}) {
+  return (
+    <div className={`flex h-6 items-end gap-[5px] sm:gap-[6px] ${className}`}>
+      {Array.from({ length: count }).map((_, i) => (
+        <motion.span
+          key={i}
+          className="block h-3 w-px origin-bottom bg-charcoal/12"
+          variants={{
+            hidden: { scaleY: 0, opacity: 0 },
+            visible: { scaleY: 1, opacity: 1 },
+          }}
+          transition={{
+            duration: 0.5,
+            ease: easeOut,
+            delay: prefersReducedMotion ? 0 : 0.3 + i * 0.04,
+          }}
+        />
+      ))}
+    </div>
   );
 }

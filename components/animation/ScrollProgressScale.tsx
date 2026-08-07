@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger, registerGsap } from "@/lib/gsap/config";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { scrollToY } from "@/lib/smoothScroll";
 
 const TICKS = 20;
 
@@ -40,7 +41,7 @@ export function ScrollProgressScale() {
 
     const scrollToProgress = (p: number) => {
       const max = getMaxScroll();
-      window.scrollTo({ top: p * max, behavior: "auto" });
+      scrollToY(p * max, true);
     };
 
     const progressFromClientY = (clientY: number) => {
