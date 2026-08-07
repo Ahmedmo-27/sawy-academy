@@ -13,6 +13,11 @@ export function safeHref(
   const href = value.trim();
   if (!href) return fallback;
 
+  // Same-page section anchors (e.g. floor-plan jump links: #portfolio).
+  if (href.startsWith("#")) {
+    return href;
+  }
+
   if (href.startsWith("/") && !href.startsWith("//")) {
     return href;
   }
