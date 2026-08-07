@@ -36,7 +36,7 @@ export function SplashLoader() {
 
   return (
     <div
-      className={`fixed inset-0 z-[300] flex items-center justify-center bg-concrete transition-opacity duration-600 motion-reduce:transition-none ${
+      className={`fixed inset-x-0 top-0 z-[300] flex h-[var(--app-height)] items-center justify-center bg-concrete transition-opacity duration-600 motion-reduce:transition-none ${
         fadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
       aria-live="polite"

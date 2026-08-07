@@ -216,7 +216,7 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
 
   return (
     <div ref={pinRef} className={`pin-scrub-stats ${className}`}>
-      <div className="relative h-dvh overflow-hidden">
+      <div className="relative h-svh overflow-hidden">
         <div
           ref={cardsRef}
           className="absolute inset-x-0 mx-auto min-h-0 w-full max-w-6xl px-3 sm:px-6 lg:px-8"

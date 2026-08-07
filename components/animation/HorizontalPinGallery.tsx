@@ -70,7 +70,7 @@ export function HorizontalPinGallery({
     <div ref={sectionRef} className={`horiz-pin ${className}`}>
       <div
         ref={pinRef}
-        className="horiz-pin__viewport relative flex h-[min(100dvh,820px)] w-full items-center overflow-hidden"
+        className="horiz-pin__viewport relative flex h-[min(100svh,820px)] w-full items-center overflow-hidden"
       >
         <div
           ref={trackRef}

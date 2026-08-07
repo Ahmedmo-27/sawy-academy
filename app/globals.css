@@ -50,6 +50,13 @@
   --grid-gap: 1px;
 
   --nav-height: 5.5rem;
+
+  /*
+   * Stable mobile viewport: browser URL/tab bars expand & collapse on scroll.
+   * svh = small viewport (chrome fully visible) and does not change mid-scroll.
+   * Avoid dvh/vh for full-bleed layout — those resize with the chrome.
+   */
+  --app-height: 100svh;
 }
 
 @layer base {
@@ -57,6 +64,14 @@
     scroll-behavior: smooth;
     /* clip (not hidden) so position:sticky in admin sidebar keeps working */
     overflow-x: clip;
+    /* Lock layout height unit used by screen utilities & full-bleed pins */
+    --app-height: 100svh;
+  }
+
+  @supports not (height: 100svh) {
+    html {
+      --app-height: 100vh;
+    }
   }
 
   html.lenis,
@@ -77,6 +92,7 @@
     font-size: var(--text-body);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+    min-height: var(--app-height);
   }
 
   ::selection {
@@ -123,6 +139,26 @@
 }
 
 @layer utilities {
+  /*
+   * Tailwind h-screen / min-h-screen / *dvh default to units that shift when
+   * mobile browser chrome expands or collapses. Route them through --app-height (svh).
+   */
+  .h-screen {
+    height: var(--app-height);
+  }
+
+  .min-h-screen {
+    min-height: var(--app-height);
+  }
+
+  .h-dvh {
+    height: var(--app-height);
+  }
+
+  .min-h-dvh {
+    min-height: var(--app-height);
+  }
+
   .type-display {
     @apply font-serif font-light text-charcoal;
     font-size: clamp(1.625rem, 4.5vw + 0.5rem, var(--text-display));

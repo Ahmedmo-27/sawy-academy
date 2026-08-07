@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import { SiteShell } from "@/components/layout/SiteShell";
@@ -19,6 +19,14 @@ export const metadata: Metadata = {
   title: "Sawy Academy — Mohamed El Sawy",
   description:
     "Architecture portfolio, academic courses, and studio resources by Prof. Mohamed El Sawy, Cairo.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  // Keep layout viewport stable when the virtual keyboard opens on mobile.
+  interactiveWidget: "overlays-content",
 };
 
 export default function RootLayout({
