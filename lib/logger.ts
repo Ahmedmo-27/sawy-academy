@@ -2,6 +2,8 @@ export type LogLevel = "info" | "warn" | "error";
 
 export type LogDetails = Record<string, unknown>;
 
+const CLIENT_LOGGING_ENABLED = process.env.NODE_ENV !== "production";
+
 const LEVEL_STYLE: Record<LogLevel, string> = {
   info: "color:#1d4ed8;font-weight:600",
   warn: "color:#b45309;font-weight:600",
@@ -41,6 +43,8 @@ function normalizeDetails(details?: LogDetails) {
 }
 
 function emit(level: LogLevel, message: string, details?: LogDetails) {
+  if (!CLIENT_LOGGING_ENABLED) return;
+
   const payload = {
     ts: timestamp(),
     level,

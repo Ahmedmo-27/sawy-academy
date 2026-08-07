@@ -25,17 +25,17 @@ function OrderSummary({
 
       <div className="hairline-t" aria-hidden="true" />
 
-      <div className="hairline-b flex items-baseline justify-between gap-4 py-2">
+      <div className="hairline-b flex items-baseline justify-between gap-4 py-3">
         <p className="label-caps">Items</p>
         <p className="type-infill tabular-nums">{count}</p>
       </div>
 
-      <div className="hairline-b flex items-baseline justify-between gap-4 py-2">
+      <div className="hairline-b flex items-baseline justify-between gap-4 py-3">
         <p className="label-caps">Subtotal</p>
         <p className="type-infill tabular-nums">{subtotalLabel}</p>
       </div>
 
-      <div className="hairline-b flex items-baseline justify-between gap-4 py-2">
+      <div className="hairline-b flex items-baseline justify-between gap-4 py-3">
         <p className="label-caps shrink-0">Payment</p>
         <p className="type-infill text-right leading-snug max-w-[11rem]">
           Verified manually via InstaPay
@@ -44,7 +44,7 @@ function OrderSummary({
 
       <div className="border-t-2 border-charcoal/25" aria-hidden="true" />
 
-      <div className="flex items-baseline justify-between gap-4 py-2 mb-3">
+      <div className="flex items-baseline justify-between gap-4 py-3 mb-4">
         <p className="label-caps text-charcoal">Total</p>
         <p className="type-title text-xl tabular-nums">{subtotalLabel}</p>
       </div>
@@ -82,7 +82,7 @@ export function CartView() {
 
   if (items.length === 0) {
     return (
-      <div className="hairline-border bg-concrete-dark/30 p-8 lg:p-12">
+      <div className="hairline-border bg-concrete-dark/30 p-6 lg:p-12">
         <p className="eyebrow text-clay">Empty sheet</p>
         <p className="type-infill mt-3 max-w-md">
           No line items on this order yet. Browse the product bay to begin.

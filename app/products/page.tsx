@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { GsapStagger } from "@/components/animation/GsapReveal";
+import { HorizontalPinGallery } from "@/components/animation/HorizontalPinGallery";
 import { ProductCard } from "@/components/products/ProductCard";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
@@ -38,11 +39,41 @@ export default function ProductsPage() {
     };
   }, []);
 
+  const featured = products.slice(0, 4);
+
   return (
     <>
       <CmsPageHeader pageKey="products" />
 
       <ThresholdDoorway label="CATALOGUE" />
+
+      {!loading && featured.length >= 3 && (
+        <Section rhythm="intimate" contained={false}>
+          <PageContainer>
+            <ThresholdFrame label="Bay 05 — Featured tools">
+              <div className="pt-6">
+                <HorizontalPinGallery>
+                  {featured.map((product) => (
+                    <div
+                      key={product.id}
+                      className="w-[min(88vw,22rem)] shrink-0 bg-concrete sm:w-[min(42vw,24rem)]"
+                    >
+                      <ProductCard
+                        id={product.id}
+                        name={product.name}
+                        category={product.category}
+                        description={product.description}
+                        price={product.price}
+                        image={product.image}
+                      />
+                    </div>
+                  ))}
+                </HorizontalPinGallery>
+              </div>
+            </ThresholdFrame>
+          </PageContainer>
+        </Section>
+      )}
 
       <Section rhythm="atrium" contained={false}>
         <PageContainer>
@@ -58,7 +89,7 @@ export default function ProductsPage() {
                 {products.map((product) => (
                   <div
                     key={product.id}
-                    className="col-span-6 lg:col-span-3 bg-concrete group"
+                    className="col-span-12 sm:col-span-6 lg:col-span-3 bg-concrete group"
                   >
                     <ProductCard
                       id={product.id}

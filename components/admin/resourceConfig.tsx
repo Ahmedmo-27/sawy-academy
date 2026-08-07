@@ -66,7 +66,7 @@ export type ResourceForm = Record<string, string>;
 export interface ResourceField {
   name: string;
   label: string;
-  type?: "text" | "email" | "number" | "select" | "textarea" | "upload" | "course-picker";
+  type?: "text" | "email" | "number" | "select" | "textarea" | "upload" | "gallery" | "course-picker";
   required?: boolean;
   options?: Array<{ label: string; value: string }>;
   /** Load select options dynamically before rendering the form */
@@ -111,6 +111,29 @@ function text(record: ResourceRecord, key: string) {
   return String(record[key] ?? "");
 }
 
+function galleryJson(record: ResourceRecord, key: string) {
+  const value = record[key];
+  if (Array.isArray(value)) {
+    return JSON.stringify(
+      value.filter((item): item is string => typeof item === "string")
+    );
+  }
+  return "[]";
+}
+
+function parseGalleryForm(value: string | undefined): string[] {
+  if (!value?.trim()) return [];
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (item): item is string => typeof item === "string" && Boolean(item.trim())
+    );
+  } catch {
+    return [];
+  }
+}
+
 function productPayload(form: ResourceForm): ProductInput {
   return {
     id: form.id,
@@ -119,6 +142,7 @@ function productPayload(form: ResourceForm): ProductInput {
     price: form.price,
     category: form.category,
     image: form.image,
+    gallery: parseGalleryForm(form.gallery),
   };
 }
 
@@ -130,6 +154,9 @@ function projectPayload(form: ResourceForm): ProjectInput {
     year: form.year,
     image: form.image,
     aspect: form.aspect ? (form.aspect as ProjectInput["aspect"]) : undefined,
+    gallery: parseGalleryForm(form.gallery),
+    beforeImage: form.beforeImage || undefined,
+    afterImage: form.afterImage || undefined,
   };
 }
 
@@ -142,6 +169,8 @@ function researchPayload(form: ResourceForm): ResearchInput {
     venue: form.venue,
     abstract: form.abstract,
     collaborators: form.collaborators,
+    image: form.image || undefined,
+    figures: parseGalleryForm(form.figures),
   };
 }
 
@@ -150,6 +179,7 @@ function courseGroupPayload(form: ResourceForm): CourseGroupInput {
     title: form.title,
     subtitle: form.subtitle,
     type: form.type as CourseGroup["type"],
+    image: form.image || undefined,
     bundlePrice: form.bundlePrice || undefined,
     courses: form.courseIds
       .split(",")
@@ -159,11 +189,15 @@ function courseGroupPayload(form: ResourceForm): CourseGroupInput {
 }
 
 function userPayload(form: ResourceForm): UserInput {
+  const deviceLimitRaw = Number(form.deviceLimit);
   return {
     id: form.id,
     name: form.name,
     email: form.email,
     role: form.role || "student",
+    deviceLimit: Number.isFinite(deviceLimitRaw)
+      ? Math.floor(deviceLimitRaw)
+      : 2,
   };
 }
 
@@ -206,6 +240,7 @@ async function saveCourseWithGroup(form: ResourceForm, slug?: string) {
     level: form.level,
     instructor: BRAND.professorTitle,
     price: form.price,
+    image: form.image || undefined,
     relatedProductIds: form.relatedProductIds
       .split(",")
       .map((value) => value.trim())
@@ -246,6 +281,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       description: "",
       level: "",
       price: "",
+      image: "",
       groupId: "",
       relatedProductIds: "",
     },
@@ -273,6 +309,12 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         hint: "Include currency, e.g. EGP 18,500",
       },
       {
+        name: "image",
+        label: "Cover image",
+        type: "upload",
+        hint: "Optional programme/course still for catalogue cards.",
+      },
+      {
         name: "relatedProductIds",
         label: "Related product codes",
         hint: "Optional. Separate multiple codes with commas.",
@@ -298,6 +340,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         description: course.description ?? "",
         level: course.level ?? "",
         price: course.price ?? "",
+        image: course.image ?? "",
         groupId: course.groupId ?? "",
         relatedProductIds: (course.relatedProductIds ?? [])
           .map((value) => (typeof value === "string" ? value : value.id))
@@ -354,6 +397,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       title: "",
       subtitle: "",
       type: "",
+      image: "",
       bundlePrice: "",
       courseIds: "",
     },
@@ -373,6 +417,12 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
           { label: "Diploma", value: "diploma" },
           { label: "Leveled track", value: "leveled" },
         ],
+      },
+      {
+        name: "image",
+        label: "Cover image",
+        type: "upload",
+        hint: "Optional programme cover for public catalogue.",
       },
       {
         name: "bundlePrice",
@@ -406,6 +456,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         title: group.title ?? "",
         subtitle: group.subtitle ?? "",
         type: group.type ?? "",
+        image: group.image ?? "",
         bundlePrice: group.bundlePrice ?? "",
         courseIds: (group.courses ?? [])
           .map((course) =>
@@ -463,6 +514,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       price: "",
       category: "",
       image: "",
+      gallery: "[]",
     },
     fields: [
       { name: "id", label: "ID", required: true },
@@ -480,7 +532,13 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         hint: "Include currency, e.g. EGP 42,000",
       },
       { name: "category", label: "Category", required: true },
-      { name: "image", label: "Image", type: "upload", required: true },
+      { name: "image", label: "Cover image", type: "upload", required: true },
+      {
+        name: "gallery",
+        label: "Gallery",
+        type: "gallery",
+        hint: "Optional additional product plates for the detail page.",
+      },
     ],
     list: async () => (await listProducts()).map(asRecord),
     get: async (key) => asRecord(await getProduct(key)),
@@ -497,6 +555,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       price: text(record, "price"),
       category: text(record, "category"),
       image: text(record, "image"),
+      gallery: galleryJson(record, "gallery"),
     }),
     listColumns: [
       {
@@ -540,6 +599,9 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       category: "",
       year: "",
       image: "",
+      gallery: "[]",
+      beforeImage: "",
+      afterImage: "",
       aspect: "",
     },
     fields: [
@@ -555,7 +617,24 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         ),
       },
       { name: "year", label: "Year", required: true },
-      { name: "image", label: "Image", type: "upload", required: true },
+      { name: "image", label: "Cover image", type: "upload", required: true },
+      {
+        name: "gallery",
+        label: "Drawing set",
+        type: "gallery",
+        hint: "Additional plates for the project detail gallery.",
+      },
+      {
+        name: "beforeImage",
+        label: "Before image",
+        type: "upload",
+        hint: "Optional renovation / competition compare.",
+      },
+      {
+        name: "afterImage",
+        label: "After image",
+        type: "upload",
+      },
       {
         name: "aspect",
         label: "Aspect",
@@ -591,6 +670,9 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       category: text(record, "category"),
       year: text(record, "year"),
       image: text(record, "image"),
+      gallery: galleryJson(record, "gallery"),
+      beforeImage: text(record, "beforeImage"),
+      afterImage: text(record, "afterImage"),
       aspect: text(record, "aspect"),
     }),
     listColumns: [
@@ -644,6 +726,8 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       venue: "",
       abstract: "",
       collaborators: "",
+      image: "",
+      figures: "[]",
     },
     fields: [
       { name: "id", label: "ID", required: true },
@@ -666,6 +750,18 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         required: true,
       },
       { name: "collaborators", label: "Collaborators" },
+      {
+        name: "image",
+        label: "Cover image",
+        type: "upload",
+        hint: "Optional jacket / poster / key figure.",
+      },
+      {
+        name: "figures",
+        label: "Figure plates",
+        type: "gallery",
+        hint: "Optional diagrams and plates for the research detail page.",
+      },
     ],
     list: async () => (await listResearch()).map(asRecord),
     get: async (key) => asRecord(await getResearch(key)),
@@ -684,6 +780,8 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       venue: text(record, "venue"),
       abstract: text(record, "abstract"),
       collaborators: text(record, "collaborators"),
+      image: text(record, "image"),
+      figures: galleryJson(record, "figures"),
     }),
     listColumns: [
       {
@@ -725,6 +823,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       name: "",
       email: "",
       role: "student",
+      deviceLimit: "2",
     },
     fields: [
       { name: "id", label: "ID", required: true },
@@ -739,6 +838,13 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
           { label: "Student", value: "student" },
           { label: "Admin", value: "admin" },
         ],
+      },
+      {
+        name: "deviceLimit",
+        label: "Device limit",
+        type: "number",
+        required: true,
+        hint: "Maximum registered devices for this student. Raise this to grant an extra slot after reviewing a request.",
       },
     ],
     list: async () => (await listUsers()).map(asRecord),
@@ -755,6 +861,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       name: text(record, "name"),
       email: text(record, "email"),
       role: text(record, "role") || "student",
+      deviceLimit: text(record, "deviceLimit") || "2",
     }),
     listColumns: [
       {

@@ -5,7 +5,7 @@ export type ResearchInput = Pick<
   Research,
   "id" | "title" | "year" | "category" | "venue" | "abstract"
 > &
-  Partial<Pick<Research, "collaborators">>;
+  Partial<Pick<Research, "collaborators" | "image" | "figures">>;
 
 export function listResearch(options?: {
   onProgress?: (progress: number) => void;

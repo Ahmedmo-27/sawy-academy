@@ -7,6 +7,7 @@ export type CourseGroupInput = {
   title: string;
   subtitle: string;
   type: CourseGroup["type"];
+  image?: string;
   bundlePrice?: string;
   courses?: string[];
 };

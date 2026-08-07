@@ -110,13 +110,13 @@ const pageHeaders = {
   },
   login: {
     eyebrow: "Access",
-    title: "Login",
+    title: "Sign in",
     description:
-      "Sign in to the studio register with your academy credentials.",
+      "Enter the studio register with your academy credentials.",
   },
   signup: {
     eyebrow: "Access",
-    title: "Sign Up",
+    title: "Join the studio",
     description:
       "Create a student account to enroll, order materials, and follow studio work.",
   },
@@ -125,6 +125,14 @@ const pageHeaders = {
 const contactPage = {
   intro:
     "Whether you are seeking design consultation, research partnership, or wish to discuss enrollment at Sawy Academy — I welcome thoughtful correspondence.",
+};
+
+const servicesPage = {
+  designImageUrl: "",
+  researchImageUrl: "",
+  processBriefImageUrl: "",
+  processReviewImageUrl: "",
+  processDeliveryImageUrl: "",
 };
 
 const homeSections = [
@@ -254,5 +262,6 @@ module.exports = {
   footer,
   pageHeaders,
   contactPage,
+  servicesPage,
   homeSections,
 };

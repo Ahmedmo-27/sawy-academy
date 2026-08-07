@@ -68,7 +68,7 @@ export function CheckoutForm() {
 
   if (items.length === 0) {
     return (
-      <div className="hairline-border bg-concrete-dark/30 p-8">
+      <div className="hairline-border bg-concrete-dark/30 p-6">
         <p className="eyebrow text-clay">Nothing to settle</p>
         <p className="type-infill mt-3 max-w-md">
           Add line items before uploading payment proof.
@@ -81,7 +81,7 @@ export function CheckoutForm() {
   }
 
   return (
-    <div className="hairline-border p-8 lg:p-10 mt-4 bg-concrete/80 w-full">
+    <div className="hairline-border p-6 lg:p-10 mt-4 bg-concrete/80 w-full">
       <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
 
       <div className="hairline-b pb-6 mb-6">

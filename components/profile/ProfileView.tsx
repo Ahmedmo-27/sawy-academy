@@ -10,6 +10,7 @@ import { DevicesSection } from "@/components/profile/DevicesSection";
 import { EnrolledCoursesSection } from "@/components/profile/EnrolledCoursesSection";
 import { OrderHistorySection } from "@/components/profile/OrderHistorySection";
 import { ProfileIdentityPanel } from "@/components/profile/ProfileIdentityPanel";
+import { ProfileSheetNav } from "@/components/profile/ProfileSheetNav";
 import { ServiceRequestsSection } from "@/components/profile/ServiceRequestsSection";
 
 export function ProfileView() {
@@ -17,48 +18,64 @@ export function ProfileView() {
     <>
       <PageHeader
         eyebrow="Studio"
-        title="Profile"
-        description="Identity, enrollments, orders, and service briefs for your student account."
+        title="Your sheet"
+        description="Identity, drawing sets in progress, orders, and service briefs — one register for your student account."
       />
 
       <ThresholdDoorway label="STUDENT PROFILE" />
 
+      <div className="sticky top-[var(--nav-height)] z-20 border-b border-hairline bg-concrete/95 nav-blur lg:hidden">
+        <PageContainer className="py-0">
+          <ProfileSheetNav orientation="horizontal" />
+        </PageContainer>
+      </div>
+
       <section className="section-standard">
         <PageContainer>
-          <div className="mx-auto max-w-3xl space-y-16">
-            <Reveal variant="infill">
-              <ProfileIdentityPanel />
-            </Reveal>
+          <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[10.5rem_minmax(0,1fr)] lg:gap-12 xl:grid-cols-[12rem_minmax(0,1fr)] xl:gap-16">
+            <aside className="hidden lg:block">
+              <div className="sticky top-[calc(var(--nav-height)+2rem)]">
+                <Reveal variant="infill">
+                  <ProfileSheetNav />
+                </Reveal>
+              </div>
+            </aside>
 
-            <SectionCutDivider label="ENROLLMENTS" />
+            <div className="min-w-0 space-y-14 sm:space-y-16">
+              <Reveal variant="infill">
+                <ProfileIdentityPanel />
+              </Reveal>
 
-            <Reveal variant="infill">
-              <EnrolledCoursesSection />
-            </Reveal>
+              <SectionCutDivider label="ENROLLMENTS" />
 
-            <SectionCutDivider label="ORDERS" />
+              <Reveal variant="infill">
+                <EnrolledCoursesSection />
+              </Reveal>
 
-            <Reveal variant="infill">
-              <OrderHistorySection />
-            </Reveal>
+              <SectionCutDivider label="ORDERS" />
 
-            <SectionCutDivider label="SERVICES" />
+              <Reveal variant="infill">
+                <OrderHistorySection />
+              </Reveal>
 
-            <Reveal variant="infill">
-              <ServiceRequestsSection />
-            </Reveal>
+              <SectionCutDivider label="SERVICES" />
 
-            <SectionCutDivider label="DEVICES" />
+              <Reveal variant="infill">
+                <ServiceRequestsSection />
+              </Reveal>
 
-            <Reveal variant="infill">
-              <DevicesSection />
-            </Reveal>
+              <SectionCutDivider label="DEVICES" />
 
-            <SectionCutDivider label="ACCOUNT" />
+              <Reveal variant="infill">
+                <DevicesSection />
+              </Reveal>
 
-            <Reveal variant="infill">
-              <AccountActionsSection />
-            </Reveal>
+              <SectionCutDivider label="ACCOUNT" />
+
+              <Reveal variant="infill">
+                <AccountActionsSection />
+              </Reveal>
+            </div>
           </div>
         </PageContainer>
       </section>

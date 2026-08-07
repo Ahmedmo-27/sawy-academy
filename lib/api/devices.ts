@@ -1,7 +1,6 @@
 import {
   apiDelete,
   apiGet,
-  apiRequest,
 } from "@/lib/api/client";
 
 export interface RegisteredDevice {
@@ -14,40 +13,19 @@ export interface RegisteredDevice {
 export interface MyDevicesResponse {
   devices: RegisteredDevice[];
   currentDeviceId: string;
+  deviceLimit: number;
 }
 
 export function listMyDevices() {
   return apiGet<MyDevicesResponse>("/api/devices/me");
 }
 
-export function removeMyDevice(deviceId: string) {
-  return apiDelete<{ ok: boolean; device: RegisteredDevice }>(
-    `/api/devices/me/${encodeURIComponent(deviceId)}`
-  );
-}
-
-export function removeDeviceBeforeLogin(input: {
-  deviceId: string;
-  email: string;
-  password: string;
-}) {
-  return apiRequest<{ ok: boolean; device: RegisteredDevice }>(
-    `/api/devices/me/${encodeURIComponent(input.deviceId)}`,
-    "DELETE",
-    {
-      body: {
-        email: input.email,
-        password: input.password,
-      },
-      auth: false,
-    }
-  );
-}
-
 export function listUserDevicesAdmin(userId: string) {
-  return apiGet<{ userId: string; devices: RegisteredDevice[] }>(
-    `/api/admin/users/${encodeURIComponent(userId)}/devices`
-  );
+  return apiGet<{
+    userId: string;
+    devices: RegisteredDevice[];
+    deviceLimit: number;
+  }>(`/api/admin/users/${encodeURIComponent(userId)}/devices`);
 }
 
 export function removeUserDeviceAdmin(userId: string, deviceId: string) {

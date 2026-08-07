@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { FormField } from "@/components/admin/FormField";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useToast } from "@/components/feedback/ToastProvider";
 import {
   createLesson,
@@ -23,6 +24,7 @@ const emptyLesson = {
   title: "",
   duration: "",
   order: "1",
+  previewImage: "",
 };
 
 type LessonForm = typeof emptyLesson;
@@ -38,6 +40,7 @@ function toLessonInput(form: LessonForm) {
     title: form.title,
     duration: form.duration,
     order: Number(form.order),
+    previewImage: form.previewImage || undefined,
   };
 }
 
@@ -65,6 +68,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
       title: lesson.title,
       duration: lesson.duration,
       order: String(lesson.order),
+      previewImage: lesson.previewImage ?? "",
     });
   }
 
@@ -261,6 +265,14 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
             required
             onChange={(value) => updateForm("order", value)}
           />
+          <div className="md:col-span-2">
+            <ImageUploadField
+              label="Sheet preview"
+              value={form.previewImage}
+              description="Optional thumb for the course sheet index."
+              onChange={(value) => updateForm("previewImage", value)}
+            />
+          </div>
         </div>
         {error && <p className="type-infill text-clay">{error}</p>}
         <div className="flex flex-wrap gap-3">

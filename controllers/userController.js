@@ -11,6 +11,16 @@ const {
 const DEFAULT_PASSWORD = process.env.ADMIN_DEFAULT_USER_PASSWORD || "ChangeMe123!";
 const MIN_PASSWORD_LENGTH = 8;
 
+const DEFAULT_DEVICE_LIMIT = 2;
+
+function resolveDeviceLimit(user) {
+  const raw = Number(user?.deviceLimit);
+  if (Number.isFinite(raw) && raw >= 1) {
+    return Math.min(Math.floor(raw), 20);
+  }
+  return DEFAULT_DEVICE_LIMIT;
+}
+
 function publicAdminUser(user) {
   return {
     _id: user._id.toString(),
@@ -19,6 +29,7 @@ function publicAdminUser(user) {
     email: user.email,
     role: user.role,
     avatarUrl: user.avatarUrl || undefined,
+    deviceLimit: resolveDeviceLimit(user),
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };
@@ -31,6 +42,7 @@ function publicStudentUser(user) {
     email: user.email,
     role: user.role,
     avatarUrl: user.avatarUrl || undefined,
+    deviceLimit: resolveDeviceLimit(user),
     createdAt: user.createdAt
       ? new Date(user.createdAt).toISOString()
       : undefined,
@@ -173,6 +185,15 @@ async function create(req, res, next) {
       );
     }
 
+    let deviceLimit = DEFAULT_DEVICE_LIMIT;
+    if (req.body.deviceLimit !== undefined && req.body.deviceLimit !== "") {
+      deviceLimit = Number(req.body.deviceLimit);
+      if (!Number.isFinite(deviceLimit) || deviceLimit < 1 || deviceLimit > 20) {
+        throw createHttpError(400, "Device limit must be a number from 1 to 20");
+      }
+      deviceLimit = Math.floor(deviceLimit);
+    }
+
     const existing = await User.findOne({ email });
     if (existing) {
       throw createHttpError(409, "An account with this email already exists");
@@ -182,6 +203,7 @@ async function create(req, res, next) {
       name,
       email,
       role,
+      deviceLimit,
       passwordHash: hashPassword(password),
     });
 
@@ -214,6 +236,14 @@ async function update(req, res, next) {
 
     if (req.body.role !== undefined) {
       updates.role = req.body.role === "admin" ? "admin" : "student";
+    }
+
+    if (req.body.deviceLimit !== undefined && req.body.deviceLimit !== "") {
+      const deviceLimit = Number(req.body.deviceLimit);
+      if (!Number.isFinite(deviceLimit) || deviceLimit < 1 || deviceLimit > 20) {
+        throw createHttpError(400, "Device limit must be a number from 1 to 20");
+      }
+      updates.deviceLimit = Math.floor(deviceLimit);
     }
 
     if (req.body.password) {

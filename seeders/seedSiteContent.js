@@ -7,6 +7,7 @@ const {
   footer,
   pageHeaders,
   contactPage,
+  servicesPage,
   homeSections,
 } = require("./data/siteDefaults");
 
@@ -22,6 +23,7 @@ async function seedSiteContent() {
     footer,
     pageHeaders,
     contactPage,
+    servicesPage,
   });
 
   await HomePage.create({

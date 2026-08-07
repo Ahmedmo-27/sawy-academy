@@ -12,7 +12,7 @@ const {
 require("../models/Lesson");
 
 const requiredFields = ["title", "subtitle", "type"];
-const allowedFields = ["title", "subtitle", "type", "bundlePrice", "courses"];
+const allowedFields = ["title", "subtitle", "type", "bundlePrice", "courses", "image"];
 
 async function resolveCourseIds(courseIds) {
   if (!Array.isArray(courseIds)) {

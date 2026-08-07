@@ -12,6 +12,7 @@ export type CourseInput = Pick<
   Course,
   "id" | "title" | "description" | "level" | "instructor" | "price"
 > & {
+  image?: string;
   relatedProductIds?: string[];
 };
 
@@ -19,7 +20,12 @@ export type LessonInput = Pick<
   Lesson,
   "sheetRef" | "title" | "duration" | "order"
 > &
-  Partial<Pick<Lesson, "id" | "slug" | "summary" | "content" | "videoUrl">>;
+  Partial<
+    Pick<
+      Lesson,
+      "id" | "slug" | "summary" | "content" | "videoUrl" | "previewImage"
+    >
+  >;
 
 /** Business product code from a string id or populated Product. */
 export function relatedProductIdOf(value: string | Product): string {

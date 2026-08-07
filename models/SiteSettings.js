@@ -82,6 +82,13 @@ const siteSettingsSchema = new mongoose.Schema(
     contactPage: {
       intro: { type: String, default: "", trim: true },
     },
+    servicesPage: {
+      designImageUrl: { type: String, default: "", trim: true },
+      researchImageUrl: { type: String, default: "", trim: true },
+      processBriefImageUrl: { type: String, default: "", trim: true },
+      processReviewImageUrl: { type: String, default: "", trim: true },
+      processDeliveryImageUrl: { type: String, default: "", trim: true },
+    },
   },
   {
     timestamps: true,

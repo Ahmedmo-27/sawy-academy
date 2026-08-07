@@ -21,6 +21,7 @@ const allowedFields = [
   "level",
   "instructor",
   "price",
+  "image",
   "relatedProductIds",
 ];
 

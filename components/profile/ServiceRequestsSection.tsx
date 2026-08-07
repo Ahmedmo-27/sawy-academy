@@ -3,8 +3,8 @@
 import { useCallback, useState } from "react";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
+import { ProfileSectionShell } from "@/components/profile/ProfileSectionShell";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import type { ServiceRequest } from "@/lib/api/types";
@@ -42,18 +42,20 @@ export function ServiceRequestsSection() {
 
   if (isLoading) {
     return (
-      <AdminLoader
-        label="Loading service requests"
-        stepLabel={stepLabel}
-        progress={progress}
-      />
+      <div id="services" className="scroll-mt-28 lg:scroll-mt-32">
+        <AdminLoader
+          label="Loading service requests"
+          stepLabel={stepLabel}
+          progress={progress}
+        />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <ThresholdFrame label="SERVICE REQUESTS" labelAsHeading>
-        <div className="hairline-border bg-concrete p-8">
+      <ProfileSectionShell id="services" label="Service requests">
+        <div className="hairline-border bg-concrete p-6 mt-4 sm:p-8">
           <p className="eyebrow text-clay">Unable to load requests</p>
           <p className="type-infill mt-3">{error}</p>
           <button
@@ -64,24 +66,30 @@ export function ServiceRequestsSection() {
             Retry
           </button>
         </div>
-      </ThresholdFrame>
+      </ProfileSectionShell>
     );
   }
 
   if (!data?.length) {
     return (
-      <ProfileEmptyState
-        title="No service requests on this sheet yet"
-        message="Design and research commission briefs will appear here after you submit from the services bay."
-        actionHref="/services"
-        actionLabel="Open services"
-      />
+      <div id="services" className="scroll-mt-28 lg:scroll-mt-32">
+        <ProfileEmptyState
+          title="No service requests on this sheet yet"
+          message="Design and research briefs from Services, plus device access requests from your profile, will appear here."
+          actionHref="/services"
+          actionLabel="Open services"
+        />
+      </div>
     );
   }
 
   return (
-    <ThresholdFrame label="SERVICE REQUESTS" labelAsHeading>
-      <ul className="mt-4 space-y-px bg-hairline">
+    <ProfileSectionShell id="services" label="Service requests">
+      <p className="type-infill mt-2 mb-4 text-charcoal-infill">
+        {data.length} brief{data.length === 1 ? "" : "s"} filed with the studio.
+      </p>
+
+      <ul className="space-y-px bg-hairline">
         {data.map((request) => {
           const isOpen = expandedId === request.id;
 
@@ -89,7 +97,7 @@ export function ServiceRequestsSection() {
             <li key={request.id} className="bg-concrete">
               <button
                 type="button"
-                className="w-full text-left p-6 sm:p-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between hover:bg-concrete-dark/30 transition-colors duration-200"
+                className="flex w-full flex-col gap-4 p-6 text-left transition-colors duration-200 hover:bg-concrete-dark/30 sm:flex-row sm:items-center sm:justify-between sm:p-8"
                 onClick={() =>
                   setExpandedId((current) =>
                     current === request.id ? null : request.id
@@ -98,28 +106,44 @@ export function ServiceRequestsSection() {
                 aria-expanded={isOpen}
               >
                 <div className="min-w-0">
-                  <p className="label-caps text-charcoal-infill mb-2">
+                  <p className="label-caps mb-2 text-charcoal-infill">
                     Submitted {formatSubmitted(request)}
                   </p>
-                  <h3 className="type-title text-xl capitalize">
+                  <h3 className="type-title text-xl capitalize sm:text-2xl">
                     {request.type}
                   </h3>
                 </div>
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-3">
                   <StatusBadge status={request.status} />
-                  <span className="label-caps text-charcoal-infill">
-                    {isOpen ? "Collapse" : "Details"}
+                  <span
+                    aria-hidden="true"
+                    className={`label-caps text-charcoal-infill transition-transform duration-200 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  >
+                    ⌄
+                  </span>
+                  <span className="sr-only">
+                    {isOpen ? "Collapse details" : "Expand details"}
                   </span>
                 </div>
               </button>
 
               {isOpen && (
-                <div className="px-6 sm:px-8 pb-8 space-y-6 hairline-t">
-                  <div>
-                    <p className="label-caps mb-2">Contact</p>
-                    <p className="type-infill">
-                      {request.name} · {request.email}
-                    </p>
+                <div className="space-y-6 border-t border-hairline px-6 pb-8 pt-6 sm:px-8">
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <div>
+                      <p className="label-caps mb-2">Contact</p>
+                      <p className="type-infill">
+                        {request.name}
+                        <span className="text-charcoal/30"> · </span>
+                        {request.email}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="label-caps mb-2">Status</p>
+                      <StatusBadge status={request.status} />
+                    </div>
                   </div>
                   <div>
                     <p className="label-caps mb-2">Submitted details</p>
@@ -128,7 +152,7 @@ export function ServiceRequestsSection() {
                     </p>
                   </div>
                   {request.notes && (
-                    <div>
+                    <div className="border-t border-hairline pt-6">
                       <p className="label-caps mb-2">Studio notes</p>
                       <p className="type-infill whitespace-pre-wrap">
                         {request.notes}
@@ -141,6 +165,6 @@ export function ServiceRequestsSection() {
           );
         })}
       </ul>
-    </ThresholdFrame>
+    </ProfileSectionShell>
   );
 }

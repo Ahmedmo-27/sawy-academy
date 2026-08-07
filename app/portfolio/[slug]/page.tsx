@@ -2,9 +2,11 @@
 
 import { use, useEffect, useState } from "react";
 import { notFound } from "next/navigation";
-import { BlueprintMorphImage } from "@/components/animation/BlueprintMorphImage";
+import { GsapReveal, GsapStagger } from "@/components/animation/GsapReveal";
+import { HorizontalPinGallery } from "@/components/animation/HorizontalPinGallery";
+import { SplitTextReveal } from "@/components/animation/SplitTextReveal";
 import { GridColumns } from "@/components/decorative/GridColumns";
-import { ImageFrame } from "@/components/decorative/ImageFrame";
+import { MediaBay } from "@/components/decorative/MediaBay";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
@@ -61,24 +63,35 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
     );
   }
 
+  const gallery =
+    project.gallery && project.gallery.length > 0
+      ? project.gallery
+      : [project.image];
+  const showBeforeAfter = Boolean(project.beforeImage || project.afterImage);
+
   return (
     <>
       <header className="relative overflow-hidden">
         <GridColumns />
         <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-0">
-          <p className="eyebrow mb-3">Portfolio · {project.sheetRef}</p>
-          <h1 className="type-display max-w-4xl mb-8">{project.title}</h1>
+          <GsapReveal type="text" immediate>
+            <p className="eyebrow mb-3">Portfolio · {project.sheetRef}</p>
+          </GsapReveal>
+          <SplitTextReveal type="lines" immediate>
+            <h1 className="type-display max-w-4xl mb-8">{project.title}</h1>
+          </SplitTextReveal>
 
           <ThresholdFrame label={`Sheet — ${project.sheetRef}`}>
-            <ImageFrame className="aspect-[16/10] lg:aspect-[21/9] mt-4">
-              <BlueprintMorphImage
-                src={project.image}
-                alt={project.title}
-                sizes="100vw"
-                priority
-                revealOnLoad
-              />
-            </ImageFrame>
+            <MediaBay
+              src={project.image}
+              alt={project.title}
+              className="aspect-[16/10] lg:aspect-[21/9] mt-4"
+              fallback="plan"
+              morph
+              priority
+              revealOnLoad
+              sizes="100vw"
+            />
           </ThresholdFrame>
         </PageContainer>
       </header>
@@ -114,15 +127,74 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               </div>
             </div>
             <div className="lg:col-span-7 lg:col-start-6">
-              <p className="type-lead max-w-xl">
-                {project.category} project from the {project.year} drawing set.
-                Sheet {project.sheetRef} documents the built work within the
-                academy portfolio index.
-              </p>
+              <GsapReveal type="text">
+                <p className="type-lead max-w-xl">
+                  {project.category} project from the {project.year} drawing set.
+                  Sheet {project.sheetRef} documents the built work within the
+                  academy portfolio index.
+                </p>
+              </GsapReveal>
             </div>
           </div>
         </PageContainer>
       </Section>
+
+      <Section rhythm="standard" contained={false}>
+        <PageContainer>
+          <ThresholdFrame label="Drawing set">
+            <div className="pt-6">
+              <HorizontalPinGallery>
+                {gallery.map((src, index) => (
+                  <div
+                    key={`${src}-${index}`}
+                    className="w-[min(90vw,28rem)] shrink-0 sm:w-[min(48vw,36rem)]"
+                  >
+                    <MediaBay
+                      src={src}
+                      alt={`${project.title} plate ${index + 1}`}
+                      className="aspect-[4/3] sm:aspect-[4/5]"
+                      fallback="plan"
+                      morph
+                      sizes="(min-width: 1024px) 36rem, 90vw"
+                    />
+                  </div>
+                ))}
+              </HorizontalPinGallery>
+            </div>
+          </ThresholdFrame>
+        </PageContainer>
+      </Section>
+
+      {showBeforeAfter && (
+        <Section rhythm="intimate" contained={false}>
+          <PageContainer>
+            <ThresholdFrame label="Before / After">
+              <GsapStagger className="grid grid-cols-1 gap-px bg-hairline pt-6 md:grid-cols-2">
+                <div className="bg-concrete p-5 sm:p-6">
+                  <p className="label-caps mb-3">Before</p>
+                  <MediaBay
+                    src={project.beforeImage}
+                    alt={`${project.title} before`}
+                    className="aspect-[4/3]"
+                    fallback="plan"
+                    morph
+                  />
+                </div>
+                <div className="bg-concrete p-5 sm:p-6">
+                  <p className="label-caps mb-3">After</p>
+                  <MediaBay
+                    src={project.afterImage}
+                    alt={`${project.title} after`}
+                    className="aspect-[4/3]"
+                    fallback="plan"
+                    morph
+                  />
+                </div>
+              </GsapStagger>
+            </ThresholdFrame>
+          </PageContainer>
+        </Section>
+      )}
     </>
   );
 }

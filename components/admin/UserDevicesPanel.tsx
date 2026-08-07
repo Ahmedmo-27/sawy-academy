@@ -33,7 +33,11 @@ export function UserDevicesPanel({ userId }: UserDevicesPanelProps) {
   const { success, error: toastError } = useToast();
   const loader = useCallback(
     (onProgress: (progress: number, stepLabel?: string) => void) =>
-      fetchWithProgress<{ userId: string; devices: RegisteredDevice[] }>(
+      fetchWithProgress<{
+        userId: string;
+        devices: RegisteredDevice[];
+        deviceLimit: number;
+      }>(
         `/api/admin/users/${encodeURIComponent(userId)}/devices`,
         "Fetching registered devices",
         onProgress
@@ -119,12 +123,17 @@ export function UserDevicesPanel({ userId }: UserDevicesPanelProps) {
   }
 
   const devices = data?.devices ?? [];
+  const deviceLimit = data?.deviceLimit ?? 2;
 
   return (
     <>
       <div className="hairline-border bg-concrete p-6 lg:p-8">
-        <p className="label-caps mb-4 text-clay">
-          Registered devices ({devices.length}/2)
+        <p className="label-caps mb-2 text-clay">
+          Registered devices ({devices.length}/{deviceLimit})
+        </p>
+        <p className="type-infill mb-4 text-charcoal-infill">
+          Students cannot remove devices themselves. Remove a device here to
+          free a slot, or raise the device limit in the user form above.
         </p>
         <DataTable
           data={devices}

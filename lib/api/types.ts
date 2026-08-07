@@ -32,6 +32,7 @@ export interface Lesson extends TimestampedRecord {
   summary?: string;
   content?: string;
   videoUrl?: string;
+  previewImage?: string;
 }
 
 export interface Course extends TimestampedRecord {
@@ -42,6 +43,7 @@ export interface Course extends TimestampedRecord {
   level: string;
   instructor: string;
   price: string;
+  image?: string;
   lessons?: Lesson[];
   relatedProductIds?: Array<string | Product>;
   /** Resolved client-side from CourseGroup membership */
@@ -59,6 +61,7 @@ export interface CourseGroup extends TimestampedRecord {
   title: string;
   subtitle: string;
   type: CourseGroupType;
+  image?: string;
   courses?: Array<Course | string>;
   bundlePrice?: string;
   relatedProductIds?: string[];
@@ -71,6 +74,7 @@ export interface Product extends TimestampedRecord {
   price: string;
   category: string;
   image: string;
+  gallery?: string[];
 }
 
 export type ProjectCategory =
@@ -89,6 +93,9 @@ export interface Project extends TimestampedRecord {
   category: ProjectCategory;
   year: string;
   image: string;
+  gallery?: string[];
+  beforeImage?: string;
+  afterImage?: string;
   aspect?: ProjectAspect;
   order?: number;
 }
@@ -107,6 +114,8 @@ export interface Research extends TimestampedRecord {
   venue: string;
   abstract: string;
   collaborators?: string;
+  image?: string;
+  figures?: string[];
   slug: string;
 }
 
@@ -171,9 +180,20 @@ export interface ResearchServicePayload {
   additionalNotes?: string;
 }
 
+export interface DeviceAccessServicePayload {
+  type: "device-access";
+  name: string;
+  email: string;
+  requestKind: "replace" | "increase";
+  reason: string;
+  deviceToReplaceId?: string;
+  deviceToReplaceLabel?: string;
+}
+
 export type ServiceSubmissionPayload =
   | DesignServicePayload
-  | ResearchServicePayload;
+  | ResearchServicePayload
+  | DeviceAccessServicePayload;
 
 export interface User extends TimestampedRecord {
   id: string;
@@ -183,6 +203,8 @@ export interface User extends TimestampedRecord {
   /** Profile photo URL from /api/upload */
   avatarUrl?: string;
   photoUrl?: string;
+  /** Max registered devices for this student account */
+  deviceLimit?: number;
 }
 
 /**
@@ -263,6 +285,13 @@ export interface SiteSettings extends TimestampedRecord {
   footer: { links: NavLinkItem[] };
   pageHeaders: Record<string, PageHeaderContent>;
   contactPage: { intro: string };
+  servicesPage?: {
+    designImageUrl?: string;
+    researchImageUrl?: string;
+    processBriefImageUrl?: string;
+    processReviewImageUrl?: string;
+    processDeliveryImageUrl?: string;
+  };
 }
 
 export type HomeSectionType =

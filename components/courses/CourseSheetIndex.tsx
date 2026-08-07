@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MediaBay } from "@/components/decorative/MediaBay";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { lessonSlugOf } from "@/lib/api/courses";
 import type { Lesson } from "@/lib/api/types";
@@ -23,20 +24,29 @@ export function CourseSheetIndex({
           <li key={lesson.id}>
             <Link
               href={`/courses/${courseSlug}/${lessonSlugOf(lesson)}`}
-              className={`group grid grid-cols-12 gap-4 py-5 transition-colors duration-200 hover:bg-concrete-dark/40 ${
+              className={`group grid grid-cols-1 gap-3 py-6 transition-colors duration-200 hover:bg-concrete-dark/40 sm:grid-cols-12 sm:items-center sm:gap-4 sm:py-5 ${
                 i > 0 ? "hairline-t" : ""
               }`}
             >
-              <span className="col-span-2 sm:col-span-1 label-caps text-clay pt-0.5">
+              <span className="label-caps text-clay pt-0.5 sm:col-span-1">
                 {String(lesson.order).padStart(2, "0")}
               </span>
-              <span className="col-span-3 sm:col-span-2 dim-label pt-0.5">
+              <span className="sm:col-span-2">
+                <MediaBay
+                  src={lesson.previewImage}
+                  alt={lesson.title}
+                  className="aspect-square max-w-[5.5rem] sm:max-w-[4.5rem]"
+                  fallback="course"
+                  fallbackLabel={lesson.sheetRef}
+                />
+              </span>
+              <span className="dim-label pt-0.5 sm:col-span-2">
                 {lesson.sheetRef}
               </span>
-              <span className="col-span-7 sm:col-span-7 type-title text-base group-hover:text-charcoal transition-colors">
+              <span className="type-title text-base group-hover:text-charcoal transition-colors sm:col-span-5">
                 {lesson.title}
               </span>
-              <span className="col-span-12 sm:col-span-2 label-caps sm:text-right pt-0.5">
+              <span className="label-caps pt-0.5 sm:col-span-2 sm:text-right">
                 {lesson.duration}
               </span>
             </Link>

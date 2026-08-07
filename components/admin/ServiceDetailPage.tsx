@@ -140,6 +140,20 @@ export function ServiceDetailPage({ id }: ServiceDetailPageProps) {
                 {data.details ?? data.message ?? "No details submitted."}
               </p>
             </div>
+            {data.type === "device access" && (
+              <div className="hairline-t pt-6">
+                <p className="type-infill mb-4">
+                  To fulfill this request, open the student account and either
+                  remove a registered device or raise their device limit.
+                </p>
+                <Link
+                  href={`/admin/users/${encodeURIComponent(data.email)}/edit`}
+                  className="admin-btn admin-btn-secondary"
+                >
+                  Open student account
+                </Link>
+              </div>
+            )}
           </div>
         </ThresholdFrame>
 

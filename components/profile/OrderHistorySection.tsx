@@ -5,8 +5,8 @@ import { useCallback, useState } from "react";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
-import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
+import { ProfileSectionShell } from "@/components/profile/ProfileSectionShell";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import type { Order } from "@/lib/api/types";
@@ -39,6 +39,10 @@ function itemLabels(order: Order) {
   return order.items.map((item) => item.title).join(", ");
 }
 
+function itemCount(order: Order) {
+  return order.items?.length ?? 0;
+}
+
 export function OrderHistorySection() {
   const loader = useCallback(
     (onProgress: (progress: number, stepLabel?: string) => void) =>
@@ -56,18 +60,20 @@ export function OrderHistorySection() {
 
   if (isLoading) {
     return (
-      <AdminLoader
-        label="Loading order history"
-        stepLabel={stepLabel}
-        progress={progress}
-      />
+      <div id="orders" className="scroll-mt-28 lg:scroll-mt-32">
+        <AdminLoader
+          label="Loading order history"
+          stepLabel={stepLabel}
+          progress={progress}
+        />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <ThresholdFrame label="ORDER HISTORY" labelAsHeading>
-        <div className="hairline-border bg-concrete p-8">
+      <ProfileSectionShell id="orders" label="Order history">
+        <div className="hairline-border bg-concrete p-6 mt-4 sm:p-8">
           <p className="eyebrow text-clay">Unable to load orders</p>
           <p className="type-infill mt-3">{error}</p>
           <button
@@ -78,42 +84,42 @@ export function OrderHistorySection() {
             Retry
           </button>
         </div>
-      </ThresholdFrame>
+      </ProfileSectionShell>
     );
   }
 
   if (!data?.length) {
     return (
-      <ProfileEmptyState
-        title="No orders on this sheet yet"
-        message="Verified purchases and pending InstaPay submissions will draw here once you place an order."
-        actionHref="/courses"
-        actionLabel="Browse courses"
-      />
+      <div id="orders" className="scroll-mt-28 lg:scroll-mt-32">
+        <ProfileEmptyState
+          title="No orders on this sheet yet"
+          message="Verified purchases and pending InstaPay submissions will draw here once you place an order."
+          actionHref="/courses"
+          actionLabel="Browse courses"
+        />
+      </div>
     );
   }
 
   return (
-    <ThresholdFrame label="ORDER HISTORY" labelAsHeading>
-      <div className="mt-4 hairline-border bg-concrete overflow-hidden">
-        <div className="hidden md:grid md:grid-cols-[7rem_minmax(0,1.4fr)_6rem_7rem_auto] gap-4 px-6 py-4 hairline-b bg-concrete-dark/40">
-          <p className="label-caps">Date</p>
-          <p className="label-caps">Items</p>
-          <p className="label-caps">Total</p>
-          <p className="label-caps">Status</p>
-          <p className="label-caps sr-only">Expand</p>
-        </div>
+    <ProfileSectionShell id="orders" label="Order history">
+      <p className="type-infill mt-2 mb-4 text-charcoal-infill">
+        {data.length} order{data.length === 1 ? "" : "s"} recorded — expand a
+        row for payment proof and studio notes.
+      </p>
 
+      <div className="hairline-border overflow-hidden bg-concrete">
         <ul>
           {data.map((order) => {
             const isOpen = expandedId === order.id;
             const shot = screenshotUrl(order);
+            const count = itemCount(order);
 
             return (
               <li key={order.id} className="hairline-b last:border-b-0">
                 <button
                   type="button"
-                  className="w-full text-left px-6 py-5 grid grid-cols-1 gap-3 md:grid-cols-[7rem_minmax(0,1.4fr)_6rem_7rem_auto] md:gap-4 md:items-center hover:bg-concrete-dark/30 transition-colors duration-200"
+                  className="grid w-full grid-cols-1 gap-4 px-5 py-5 text-left transition-colors duration-200 hover:bg-concrete-dark/30 sm:px-6 sm:grid-cols-[7.5rem_minmax(0,1fr)_auto] sm:items-center sm:gap-6"
                   onClick={() =>
                     setExpandedId((current) =>
                       current === order.id ? null : order.id
@@ -121,19 +127,49 @@ export function OrderHistorySection() {
                   }
                   aria-expanded={isOpen}
                 >
-                  <p className="type-infill">{formatOrderDate(order)}</p>
-                  <p className="type-body text-charcoal">{itemLabels(order)}</p>
-                  <p className="type-infill">{formatAmount(order.amount)}</p>
                   <div>
-                    <StatusBadge status={order.status} />
+                    <p className="label-caps mb-1 text-charcoal/35 sm:hidden">
+                      Date
+                    </p>
+                    <p className="type-infill tabular-nums">
+                      {formatOrderDate(order)}
+                    </p>
                   </div>
-                  <p className="label-caps text-charcoal-infill md:text-right">
-                    {isOpen ? "Collapse" : "Details"}
-                  </p>
+
+                  <div className="min-w-0">
+                    <p className="type-body text-charcoal line-clamp-2">
+                      {itemLabels(order)}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+                      <p className="type-infill tabular-nums">
+                        {formatAmount(order.amount)}
+                      </p>
+                      {count > 0 && (
+                        <p className="label-caps text-charcoal-infill">
+                          {count} item{count === 1 ? "" : "s"}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+                    <StatusBadge status={order.status} />
+                    <span
+                      aria-hidden="true"
+                      className={`label-caps text-charcoal-infill transition-transform duration-200 ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    >
+                      ⌄
+                    </span>
+                    <span className="sr-only">
+                      {isOpen ? "Collapse details" : "Expand details"}
+                    </span>
+                  </div>
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-6 pt-2 bg-concrete-dark/20 space-y-6">
+                  <div className="space-y-6 border-t border-hairline bg-concrete-dark/20 px-5 py-6 sm:px-6">
                     {shot ? (
                       <div>
                         <p className="label-caps mb-3">InstaPay screenshot</p>
@@ -171,6 +207,6 @@ export function OrderHistorySection() {
           })}
         </ul>
       </div>
-    </ThresholdFrame>
+    </ProfileSectionShell>
   );
 }

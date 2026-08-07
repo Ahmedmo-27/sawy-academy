@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CourseMaterials } from "@/components/courses/CourseMaterials";
 import { EnrollButton } from "@/components/courses/EnrollButton";
+import { MediaBay } from "@/components/decorative/MediaBay";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { SectionCutDivider } from "@/components/decorative/SectionCutDivider";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
@@ -31,6 +32,17 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
 
   return (
     <div className="space-y-16 lg:space-y-20">
+      <MediaBay
+        src={group.image}
+        alt={group.title}
+        className="aspect-[16/10] lg:aspect-[21/9]"
+        fallback="course"
+        morph
+        priority
+        revealOnLoad
+        sizes="100vw"
+      />
+
       <div className="hairline-border p-6 lg:p-10 section-intimate">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
           <div className="max-w-xl">
@@ -81,28 +93,29 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
                 <li key={course.id}>
                   <Link
                     href={`/courses/${course.slug}`}
-                    className={`group grid grid-cols-12 gap-4 py-6 transition-colors duration-200 hover:bg-concrete-dark/40 ${
+                    className={`group grid grid-cols-1 gap-3 py-6 transition-colors duration-200 hover:bg-concrete-dark/40 sm:grid-cols-12 sm:gap-4 ${
                       i > 0 ? "hairline-t" : ""
                     }`}
                   >
-                    <span className="col-span-2 sm:col-span-1 label-caps text-clay pt-0.5">
+                    <span className="col-span-1 label-caps text-clay pt-0.5 sm:col-span-1">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <span className="col-span-3 sm:col-span-2 dim-label pt-0.5">
+                    <span className="hidden sm:col-span-2 sm:block dim-label pt-0.5">
                       {sheetRef}
                     </span>
-                    <span className="col-span-7 sm:col-span-5">
+                    <span className="sm:col-span-5">
                       <span className="type-title text-base block group-hover:text-charcoal transition-colors">
                         {course.title}
                       </span>
                       <span className="label-caps mt-1 block text-charcoal-infill">
                         {course.level}
+                        <span className="sm:hidden"> · {sheetRef}</span>
                       </span>
                     </span>
-                    <span className="col-span-6 sm:col-span-2 label-caps sm:text-right pt-0.5">
+                    <span className="label-caps pt-0.5 sm:col-span-2 sm:text-right">
                       {duration}
                     </span>
-                    <span className="col-span-6 sm:col-span-2 action-secondary sm:text-right pt-0.5 self-start">
+                    <span className="action-secondary pt-0.5 self-start sm:col-span-2 sm:text-right">
                       Open course details
                     </span>
                   </Link>

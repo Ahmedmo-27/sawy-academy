@@ -20,7 +20,7 @@ export function ProjectCard({
   image,
   sheetRef,
   href,
-  aspectClass = "aspect-[4/5]",
+  aspectClass = "aspect-[4/3] sm:aspect-[4/5]",
 }: ProjectCardProps) {
   return (
     <Link
@@ -34,7 +34,7 @@ export function ProjectCard({
           sizes="(max-width: 768px) 100vw, 33vw"
         />
         <div
-          className="project-overlay absolute inset-0 bg-charcoal/60 flex flex-col justify-end p-6 pointer-events-none"
+          className="project-overlay absolute inset-0 bg-charcoal/60 flex flex-col justify-end p-5 sm:p-6 pointer-events-none"
           aria-hidden="true"
         >
             <p className="label-caps !text-concrete/90 mb-2">{sheetRef}</p>

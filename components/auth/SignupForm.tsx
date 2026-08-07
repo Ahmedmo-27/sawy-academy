@@ -8,9 +8,13 @@ import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiClientError } from "@/lib/api/client";
 import type { RegisteredDevice } from "@/lib/api/devices";
+import { postAuthPath } from "@/lib/auth/postAuthPath";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
+
+const fieldClass =
+  "w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200";
 
 export function SignupForm() {
   const router = useRouter();
@@ -41,11 +45,7 @@ export function SignupForm() {
       password: signupPassword,
     });
 
-    if (user.role === "admin") {
-      router.replace("/admin");
-    } else {
-      router.replace("/dashboard");
-    }
+    router.replace(postAuthPath(user));
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -108,161 +108,137 @@ export function SignupForm() {
   }
 
   return (
-    <div className="hairline-border p-8 lg:p-10 mt-4 bg-concrete/80">
-      <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
-
-      <div className="hairline-b pb-6 mb-6">
-        <p className="eyebrow mb-3">Sawy Academy — Access</p>
-        <p className="type-heading">Sign Up</p>
+    <div className="hairline-border mt-4 overflow-hidden bg-concrete/80">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hairline bg-concrete-dark/35 px-6 py-4 sm:px-8">
+        <div>
+          <p className="eyebrow text-clay">Enrollment sheet</p>
+          <p className="type-infill mt-1 text-charcoal-infill">
+            Open a student register for the academy.
+          </p>
+        </div>
+        <ScaleBar scale="1:100" className="max-w-[100px] opacity-70" />
       </div>
 
-      {blockedDevices && (
-        <DeviceLimitPanel
-          devices={blockedDevices}
-          email={email.trim()}
-          password={password}
-          onRetryLogin={async () => {
-            setSubmitting(true);
-            setAuthError("");
-            try {
-              await attemptSignup(name.trim(), email.trim(), password);
-            } catch (err) {
-              if (
-                err instanceof ApiClientError &&
-                err.code === "DEVICE_LIMIT_REACHED" &&
-                err.devices?.length
-              ) {
-                setBlockedDevices(err.devices);
-                return;
-              }
-              setAuthError(
-                err instanceof Error
-                  ? err.message
-                  : "Unable to create account. Try again shortly."
-              );
-            } finally {
-              setSubmitting(false);
-            }
-          }}
-        />
-      )}
+      <div className="p-6 sm:p-8 lg:p-10">
+        {blockedDevices && <DeviceLimitPanel devices={blockedDevices} />}
 
-      {errorMessage && (
-        <p id={formErrorId} className="type-body text-clay mb-6" role="alert">
-          {errorMessage}
-        </p>
-      )}
+        {errorMessage && (
+          <p id={formErrorId} className="type-body text-clay mb-6" role="alert">
+            {errorMessage}
+          </p>
+        )}
 
-      <form className="space-y-8" onSubmit={handleSubmit} noValidate>
-        <div>
-          <label htmlFor="signup-name" className="label-caps block mb-2">
-            Name
-            <span className="text-clay"> *</span>
-          </label>
-          <input
-            type="text"
-            id="signup-name"
-            name="name"
-            autoComplete="name"
-            required
-            aria-required="true"
-            aria-invalid={Boolean(errorMessage)}
-            aria-describedby={errorMessage ? formErrorId : undefined}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
-            placeholder="Your name"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="signup-email" className="label-caps block mb-2">
-            Email
-            <span className="text-clay"> *</span>
-          </label>
-          <input
-            type="email"
-            id="signup-email"
-            name="email"
-            autoComplete="email"
-            required
-            aria-required="true"
-            aria-invalid={Boolean(errorMessage)}
-            aria-describedby={errorMessage ? formErrorId : undefined}
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
-            placeholder="you@example.com"
-          />
-        </div>
-
-        <div>
-          <div className="flex items-baseline justify-between mb-2">
-            <label htmlFor="signup-password" className="label-caps">
-              Password
+        <form className="space-y-7" onSubmit={handleSubmit} noValidate>
+          <div>
+            <label htmlFor="signup-name" className="label-caps block mb-2">
+              Full name
               <span className="text-clay"> *</span>
             </label>
-            <button
-              type="button"
-              className="action-secondary text-[0.625rem]"
-              onClick={() => setShowPassword((value) => !value)}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
+            <input
+              type="text"
+              id="signup-name"
+              name="name"
+              autoComplete="name"
+              required
+              aria-required="true"
+              aria-invalid={Boolean(errorMessage)}
+              aria-describedby={errorMessage ? formErrorId : undefined}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              className={fieldClass}
+              placeholder="Your name"
+            />
           </div>
-          <input
-            type={showPassword ? "text" : "password"}
-            id="signup-password"
-            name="password"
-            autoComplete="new-password"
-            required
-            aria-required="true"
-            aria-invalid={Boolean(errorMessage)}
-            aria-describedby={errorMessage ? formErrorId : undefined}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
-            placeholder="At least 8 characters"
-          />
+
+          <div>
+            <label htmlFor="signup-email" className="label-caps block mb-2">
+              Email
+              <span className="text-clay"> *</span>
+            </label>
+            <input
+              type="email"
+              id="signup-email"
+              name="email"
+              autoComplete="email"
+              required
+              aria-required="true"
+              aria-invalid={Boolean(errorMessage)}
+              aria-describedby={errorMessage ? formErrorId : undefined}
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className={fieldClass}
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-baseline justify-between gap-4">
+              <label htmlFor="signup-password" className="label-caps">
+                Password
+                <span className="text-clay"> *</span>
+              </label>
+              <button
+                type="button"
+                className="action-secondary text-[0.625rem]"
+                onClick={() => setShowPassword((value) => !value)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="signup-password"
+              name="password"
+              autoComplete="new-password"
+              required
+              aria-required="true"
+              aria-invalid={Boolean(errorMessage)}
+              aria-describedby={errorMessage ? formErrorId : undefined}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className={fieldClass}
+              placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="signup-confirm" className="label-caps block mb-2">
+              Confirm password
+              <span className="text-clay"> *</span>
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="signup-confirm"
+              name="confirmPassword"
+              autoComplete="new-password"
+              required
+              aria-required="true"
+              aria-invalid={Boolean(errorMessage)}
+              aria-describedby={errorMessage ? formErrorId : undefined}
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              className={fieldClass}
+              placeholder="Repeat password"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="cta-entrance w-full justify-center"
+            disabled={submitting}
+          >
+            {submitting ? "Creating account…" : "Create account"}
+          </button>
+        </form>
+
+        <div className="hairline-t mt-8 pt-6 lg:hidden">
+          <p className="type-infill">
+            Already enrolled?{" "}
+            <Link href="/login" className="action-secondary">
+              Sign in
+            </Link>
+          </p>
         </div>
-
-        <div>
-          <label htmlFor="signup-confirm" className="label-caps block mb-2">
-            Confirm Password
-            <span className="text-clay"> *</span>
-          </label>
-          <input
-            type={showPassword ? "text" : "password"}
-            id="signup-confirm"
-            name="confirmPassword"
-            autoComplete="new-password"
-            required
-            aria-required="true"
-            aria-invalid={Boolean(errorMessage)}
-            aria-describedby={errorMessage ? formErrorId : undefined}
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            className="w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200"
-            placeholder="Repeat password"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="cta-entrance w-full justify-center"
-          disabled={submitting}
-        >
-          {submitting ? "Creating account…" : "Create Account"}
-        </button>
-      </form>
-
-      <div className="hairline-t mt-8 pt-6">
-        <p className="type-infill">
-          Already enrolled?{" "}
-          <Link href="/login" className="action-secondary">
-            Sign in
-          </Link>
-        </p>
       </div>
     </div>
   );

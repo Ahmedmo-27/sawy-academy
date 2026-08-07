@@ -18,6 +18,8 @@ const allowedFields = [
   "venue",
   "abstract",
   "collaborators",
+  "image",
+  "figures",
   "slug",
 ];
 

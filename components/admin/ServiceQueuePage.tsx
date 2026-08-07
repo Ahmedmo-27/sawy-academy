@@ -34,7 +34,7 @@ export function ServiceQueuePage() {
       <AdminPageHeader
         eyebrow="Requests"
         title="Service requests"
-        description="Messages from people asking for design, research, or collaboration help."
+        description="Messages from people asking for design, research, collaboration, or device access help."
       />
 
       {isLoading && (

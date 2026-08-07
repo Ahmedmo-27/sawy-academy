@@ -3,6 +3,7 @@ import type { User } from "@/lib/api/types";
 
 export type UserInput = Pick<User, "id" | "name" | "email"> & {
   role?: string;
+  deviceLimit?: number;
 };
 
 /**
