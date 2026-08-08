@@ -51,14 +51,14 @@ function CourseListing({
             <Link
               href={`/courses/${course.slug}`}
               aria-label={`View ${course.title} course details`}
-              className={`group grid min-h-11 gap-x-4 gap-y-5 py-6 transition-colors duration-300 hover:bg-concrete-dark/25 focus-visible:bg-concrete-dark/25 sm:px-4 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-5 ${
+              className={`group grid min-h-11 grid-cols-1 gap-y-6 py-8 transition-colors duration-300 hover:bg-concrete-dark/25 focus-visible:bg-concrete-dark/25 sm:gap-x-6 sm:px-4 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-5 ${
                 numbered
-                  ? "grid-cols-[auto_5rem_1fr] sm:grid-cols-[auto_6rem_1fr]"
-                  : "grid-cols-[5rem_1fr] sm:grid-cols-[6rem_1fr]"
+                  ? "sm:grid-cols-[auto_7rem_minmax(0,1fr)]"
+                  : "sm:grid-cols-[7rem_minmax(0,1fr)]"
               }`}
             >
               {numbered && (
-                <div className="pt-1 lg:col-span-1 lg:pt-0">
+                <div className="sm:col-span-1 sm:row-span-3 sm:pt-1 lg:row-span-1 lg:pt-0">
                   <span className="label-caps text-clay">
                     {String(i + 1).padStart(2, "0")}
                   </span>
@@ -67,31 +67,31 @@ function CourseListing({
               <div
                 className={`${
                   numbered
-                    ? "col-start-2 lg:col-start-auto lg:col-span-2"
-                    : "col-start-1 lg:col-start-auto lg:col-span-2"
+                    ? "sm:col-start-2 lg:col-start-auto lg:col-span-2"
+                    : "sm:col-start-1 lg:col-start-auto lg:col-span-2"
                 }`}
               >
                 <MediaBay
                   src={course.image || groupImage}
                   alt={course.title}
-                  className="aspect-square w-full"
+                  className="aspect-[16/10] w-full sm:aspect-square"
                   fallback="course"
                   morph
-                  sizes="(min-width: 1024px) 9rem, 6rem"
+                  sizes="(min-width: 1024px) 9rem, (min-width: 640px) 7rem, calc(100vw - 6rem)"
                 />
               </div>
               <div
                 className={`${
                   numbered
-                    ? "col-start-3 lg:col-start-auto lg:col-span-5"
-                    : "col-start-2 lg:col-start-auto lg:col-span-6"
+                    ? "sm:col-start-3 lg:col-start-auto lg:col-span-5"
+                    : "sm:col-start-2 lg:col-start-auto lg:col-span-6"
                 } min-w-0`}
               >
                 <ScaleBar scale="1:100" className="mb-3 max-w-[100px]" />
                 <h3 className="type-title mb-2 transition-colors duration-200 group-hover:text-clay">
                   {course.title}
                 </h3>
-                <p className="type-infill line-clamp-2 leading-relaxed">
+                <p className="type-infill line-clamp-none max-w-[42rem] leading-relaxed sm:line-clamp-2">
                   {course.description}
                 </p>
                 <span className="action-secondary mt-4 inline-flex min-h-11 items-center">
@@ -101,9 +101,9 @@ function CourseListing({
               <div
                 className={`${
                   numbered
-                    ? "col-start-3 lg:col-start-auto"
-                    : "col-start-2 lg:col-start-auto"
-                } flex flex-wrap items-center gap-x-4 gap-y-2 lg:col-span-3 lg:flex-col lg:items-end`}
+                    ? "sm:col-start-3 lg:col-start-auto"
+                    : "sm:col-start-2 lg:col-start-auto"
+                } flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-hairline pt-5 sm:border-0 sm:pt-0 lg:col-span-3 lg:flex-col lg:items-end`}
               >
                 <span className="label-caps text-charcoal">
                   {course.level}
@@ -312,7 +312,7 @@ export default function CoursesPage() {
                       }
                     >
                       <div
-                        className={`relative z-[1] hairline-border p-6 lg:p-10 mt-4 ${
+                        className={`relative z-[1] mt-4 hairline-border p-3 sm:p-4 lg:p-6 ${
                           group.type === "diploma" ? "section-intimate" : ""
                         }`}
                       >
