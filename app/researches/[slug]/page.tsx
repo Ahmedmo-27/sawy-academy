@@ -59,6 +59,7 @@ export default function ResearchDetailPage({ params }: ResearchDetailPageProps) 
           label="Loading research…"
           stepLabel="Fetching publication sheet"
           progress={progress}
+          fullScreen
         />
       </PageContainer>
     );

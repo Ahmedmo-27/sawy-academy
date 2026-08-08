@@ -389,11 +389,19 @@ export function Navigation() {
         </button>
       </nav>
 
-      {open && (
-        <div
-          id="mobile-nav"
-          className="lg:hidden hairline-t bg-concrete/98 px-3 pb-6 pt-4 sm:px-4"
-        >
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id="mobile-nav"
+            className="lg:hidden hairline-t bg-concrete/98 px-3 pb-6 pt-4 sm:px-4"
+            initial={{ opacity: 0, y: -12, scaleY: 0.98 }}
+            animate={{ opacity: 1, y: 0, scaleY: 1 }}
+            exit={{ opacity: 0, y: -8, scaleY: 0.98 }}
+            transition={
+              prefersReducedMotion ? { duration: 0 } : navTransition
+            }
+            style={{ transformOrigin: "top" }}
+          >
           <ul className="flex flex-col gap-1">
             {navItems.map((item) => {
               const children = item.children ?? [];
@@ -509,8 +517,9 @@ export function Navigation() {
               )}
             </div>
           </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <ConfirmDialog
         open={logoutOpen}

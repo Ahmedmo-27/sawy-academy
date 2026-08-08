@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, ScrollTrigger, registerGsap } from "@/lib/gsap/config";
+import { gsap, registerGsap } from "@/lib/gsap/config";
+import { scheduleScrollRefresh } from "@/lib/gsap/refresh";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface HorizontalPinGalleryProps {
@@ -78,7 +79,7 @@ export function HorizontalPinGallery({
       tween.kill();
       gsap.set(track, { clearProps: "transform" });
       if (progress) progress.style.transform = "scaleX(0)";
-      ScrollTrigger.refresh();
+      scheduleScrollRefresh();
     };
   }, [reduced, distanceFactor]);
 
@@ -96,7 +97,7 @@ export function HorizontalPinGallery({
         </div>
 
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex justify-center px-6 sm:bottom-4"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center px-6 sm:bottom-2"
           aria-hidden="true"
         >
           <div className="h-px w-full max-w-xs overflow-hidden bg-hairline sm:max-w-sm">

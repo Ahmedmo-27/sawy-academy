@@ -84,6 +84,7 @@ export function OrderDetailPage({ id }: OrderDetailPageProps) {
         label="Loading order…"
         stepLabel={stepLabel}
         progress={progress}
+        fullScreen
       />
     );
   }

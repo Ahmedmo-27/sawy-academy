@@ -24,7 +24,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading || !isAuthenticated) {
-    return <AdminLoader label="Checking access" />;
+    return <AdminLoader label="Checking access" fullScreen />;
   }
 
   return <>{children}</>;

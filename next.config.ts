@@ -19,6 +19,11 @@ function isSameOriginProxy(target: string) {
 }
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // The generated Tailwind bundle is small (~15 KiB). Inlining it removes
+    // the render-blocking stylesheet request from the first-load waterfall.
+    inlineCss: true,
+  },
   async rewrites() {
     const localContactRewrite = {
       source: "/api/contact",

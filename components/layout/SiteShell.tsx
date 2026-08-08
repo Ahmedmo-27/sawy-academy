@@ -10,6 +10,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SplashLoader } from "@/components/SplashLoader";
 import { ScrollAnimationShell } from "@/components/animation/ScrollAnimationShell";
+import { PageTransition } from "@/components/animation/PageTransition";
 
 interface SiteShellProps {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ export function SiteShell({ children }: SiteShellProps) {
           ) : (
             <CartProvider>
               <SplashLoader />
+              <PageTransition />
               <ScrollAnimationShell>
                 <Navigation />
                 <main className="flex-1 relative">{children}</main>

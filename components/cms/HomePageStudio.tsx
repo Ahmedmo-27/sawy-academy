@@ -811,11 +811,12 @@ export function HomePageStudio() {
 
   if (!ready) {
     return (
-      <PageContainer className="pt-[calc(var(--nav-height)+4rem)] pb-20">
+      <PageContainer className="min-h-[var(--app-height)] pt-[calc(var(--nav-height)+4rem)] pb-20">
         <SectionLoader
           label="Loading studio…"
           stepLabel={loadStepLabel}
           progress={loadProgress}
+          fullScreen
         />
       </PageContainer>
     );

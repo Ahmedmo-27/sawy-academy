@@ -20,7 +20,7 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   }, [isAdmin, isLoading, router]);
 
   if (isLoading || !isAdmin) {
-    return <AdminLoader label="Checking access" />;
+    return <AdminLoader label="Checking access" fullScreen />;
   }
 
   return <>{children}</>;

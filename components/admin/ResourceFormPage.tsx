@@ -238,6 +238,7 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
         label="Loading…"
         stepLabel={loadStepLabel}
         progress={loadProgress}
+        fullScreen
       />
     );
   }

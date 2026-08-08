@@ -89,6 +89,7 @@ export function ServiceDetailPage({ id }: ServiceDetailPageProps) {
         label="Loading…"
         stepLabel={stepLabel}
         progress={progress}
+        fullScreen
       />
     );
   }

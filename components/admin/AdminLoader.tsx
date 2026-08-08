@@ -1,17 +1,22 @@
 import { GeometricLattice } from "@/components/decorative/GeometricLattice";
+import { LoadingScreen } from "@/components/feedback/LoadingScreen";
 import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
 
 interface AdminLoaderProps {
   label?: string;
   stepLabel?: string;
   progress?: number;
+  fullScreen?: boolean;
 }
 
 export function AdminLoader({
   label = "Loading…",
   stepLabel,
   progress,
+  fullScreen = false,
 }: AdminLoaderProps) {
+  if (fullScreen) return <LoadingScreen />;
+
   return (
     <div className="relative min-h-[18rem] overflow-hidden hairline-border bg-concrete-dark/40">
       <GeometricLattice opacity={0.08} />

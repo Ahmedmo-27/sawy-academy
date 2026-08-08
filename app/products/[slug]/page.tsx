@@ -62,6 +62,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           label="Loading product…"
           stepLabel="Fetching catalogue sheet"
           progress={progress}
+          fullScreen
         />
       </PageContainer>
     );

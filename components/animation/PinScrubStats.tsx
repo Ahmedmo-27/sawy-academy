@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { gsap, ScrollTrigger, registerGsap } from "@/lib/gsap/config";
+import { gsap, registerGsap } from "@/lib/gsap/config";
+import { scheduleScrollRefresh } from "@/lib/gsap/refresh";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export interface PinScrubStatItem {
@@ -208,7 +209,7 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
 
     return () => {
       mm.revert();
-      ScrollTrigger.refresh();
+      scheduleScrollRefresh();
     };
   }, [reduced, items]);
 

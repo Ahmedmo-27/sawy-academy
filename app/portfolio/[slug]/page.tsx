@@ -58,6 +58,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           label="Loading project…"
           stepLabel="Fetching project sheet"
           progress={progress}
+          fullScreen
         />
       </PageContainer>
     );

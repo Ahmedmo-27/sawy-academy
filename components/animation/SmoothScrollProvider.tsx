@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger, registerGsap, isReducedMotion } from "@/lib/gsap/config";
+import { scheduleScrollRefresh } from "@/lib/gsap/refresh";
 import { setLenisInstance } from "@/lib/smoothScroll";
 
 interface SmoothScrollProviderProps {
@@ -42,14 +43,14 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     // (ignoreMobileResize already filters chrome show/hide).
     const onRefresh = () => lenis.resize();
     ScrollTrigger.addEventListener("refresh", onRefresh);
-    ScrollTrigger.refresh();
+    scheduleScrollRefresh();
 
     let lastWidth = window.innerWidth;
     const onWindowResize = () => {
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
       lenis.resize();
-      ScrollTrigger.refresh();
+      scheduleScrollRefresh();
     };
     window.addEventListener("resize", onWindowResize);
 

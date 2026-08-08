@@ -1,12 +1,14 @@
 "use client";
 
 import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
+import { LoadingScreen } from "@/components/feedback/LoadingScreen";
 
 interface SectionLoaderProps {
   label?: string;
   stepLabel?: string;
   progress?: number;
   className?: string;
+  fullScreen?: boolean;
 }
 
 export function SectionLoader({
@@ -14,7 +16,10 @@ export function SectionLoader({
   stepLabel,
   progress,
   className = "",
+  fullScreen = false,
 }: SectionLoaderProps) {
+  if (fullScreen) return <LoadingScreen />;
+
   return (
     <div className={`py-16 ${className}`}>
       <ProcessProgressBar

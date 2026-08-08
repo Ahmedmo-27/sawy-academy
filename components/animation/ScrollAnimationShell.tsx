@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { ScrollTrigger, registerGsap } from "@/lib/gsap/config";
+import { registerGsap } from "@/lib/gsap/config";
+import { scheduleScrollRefresh } from "@/lib/gsap/refresh";
 import { SmoothScrollProvider } from "./SmoothScrollProvider";
 import { StableViewport } from "./StableViewport";
 import { BlueprintGridLayer } from "./BlueprintGridLayer";
@@ -18,8 +19,7 @@ export function ScrollAnimationShell({ children }: ScrollAnimationShellProps) {
 
   useEffect(() => {
     registerGsap();
-    const t = setTimeout(() => ScrollTrigger.refresh(), 120);
-    return () => clearTimeout(t);
+    scheduleScrollRefresh(120);
   }, [pathname]);
 
   return (
@@ -28,7 +28,9 @@ export function ScrollAnimationShell({ children }: ScrollAnimationShellProps) {
       <BlueprintGridLayer />
       <FloatingGeometryLayer />
       <ScrollProgressScale />
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10 flex min-h-[var(--app-height)] flex-col">
+        {children}
+      </div>
     </SmoothScrollProvider>
   );
 }
