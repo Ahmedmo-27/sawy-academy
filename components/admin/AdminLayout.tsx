@@ -12,20 +12,20 @@ import { useFocusTrap } from "@/lib/a11y/focusTrap";
 import { easeOut, navTransition } from "@/lib/motion";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", sheetRef: "ADM-00", group: "Overview" },
-  { href: "/admin/homepage", label: "Homepage", sheetRef: "CMS-01", group: "Content" },
-  { href: "/admin/settings", label: "Site Settings", sheetRef: "CMS-02", group: "Content" },
-  { href: "/admin/course-groups", label: "Course Groups", sheetRef: "GRP-01", group: "Catalogue" },
-  { href: "/admin/courses", label: "Courses", sheetRef: "CRS-02", group: "Catalogue" },
-  { href: "/admin/products", label: "Products", sheetRef: "PRD-03", group: "Catalogue" },
-  { href: "/admin/portfolio", label: "Portfolio", sheetRef: "PRT-04", group: "Content" },
-  { href: "/admin/research", label: "Research", sheetRef: "RES-05", group: "Content" },
-  { href: "/admin/orders", label: "Orders", sheetRef: "ORD-06", group: "Operations" },
-  { href: "/admin/services", label: "Services", sheetRef: "SRV-07", group: "Operations" },
-  { href: "/admin/video-access-flags", label: "Video Access", sheetRef: "VAC-09", group: "Operations" },
-  { href: "/admin/users", label: "Users", sheetRef: "USR-08", group: "People" },
+  { href: "/admin", label: "Dashboard", description: "Overview and common tasks", shortLabel: "Home", group: "Start here" },
+  { href: "/admin/homepage", label: "Homepage", description: "Arrange homepage sections", shortLabel: "Page", group: "Website" },
+  { href: "/admin/settings", label: "Site settings", description: "Brand, navigation and pages", shortLabel: "Site", group: "Website" },
+  { href: "/admin/portfolio", label: "Portfolio", description: "Published project work", shortLabel: "Work", group: "Website" },
+  { href: "/admin/research", label: "Research", description: "Articles and publications", shortLabel: "Read", group: "Website" },
+  { href: "/admin/course-groups", label: "Course groups", description: "Organize related courses", shortLabel: "Groups", group: "Courses & shop" },
+  { href: "/admin/courses", label: "Courses", description: "Course details and lessons", shortLabel: "Learn", group: "Courses & shop" },
+  { href: "/admin/products", label: "Products", description: "Shop products and pricing", shortLabel: "Shop", group: "Courses & shop" },
+  { href: "/admin/orders", label: "Orders", description: "Review customer payments", shortLabel: "Orders", group: "Requests & safety" },
+  { href: "/admin/services", label: "Service requests", description: "Manage client enquiries", shortLabel: "Requests", group: "Requests & safety" },
+  { href: "/admin/video-access-flags", label: "Video access alerts", description: "Review unusual viewing activity", shortLabel: "Alerts", group: "Requests & safety" },
+  { href: "/admin/users", label: "Users", description: "Accounts and registered devices", shortLabel: "People", group: "People" },
 ];
-const navGroups = ["Overview", "Content", "Catalogue", "Operations", "People"];
+const navGroups = ["Start here", "Website", "Courses & shop", "Requests & safety", "People"];
 
 function isActive(pathname: string, href: string) {
   return href === "/admin"
@@ -74,15 +74,20 @@ function NavLinks({
               )}
               {collapsed ? (
                 <span className="shrink-0 font-sans text-[0.8125rem] uppercase tracking-[0.1em] tabular-nums text-clay">
-                  {item.sheetRef.split("-")[0]}
+                  {item.shortLabel}
                 </span>
               ) : (
-                <span
-                  className={`min-w-0 font-sans text-[0.875rem] uppercase tracking-[0.1em] leading-snug ${
-                    active ? "text-charcoal" : ""
-                  }`}
-                >
-                  {item.label}
+                <span className="min-w-0">
+                  <span
+                    className={`block font-sans text-[0.875rem] font-medium leading-snug ${
+                      active ? "text-charcoal" : ""
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                  <span className="mt-0.5 block truncate text-[0.72rem] leading-snug text-charcoal-muted">
+                    {item.description}
+                  </span>
                 </span>
               )}
               {!active && (
@@ -136,6 +141,15 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   );
   const currentNavItem =
     navItems.find((item) => isActive(pathname, item.href)) ?? navItems[0];
+  const pathTail = pathname.slice(currentNavItem.href.length).split("/").filter(Boolean);
+  const detailLabel =
+    pathTail[0] === "new"
+      ? "Add new"
+      : pathTail.at(-1) === "edit"
+        ? "Edit"
+        : pathTail.length > 0
+          ? "Details"
+          : "";
 
   useEffect(() => {
     setCollapsed(localStorage.getItem("sawy-admin-sidebar") === "collapsed");
@@ -223,7 +237,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <p className="label-caps mt-1">Admin</p>
         </Link>
         <div className="flex gap-2">
-          <button type="button" className="admin-btn admin-btn-secondary admin-btn-compact" onClick={() => setCommandOpen(true)} aria-label="Open command palette">Search</button>
+          <button type="button" className="admin-btn admin-btn-secondary admin-btn-compact" onClick={() => setCommandOpen(true)} aria-label="Search admin pages">Search</button>
           <button
             ref={menuButtonRef}
             type="button"
@@ -318,7 +332,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <motion.button
               type="button"
               className="fixed inset-0 z-[70] bg-charcoal/55"
-              aria-label="Close command palette"
+              aria-label="Close page search"
               onClick={() => setCommandOpen(false)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -328,7 +342,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               ref={commandRef}
               role="dialog"
               aria-modal="true"
-              aria-label="Admin command palette"
+              aria-label="Admin page search"
               className="fixed left-1/2 top-[12vh] z-[71] w-[min(38rem,92vw)] -translate-x-1/2 hairline-border bg-concrete p-3 shadow-2xl"
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -362,18 +376,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 role="combobox"
                 aria-expanded="true"
                 aria-controls="admin-command-results"
-                aria-activedescendant={commandResults[commandIndex] ? `command-${commandResults[commandIndex].sheetRef}` : undefined}
+                aria-activedescendant={commandResults[commandIndex] ? `command-${commandIndex}` : undefined}
               />
               <ul id="admin-command-results" role="listbox" className="mt-2 max-h-[55vh] overflow-y-auto">
                 {commandResults.map((item, index) => (
-                  <li key={item.href} id={`command-${item.sheetRef}`} role="option" aria-selected={index === commandIndex}>
+                  <li key={item.href} id={`command-${index}`} role="option" aria-selected={index === commandIndex}>
                     <button
                       type="button"
                       className={`flex w-full items-center justify-between px-4 py-3 text-left ${index === commandIndex ? "bg-concrete-dark" : ""}`}
                       onMouseEnter={() => setCommandIndex(index)}
                       onClick={() => router.push(item.href)}
                     >
-                      <span>{item.label}</span><span className="dim-label">{item.sheetRef}</span>
+                      <span>{item.label}</span><span className="type-infill text-charcoal-muted">{item.description}</span>
                     </button>
                   </li>
                 ))}
@@ -400,7 +414,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 {collapsed ? "SA" : "Sawy Academy"}
               </p>
               {!collapsed && (
-                <p className="label-caps mt-2">Admin tool palette</p>
+                <p className="label-caps mt-2">Admin menu</p>
               )}
             </Link>
 
@@ -458,7 +472,17 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 {pathname !== "/admin" && (
                   <>
                     <span aria-hidden="true">/</span>
-                    <span className="label-caps" aria-current="page">{currentNavItem.label}</span>
+                    {detailLabel ? (
+                      <>
+                        <Link href={currentNavItem.href} className="label-caps hover:text-clay">
+                          {currentNavItem.label}
+                        </Link>
+                        <span aria-hidden="true">/</span>
+                        <span className="label-caps" aria-current="page">{detailLabel}</span>
+                      </>
+                    ) : (
+                      <span className="label-caps" aria-current="page">{currentNavItem.label}</span>
+                    )}
                   </>
                 )}
               </nav>
@@ -483,7 +507,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <ConfirmDialog
         open={logoutOpen}
         title="Log out?"
-        message="You will need to sign in again to reach the control room."
+        message="You will need to sign in again to open the admin panel."
         confirmLabel="Log out"
         confirmTone="primary"
         onCancel={() => setLogoutOpen(false)}

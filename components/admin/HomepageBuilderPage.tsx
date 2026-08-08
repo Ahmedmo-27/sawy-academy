@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
+import { AdminEditModal } from "@/components/admin/AdminEditModal";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { FormField } from "@/components/admin/FormField";
@@ -112,7 +113,7 @@ function PageSelect({
   const known = options.some((option) => option.value === value);
   const merged = known || !value
     ? options
-    : [...options, { label: `Current · ${value}`, value }];
+    : [...options, { label: "Current selection", value }];
 
   return (
     <FormField
@@ -164,7 +165,7 @@ function JumpLinksEditor({
     <div className="md:col-span-2 space-y-3 border border-hairline p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="label-caps">Floor plan links</p>
+          <p className="label-caps">Homepage quick links</p>
           <p className="type-infill mt-2 truncate text-charcoal-muted">
             {summary}
           </p>
@@ -175,7 +176,7 @@ function JumpLinksEditor({
           onClick={() => setOpen((current) => !current)}
           aria-expanded={open}
         >
-          {open ? "Done" : "Edit Floor plan links"}
+          {open ? "Done" : "Edit quick links"}
         </button>
       </div>
 
@@ -195,7 +196,7 @@ function JumpLinksEditor({
 
           {rows.length === 0 && (
             <p className="type-infill text-charcoal-muted">
-              No floor plan links yet.
+              No quick links yet.
             </p>
           )}
 
@@ -281,7 +282,7 @@ function SectionFields({
         <FormField
           id={`${section.id}-floorPlanLabel`}
           name="floorPlanLabel"
-          label="Floor plan heading"
+          label="Quick links heading"
           value={text(c, "floorPlanLabel")}
           onChange={(value) => set("floorPlanLabel", value)}
         />
@@ -346,7 +347,7 @@ function SectionFields({
         <FormField
           id={`${section.id}-roomLabel`}
           name="roomLabel"
-          label="Section doorway title"
+          label="Section label"
           value={text(c, "roomLabel")}
           onChange={(value) => set("roomLabel", value)}
         />
@@ -376,7 +377,7 @@ function SectionFields({
         <div className="md:col-span-2">
           <ImageUploadField
             label="Philosophy image"
-            description="Optional diagram or photo for the void column."
+            description="Optional diagram or photo shown beside this section."
             value={text(c, "philosophyImageUrl")}
             onChange={(value) => set("philosophyImageUrl", value)}
           />
@@ -401,7 +402,7 @@ function SectionFields({
         <FormField
           id={`${section.id}-roomLabel`}
           name="roomLabel"
-          label="Section doorway title"
+          label="Section label"
           value={text(c, "roomLabel")}
           onChange={(value) => set("roomLabel", value)}
         />
@@ -445,7 +446,7 @@ function SectionFields({
           <FormField
             id={`${section.id}-thresholdLabel`}
             name="thresholdLabel"
-            label="Frame title"
+            label="Heading above the items"
             value={text(c, "thresholdLabel")}
             onChange={(value) => set("thresholdLabel", value)}
           />
@@ -454,7 +455,7 @@ function SectionFields({
           <FormField
             id={`${section.id}-featuredLimit`}
             name="featuredLimit"
-            label="How many items to show (0 = all)"
+            label="Number of items to show (0 shows all)"
             value={text(c, "featuredLimit")}
             onChange={(value) => set("featuredLimit", Number(value) || 0)}
           />
@@ -503,7 +504,7 @@ function SectionFields({
           <div className="md:col-span-2">
             <ImageUploadField
               label="Custom section image"
-              description="Optional full-width media bay under the body."
+            description="Optional full-width image shown below the text."
               value={text(c, "customImageUrl")}
               onChange={(value) => set("customImageUrl", value)}
             />
@@ -532,7 +533,8 @@ export function HomepageBuilderPage() {
   );
   const { success, error: toastError, neutral } = useToast();
   const [busy, setBusy] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editing, setEditing] = useState<HomeSection | null>(null);
+  const [editingSnapshot, setEditingSnapshot] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
   const [addType, setAddType] = useState<HomeSectionType>("custom");
@@ -601,14 +603,21 @@ export function HomepageBuilderPage() {
   async function saveSection(section: HomeSection) {
     setBusy(true);
     try {
-      const saved = await updateHomeSection(section.id, {
-        content: section.content,
-        type: section.type,
-        enabled: section.enabled,
-      });
+      const saved = section.id === "new"
+        ? await createHomeSection({
+            type: section.type,
+            enabled: section.enabled,
+            content: section.content,
+          })
+        : await updateHomeSection(section.id, {
+            content: section.content,
+            type: section.type,
+            enabled: section.enabled,
+          });
       setData(saved);
-      setEditingId(null);
-      success("Section saved");
+      setEditing(null);
+      setEditingSnapshot("");
+      success(section.id === "new" ? "Section added" : "Section saved");
     } catch (err) {
       toastError(toFriendlyAdminError(err, "save section"));
     } finally {
@@ -616,23 +625,16 @@ export function HomepageBuilderPage() {
     }
   }
 
-  async function handleAdd() {
-    setBusy(true);
-    try {
-      const saved = await createHomeSection({
-        type: addType,
-        enabled: true,
-        content: defaultContent(addType),
-      });
-      setData(saved);
-      const created = saved.sections[saved.sections.length - 1];
-      if (created) setEditingId(created.id);
-      success("Section added");
-    } catch (err) {
-      toastError(toFriendlyAdminError(err, "add section"));
-    } finally {
-      setBusy(false);
-    }
+  function handleAdd() {
+    const draft: HomeSection = {
+      id: "new",
+      type: addType,
+      enabled: true,
+      order: sections.length + 1,
+      content: defaultContent(addType),
+    };
+    setEditing(draft);
+    setEditingSnapshot(JSON.stringify(draft));
   }
 
   async function handleDelete() {
@@ -642,7 +644,7 @@ export function HomepageBuilderPage() {
       const saved = await deleteHomeSection(deleteId);
       setData(saved);
       setDeleteId(null);
-      if (editingId === deleteId) setEditingId(null);
+      if (editing?.id === deleteId) setEditing(null);
       neutral("Section deleted");
     } catch (err) {
       toastError(toFriendlyAdminError(err, "delete section"));
@@ -657,7 +659,8 @@ export function HomepageBuilderPage() {
     try {
       const saved = await resetHomePage();
       setData(saved);
-      setEditingId(null);
+      setEditing(null);
+      setEditingSnapshot("");
       neutral("Homepage reset to defaults");
     } catch (err) {
       toastError(toFriendlyAdminError(err, "reset homepage"));
@@ -666,14 +669,26 @@ export function HomepageBuilderPage() {
     }
   }
 
-  function patchSection(id: string, patch: Partial<HomeSection>) {
-    if (!data) return;
-    setData({
-      ...data,
-      sections: data.sections.map((s) =>
-        s.id === id ? { ...s, ...patch } : s
-      ),
-    });
+  function patchEditing(patch: Partial<HomeSection>) {
+    setEditing((current) => current ? { ...current, ...patch } : current);
+  }
+
+  function openEditor(section: HomeSection) {
+    const draft = structuredClone(section);
+    setEditing(draft);
+    setEditingSnapshot(JSON.stringify(draft));
+  }
+
+  function closeEditor() {
+    if (
+      editing &&
+      JSON.stringify(editing) !== editingSnapshot &&
+      !window.confirm("Discard the changes in this section?")
+    ) {
+      return;
+    }
+    setEditing(null);
+    setEditingSnapshot("");
   }
 
   if (isLoading) {
@@ -689,14 +704,12 @@ export function HomepageBuilderPage() {
     );
   }
 
-  const editing = sections.find((s) => s.id === editingId) ?? null;
-
   return (
     <div>
       <AdminPageHeader
-        eyebrow="CMS-02"
+        eyebrow="Website"
         title="Homepage builder"
-        description="Reorder rooms, edit copy and CTAs, show or hide sections, and add custom content blocks."
+        description="Change the order, wording, buttons, images, and visibility of homepage sections."
         action={
           <button
             type="button"
@@ -784,11 +797,9 @@ export function HomepageBuilderPage() {
                 <button
                   type="button"
                   className="admin-btn admin-btn-secondary admin-btn-compact"
-                  onClick={() =>
-                    setEditingId(editingId === section.id ? null : section.id)
-                  }
+                  onClick={() => openEditor(section)}
                 >
-                  {editingId === section.id ? "Close" : "Edit"}
+                  Edit section
                 </button>
                 <button
                   type="button"
@@ -801,29 +812,31 @@ export function HomepageBuilderPage() {
               </div>
             </div>
 
-            {editing && editing.id === section.id && (
-              <div className="mt-6 pt-6 hairline-t space-y-4">
-                <SectionFields
-                  section={editing}
-                  pageOptions={pageOptions}
-                  jumpOptions={jumpOptions}
-                  onChange={(content) =>
-                    patchSection(section.id, { content })
-                  }
-                />
-                <button
-                  type="button"
-                  className="admin-btn admin-btn-primary"
-                  onClick={() => saveSection(editing)}
-                  disabled={busy}
-                >
-                  Save section
-                </button>
-              </div>
-            )}
           </div>
         ))}
       </div>
+
+      <AdminEditModal
+        open={Boolean(editing)}
+        title={editing?.id === "new" ? "Add homepage section" : "Edit homepage section"}
+        context={editing ? `${editing.type} section` : undefined}
+        description="Edit this section in the window below. The homepage will not change until you save."
+        saveLabel={editing?.id === "new" ? "Add section" : "Save section"}
+        isSaving={busy}
+        isDirty={Boolean(editing && (editing.id === "new" || JSON.stringify(editing) !== editingSnapshot))}
+        size="xl"
+        onCancel={closeEditor}
+        onSave={() => editing && void saveSection(editing)}
+      >
+        {editing && (
+          <SectionFields
+            section={editing}
+            pageOptions={pageOptions}
+            jumpOptions={jumpOptions}
+            onChange={(content) => patchEditing({ content })}
+          />
+        )}
+      </AdminEditModal>
 
       <ConfirmDialog
         open={Boolean(deleteId)}

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback } from "react";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -25,9 +26,38 @@ export function AdminDashboardPage() {
     <div>
       <AdminPageHeader
         eyebrow="Overview"
-        title="Dashboard"
-        description="A quick look at your courses, shop items, and anything waiting for your review."
+        title="What would you like to manage?"
+        description="Start a common task below, or use the overview to open the area you need."
+        guidance="Changes are never hidden: larger edits open on their own page, while quick edits open in a titled window with Save and Cancel."
       />
+
+      <section className="mb-8" aria-labelledby="common-tasks">
+        <div className="mb-3 flex items-end justify-between gap-4">
+          <div>
+            <p className="eyebrow text-clay">Common tasks</p>
+            <h2 id="common-tasks" className="type-title mt-1">Create or review</h2>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            { href: "/admin/courses/new", label: "Add a course", detail: "Create details, pricing and media" },
+            { href: "/admin/portfolio/new", label: "Add portfolio work", detail: "Publish a new project" },
+            { href: "/admin/orders", label: "Review orders", detail: "Check payments waiting for action" },
+            { href: "/admin/homepage", label: "Update homepage", detail: "Arrange and edit homepage sections" },
+          ].map((task) => (
+            <Link
+              key={task.href}
+              href={task.href}
+              className="group border border-hairline bg-concrete p-4 transition-colors hover:border-clay hover:bg-concrete-dark/40"
+            >
+              <span className="block font-sans text-sm font-semibold text-charcoal group-hover:text-clay">
+                {task.label} <span aria-hidden="true">→</span>
+              </span>
+              <span className="type-infill mt-2 block text-charcoal-muted">{task.detail}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {isLoading && (
         <div className="hairline-border bg-concrete p-6" role="status" aria-label="Loading dashboard overview">
@@ -50,7 +80,7 @@ export function AdminDashboardPage() {
         />
       )}
       {!isLoading && !error && data && (
-        <ThresholdFrame label="AT A GLANCE">
+        <ThresholdFrame label="ALL ADMIN AREAS">
           <DashboardSheetIndex metrics={data} />
         </ThresholdFrame>
       )}

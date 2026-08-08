@@ -39,6 +39,7 @@ export function OrderDetailPage({ id }: OrderDetailPageProps) {
   const { success, error: toastError, neutral } = useToast();
   const [actionError, setActionError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [approveOpen, setApproveOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
 
   async function handleApprove() {
@@ -47,6 +48,7 @@ export function OrderDetailPage({ id }: OrderDetailPageProps) {
 
     try {
       setData(await approveOrder(id));
+      setApproveOpen(false);
       success("Order approved");
     } catch (err) {
       const message =
@@ -187,7 +189,7 @@ export function OrderDetailPage({ id }: OrderDetailPageProps) {
               <button
                 type="button"
                 className="admin-btn admin-btn-primary"
-                onClick={() => void handleApprove()}
+                onClick={() => setApproveOpen(true)}
                 disabled={isSaving}
               >
                 Approve
@@ -204,6 +206,17 @@ export function OrderDetailPage({ id }: OrderDetailPageProps) {
           </div>
         </ThresholdFrame>
       </div>
+
+      <ConfirmDialog
+        open={approveOpen}
+        title="Approve this payment?"
+        message="Approval confirms the payment and may grant the student access to the purchased content."
+        confirmLabel="Approve order"
+        confirmTone="primary"
+        isBusy={isSaving}
+        onCancel={() => setApproveOpen(false)}
+        onConfirm={() => void handleApprove()}
+      />
 
       <ConfirmDialog
         open={rejectOpen}

@@ -35,7 +35,7 @@ function deleteMessage(kind: ResourceKind, label: string) {
   if (kind === "courses") {
     // TODO: Fetch active enrollment count from the API and surface it here
     // (e.g. "This course has N active enrollments") before confirming delete.
-    return `Delete “${label}”? This can't be undone. If students are enrolled, deleting will affect their access — enrollment count is not yet checked against the API.`;
+    return `Delete “${label}”? This can't be undone. Deleting a course may remove access for enrolled students, and their current number is not available here.`;
   }
   return `Delete “${label}”? This can't be undone.`;
 }
@@ -127,12 +127,13 @@ export function ResourceListPage({ kind }: ResourceListPageProps) {
         eyebrow={config.eyebrow}
         title={config.title}
         description={config.description}
+        guidance={`Use search to find an item, then choose “Open and edit”. Creating or editing ${config.listLabel} opens a separate page.`}
         action={
           <Link
             href={`${config.basePath}/new`}
             className="admin-btn admin-btn-primary"
           >
-            Add {singular}
+            Add new {singular}
           </Link>
         }
       />
@@ -162,7 +163,6 @@ export function ResourceListPage({ kind }: ResourceListPageProps) {
         <DataTable
           data={rows}
           getRowKey={config.getKey}
-          onRowClick={openEdit}
           pageSize={canReorder ? Math.max(rows.length, 1) : 10}
           onReorder={canReorder ? handleReorder : undefined}
           reorderDisabled={isReordering}
@@ -172,7 +172,7 @@ export function ResourceListPage({ kind }: ResourceListPageProps) {
               .filter((value) => typeof value === "string" || typeof value === "number")
               .join(" ")
           }
-          emptyMessage={`No ${config.listLabel} yet. Click “Add ${singular}” to create the first one.`}
+          emptyMessage={`No ${config.listLabel} yet. Choose “Add new ${singular}” to create the first one.`}
           columns={[
             ...config.listColumns.map((column) => ({
               key: column.key,
@@ -196,7 +196,7 @@ export function ResourceListPage({ kind }: ResourceListPageProps) {
                     className="admin-btn admin-btn-secondary admin-btn-compact"
                     onClick={() => openEdit(record)}
                   >
-                    Edit
+                    Open and edit
                   </button>
                   <button
                     type="button"

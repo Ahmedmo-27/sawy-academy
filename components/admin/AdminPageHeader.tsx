@@ -4,6 +4,8 @@ interface AdminPageHeaderProps {
   eyebrow: string;
   title: string;
   description?: string;
+  context?: string;
+  guidance?: string;
   action?: React.ReactNode;
 }
 
@@ -11,6 +13,8 @@ export function AdminPageHeader({
   eyebrow,
   title,
   description,
+  context,
+  guidance,
   action,
 }: AdminPageHeaderProps) {
   return (
@@ -18,11 +22,17 @@ export function AdminPageHeader({
       <div className="min-w-0">
         <ScaleBar scale="1:100" className="mb-3 max-w-[100px] sm:mb-4 sm:max-w-[120px]" />
         <p className="eyebrow mb-2 sm:mb-3">{eyebrow}</p>
+        {context && <p className="label-caps mb-2 text-clay">{context}</p>}
         <h1 className="font-serif font-light text-charcoal text-[1.5rem] leading-tight tracking-[-0.01em] sm:text-[1.75rem] lg:text-[2rem]">
           {title}
         </h1>
         {description && (
           <p className="type-body mt-2 max-w-2xl sm:mt-3">{description}</p>
+        )}
+        {guidance && (
+          <p className="mt-3 max-w-2xl border-l-2 border-clay pl-3 type-infill text-charcoal-muted">
+            {guidance}
+          </p>
         )}
       </div>
       {action && (

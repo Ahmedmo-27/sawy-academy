@@ -22,7 +22,7 @@ export function VideoAccessFlagsPage() {
   const loader = useCallback(() => listVideoAccessFlags({ limit: 100 }), []);
   const { data, isLoading, error, refetch } = useAdminResource(
     loader,
-    "Loading video access flags"
+    "Loading video viewing alerts"
   );
   const flags = data?.flags ?? [];
 
@@ -30,14 +30,15 @@ export function VideoAccessFlagsPage() {
     <div>
       <AdminPageHeader
         eyebrow="Access review"
-        title="Video access flags"
-        description="Review unusual protected-video key activity. Flags never automatically suspend an account."
+        title="Video viewing alerts"
+        description="Review unusual video viewing activity. Alerts never automatically suspend an account."
+        guidance="Choose “Review alert” to see the evidence and account actions. Opening an alert does not change the user account."
       />
 
       {isLoading && <DataTableSkeleton />}
       {!isLoading && error && (
         <AdminErrorState
-          title="Video access flags are unavailable"
+          title="Video viewing alerts are unavailable"
           message={error}
           onRetry={() => void refetch()}
         />
@@ -46,9 +47,6 @@ export function VideoAccessFlagsPage() {
         <DataTable<VideoAccessFlag>
           data={flags}
           getRowKey={(flag) => flag._id}
-          onRowClick={(flag) =>
-            router.push(`/admin/video-access-flags/${flag._id}`)
-          }
           emptyMessage="No video access activity is waiting for review."
           searchPlaceholder="Search student, email, lesson, or status"
           getSearchText={(flag) =>
@@ -92,7 +90,7 @@ export function VideoAccessFlagsPage() {
             },
             {
               key: "ips",
-              header: "Distinct IPs",
+              header: "Different network locations",
               sortable: true,
               render: (flag) =>
                 `${flag.distinctIpCount} / ${flag.threshold} in ${flag.windowMinutes}m`,
@@ -113,6 +111,20 @@ export function VideoAccessFlagsPage() {
               sortable: true,
               render: (flag) => formatDate(flag.lastDetectedAt),
               sortValue: (flag) => flag.lastDetectedAt,
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              className: "text-right",
+              render: (flag) => (
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-secondary admin-btn-compact"
+                  onClick={() => router.push(`/admin/video-access-flags/${flag._id}`)}
+                >
+                  Review alert
+                </button>
+              ),
             },
           ]}
         />

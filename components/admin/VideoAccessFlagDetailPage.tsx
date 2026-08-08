@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
+import { AdminEditModal } from "@/components/admin/AdminEditModal";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
@@ -58,6 +59,7 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
   const [status, setStatus] = useState<VideoAccessFlagStatus>("open");
   const [notes, setNotes] = useState("");
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
+  const [reviewOpen, setReviewOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<"sessions" | "device" | null>(
     null
   );
@@ -81,6 +83,7 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
       const flag = await updateVideoAccessFlag(id, { status, notes });
       setData({ ...data, flag });
       success("Review updated");
+      setReviewOpen(false);
     } catch (err) {
       toastError(toFriendlyAdminError(err, "update this review"));
     } finally {
@@ -119,10 +122,10 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
   if (error || !data) {
     return (
       <AdminErrorState
-        title="This access flag could not be opened"
-        message={error || "The flag may no longer exist."}
+        title="This viewing alert could not be opened"
+        message={error || "The alert may no longer exist."}
         backHref="/admin/video-access-flags"
-        backLabel="Back to flags"
+        backLabel="Back to alerts"
         onRetry={() => void refetch()}
       />
     );
@@ -137,10 +140,10 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
       render: (log) => formatDate(log.occurredAt),
       sortValue: (log) => log.occurredAt,
     },
-    { key: "ip", header: "IP", render: (log) => log.ip },
+    { key: "ip", header: "Network address", render: (log) => log.ip },
     {
       key: "outcome",
-      header: "Outcome",
+      header: "Result",
       render: (log) => (
         <span>
           <StatusBadge status={log.outcome} />
@@ -155,7 +158,7 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
     },
     {
       key: "agent",
-      header: "User agent",
+      header: "Browser and device",
       className: "max-w-sm break-words",
       render: (log) => log.userAgent || "Unknown",
     },
@@ -164,7 +167,7 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
   return (
     <div className="space-y-8">
       <AdminPageHeader
-        eyebrow="Video access review"
+        eyebrow="Video viewing alert"
         title={flag.userId.name}
         description={`${flag.userId.email} · ${flag.lessonId.title}`}
         action={
@@ -185,8 +188,9 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
               <StatusBadge status={flag.status.replace("_", " ")} />
             </div>
             <p className="type-body">
-              {flag.distinctIpCount} distinct IPs observed against a threshold
-              of {flag.threshold} in {flag.windowMinutes} minutes.
+              Activity came from {flag.distinctIpCount} different network
+              locations. The alert limit is {flag.threshold} locations within{" "}
+              {flag.windowMinutes} minutes.
             </p>
             <dl className="grid gap-4 sm:grid-cols-2">
               <div>
@@ -202,12 +206,12 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
                 </dd>
               </div>
               <div>
-                <dt className="label-caps">Device ID</dt>
+                <dt className="label-caps">Detected device</dt>
                 <dd className="type-infill mt-1 break-all">{flag.deviceId}</dd>
               </div>
               <div>
-                <dt className="label-caps">Rule</dt>
-                <dd className="type-infill mt-1">Distinct IP threshold</dd>
+                <dt className="label-caps">Why this was flagged</dt>
+                <dd className="type-infill mt-1">Too many network locations in a short time</dd>
               </div>
             </dl>
           </div>
@@ -215,48 +219,77 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
 
         <ThresholdFrame label="REVIEW">
           <div className="hairline-border space-y-5 bg-concrete p-6">
-            <label className="block">
-              <span className="label-caps mb-2 block">Review state</span>
-              <select
-                value={status}
-                onChange={(event) =>
-                  setStatus(event.target.value as VideoAccessFlagStatus)
-                }
-                className="w-full border border-hairline bg-concrete px-3 py-3"
-              >
-                {reviewStates.map((state) => (
-                  <option key={state} value={state}>
-                    {state.replace("_", " ")}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block">
-              <span className="label-caps mb-2 block">Admin notes</span>
-              <textarea
-                rows={5}
-                maxLength={5000}
-                value={notes}
-                onChange={(event) => setNotes(event.target.value)}
-                className="w-full resize-y border border-hairline bg-concrete px-3 py-3"
-              />
-            </label>
+            <div>
+              <p className="label-caps mb-2">Review state</p>
+              <StatusBadge status={flag.status.replace("_", " ")} />
+            </div>
+            <div>
+              <p className="label-caps mb-2">Admin notes</p>
+              <p className="type-infill whitespace-pre-wrap text-charcoal-muted">
+                {flag.notes || "No review notes yet."}
+              </p>
+            </div>
             <button
               type="button"
               className="admin-btn admin-btn-primary"
               disabled={isWorking}
-              onClick={() => void saveReview()}
+              onClick={() => {
+                setStatus(flag.status);
+                setNotes(flag.notes || "");
+                setReviewOpen(true);
+              }}
             >
-              Save review
+              Edit review
             </button>
           </div>
         </ThresholdFrame>
       </div>
 
+      <AdminEditModal
+        open={reviewOpen}
+        title="Update access review"
+        context={flag.userId.name}
+        description="Change the review state and record why the decision was made."
+        saveLabel="Save review"
+        isSaving={isWorking}
+        isDirty={status !== flag.status || notes !== (flag.notes || "")}
+        onCancel={() => setReviewOpen(false)}
+        onSave={() => void saveReview()}
+      >
+        <div className="space-y-5">
+          <label className="block">
+            <span className="label-caps mb-2 block">Review state</span>
+            <select
+              value={status}
+              onChange={(event) =>
+                setStatus(event.target.value as VideoAccessFlagStatus)
+              }
+              className="w-full border border-hairline bg-concrete px-3 py-3"
+            >
+              {reviewStates.map((state) => (
+                <option key={state} value={state}>
+                  {state.replace("_", " ")}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="label-caps mb-2 block">Admin notes</span>
+            <textarea
+              rows={6}
+              maxLength={5000}
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              className="w-full resize-y border border-hairline bg-concrete px-3 py-3"
+            />
+          </label>
+        </div>
+      </AdminEditModal>
+
       <ThresholdFrame label="ACCOUNT ACTIONS">
         <div className="hairline-border space-y-6 bg-concrete p-6">
           <p className="type-infill">
-            A flag does not ban a user. Use these explicit actions only after
+            An alert does not block a user. Use these actions only after
             review.
           </p>
           <div className="flex flex-wrap gap-3">
@@ -265,7 +298,7 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
               className="admin-btn admin-btn-danger"
               onClick={() => setConfirmAction("sessions")}
             >
-              Revoke all active sessions
+              Sign out on every device
             </button>
           </div>
           <div className="hairline-t pt-5">
@@ -299,15 +332,15 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
         </div>
       </ThresholdFrame>
 
-      <ThresholdFrame label="RECENT KEY ATTEMPTS">
+      <ThresholdFrame label="RECENT VIEWING ATTEMPTS">
         <div className="hairline-border bg-concrete p-4">
           <DataTable
             data={logs}
             columns={logColumns}
             getRowKey={(log) => log._id}
             pageSize={10}
-            emptyMessage="No retained key attempts are available."
-            searchPlaceholder="Search IP, outcome, lesson, or user agent"
+            emptyMessage="No recent viewing attempts are available."
+            searchPlaceholder="Search network address, result, lesson, browser, or device"
             getSearchText={(log) =>
               [
                 log.ip,
@@ -323,9 +356,9 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
 
       <ConfirmDialog
         open={confirmAction === "sessions"}
-        title="Revoke all active sessions?"
-        message="The user will be signed out on every device. This does not ban the account."
-        confirmLabel="Revoke sessions"
+        title="Sign out on every device?"
+        message="The user will be signed out everywhere. This does not block the account."
+        confirmLabel="Sign out user"
         isBusy={isWorking}
         onCancel={() => setConfirmAction(null)}
         onConfirm={() => void confirmAdminAction()}
@@ -333,7 +366,7 @@ export function VideoAccessFlagDetailPage({ id }: { id: string }) {
       <ConfirmDialog
         open={confirmAction === "device"}
         title="Remove selected device?"
-        message="The selected registration and its active sessions will be removed. The user can register a device again later."
+        message="The selected device will be removed and signed out. The user can register it again later."
         confirmLabel="Remove device"
         isBusy={isWorking}
         onCancel={() => setConfirmAction(null)}

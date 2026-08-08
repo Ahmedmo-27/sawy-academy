@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
+import { AdminEditModal } from "@/components/admin/AdminEditModal";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { FormField } from "@/components/admin/FormField";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
@@ -43,7 +43,7 @@ export function ServiceDetailPage({ id }: ServiceDetailPageProps) {
   const [notes, setNotes] = useState("");
   const [saveError, setSaveError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [rejectOpen, setRejectOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   useEffect(() => {
     if (data) {
@@ -59,7 +59,7 @@ export function ServiceDetailPage({ id }: ServiceDetailPageProps) {
     try {
       setData(await updateServiceRequestStatus(id, nextStatus, nextNotes));
       success("Status updated");
-      setRejectOpen(false);
+      setReviewOpen(false);
     } catch {
       const message = "We couldn't update the status. Please try again.";
       setSaveError(message);
@@ -70,17 +70,11 @@ export function ServiceDetailPage({ id }: ServiceDetailPageProps) {
   }
 
   async function handleSave() {
-    if (status === "rejected") {
-      setRejectOpen(true);
+    if (status === "rejected" && !notes.trim()) {
+      setSaveError("Add a reason before marking this request as rejected.");
       return;
     }
     await persistStatus(status, notes);
-  }
-
-  async function handleRejectConfirm(reason?: string) {
-    if (!reason?.trim()) return;
-    setNotes(reason);
-    await persistStatus("rejected", reason);
   }
 
   if (isLoading) {
@@ -165,25 +159,6 @@ export function ServiceDetailPage({ id }: ServiceDetailPageProps) {
               <StatusBadge status={data.status} />
             </div>
 
-            <FormField
-              id="service-status"
-              name="service-status"
-              label="New status"
-              type="select"
-              value={status}
-              options={statusOptions.map((value) => ({ label: value, value }))}
-              onChange={(value) => setStatus(value as ServiceStatus)}
-            />
-
-            <FormField
-              id="service-notes"
-              name="service-notes"
-              label="Notes"
-              type="textarea"
-              value={notes}
-              onChange={setNotes}
-            />
-
             {saveError && (
               <p className="type-infill text-clay" role="alert">
                 {saveError}
@@ -193,28 +168,56 @@ export function ServiceDetailPage({ id }: ServiceDetailPageProps) {
             <button
               type="button"
               className="admin-btn admin-btn-primary"
-              onClick={() => void handleSave()}
+              onClick={() => {
+                setStatus(data.status);
+                setNotes(data.notes ?? "");
+                setSaveError("");
+                setReviewOpen(true);
+              }}
               disabled={isSaving}
             >
-              {isSaving ? "Saving" : "Update status"}
+              Update status and notes
             </button>
           </div>
         </ThresholdFrame>
       </div>
 
-      <ConfirmDialog
-        open={rejectOpen}
-        title="Reject this request?"
-        message="A reason is required before marking this request as rejected."
-        confirmLabel="Reject request"
-        isBusy={isSaving}
-        reasonRequired
-        reasonLabel="Rejection reason"
-        reasonDefault={notes}
-        reasonPlaceholder="Explain why this request was rejected…"
-        onCancel={() => setRejectOpen(false)}
-        onConfirm={(reason) => void handleRejectConfirm(reason)}
-      />
+      <AdminEditModal
+        open={reviewOpen}
+        title="Update service request"
+        context={data.name}
+        description="Choose a status and add internal notes. Rejected requests require a clear reason."
+        saveLabel="Save review"
+        isSaving={isSaving}
+        isDirty={status !== data.status || notes !== (data.notes ?? "")}
+        onCancel={() => setReviewOpen(false)}
+        onSave={() => void handleSave()}
+      >
+        <div className="space-y-5">
+          <FormField
+            id="service-status"
+            name="service-status"
+            label="New status"
+            type="select"
+            value={status}
+            options={statusOptions.map((value) => ({
+              label: value.replace(/\b\w/g, (letter) => letter.toUpperCase()),
+              value,
+            }))}
+            onChange={(value) => setStatus(value as ServiceStatus)}
+          />
+          <FormField
+            id="service-notes"
+            name="service-notes"
+            label={status === "rejected" ? "Rejection reason" : "Internal notes"}
+            type="textarea"
+            value={notes}
+            required={status === "rejected"}
+            onChange={setNotes}
+          />
+          {saveError && <p className="type-infill text-clay" role="alert">{saveError}</p>}
+        </div>
+      </AdminEditModal>
     </div>
   );
 }

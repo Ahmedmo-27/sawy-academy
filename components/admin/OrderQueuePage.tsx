@@ -30,6 +30,7 @@ export function OrderQueuePage() {
         eyebrow="Payments"
         title="Orders"
         description="Check student payment photos and approve or reject them."
+        guidance="Choose “Review payment” to open the full order before making a decision."
       />
 
       {isLoading && (
@@ -49,7 +50,6 @@ export function OrderQueuePage() {
         <DataTable
           data={data}
           getRowKey={orderKey}
-          onRowClick={(order) => router.push(`/admin/orders/${orderKey(order)}`)}
           emptyMessage="No payments are waiting for review."
           searchPlaceholder="Search orders or students"
           getSearchText={(order) =>
@@ -99,11 +99,25 @@ export function OrderQueuePage() {
             },
             {
               key: "timestamp",
-              header: "Timestamp",
+              header: "Submitted",
               sortable: true,
               render: (order) =>
                 order.submittedAt ?? order.createdAt ?? "Not recorded",
               sortValue: (order) => order.submittedAt ?? order.createdAt ?? "",
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              className: "text-right",
+              render: (order) => (
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-secondary admin-btn-compact"
+                  onClick={() => router.push(`/admin/orders/${orderKey(order)}`)}
+                >
+                  Review payment
+                </button>
+              ),
             },
           ]}
         />

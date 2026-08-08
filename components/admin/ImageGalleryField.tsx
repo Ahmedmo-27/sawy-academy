@@ -168,7 +168,7 @@ export function ImageGalleryField({
           <p className="type-infill mt-2">
             {atLimit
               ? `Maximum ${maxItems} images.`
-              : "Drop or click to upload another plate."}
+              : "Drop or click to upload another image."}
           </p>
         </div>
       </button>

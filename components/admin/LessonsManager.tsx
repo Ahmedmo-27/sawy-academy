@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { AdminEditModal } from "@/components/admin/AdminEditModal";
 import { FormField } from "@/components/admin/FormField";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
@@ -40,6 +41,16 @@ function getLessonKey(lesson: Lesson) {
   return lesson._id ?? lesson.id;
 }
 
+function videoStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    queued: "Waiting to prepare",
+    processing: "Preparing",
+    ready: "Ready",
+    failed: "Needs attention",
+  };
+  return labels[status] ?? status;
+}
+
 function toLessonInput(form: LessonForm) {
   return {
     id: form.id,
@@ -59,6 +70,8 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
     order: String(lessons.length + 1),
   });
   const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [formSnapshot, setFormSnapshot] = useState(JSON.stringify(emptyLesson));
   const [deleteTarget, setDeleteTarget] = useState<Lesson | null>(null);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -69,6 +82,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
     Record<string, LessonVideoProcessing>
   >({});
   const pollingControllers = useRef(new Map<string, AbortController>());
+  const formRef = useRef<HTMLFormElement>(null);
   const startVideoPollingRef = useRef<(lessonKey: string) => void>(() => {});
 
   useEffect(() => {
@@ -120,7 +134,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
           return;
         }
         const message =
-          "Video processing status could not be refreshed. Try again shortly.";
+          "We couldn't check whether the video is ready. Try again shortly.";
         setError(message);
         toastError(message);
       })
@@ -155,10 +169,10 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
           error: null,
         },
       }));
-      success("Video processing queued again");
+      success("The video will be prepared again");
       startVideoPolling(lessonKey);
     } catch {
-      const message = "The video could not be queued again. Please try later.";
+      const message = "The video could not be prepared again. Please try later.";
       setError(message);
       toastError(message);
     }
@@ -172,14 +186,27 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
     setEditingKey(getLessonKey(lesson));
     setVideoFile(null);
     setVideoUploadProgress(0);
-    setForm({
+    const nextForm = {
       id: lesson.id,
       sheetRef: lesson.sheetRef,
       title: lesson.title,
       duration: lesson.duration,
       order: String(lesson.order),
       previewImage: lesson.previewImage ?? "",
-    });
+    };
+    setForm(nextForm);
+    setFormSnapshot(JSON.stringify(nextForm));
+    setFormOpen(true);
+  }
+
+  function startAdd() {
+    const nextForm = { ...emptyLesson, order: String(items.length + 1) };
+    setEditingKey(null);
+    setVideoFile(null);
+    setVideoUploadProgress(0);
+    setForm(nextForm);
+    setFormSnapshot(JSON.stringify(nextForm));
+    setFormOpen(true);
   }
 
   function resetForm() {
@@ -187,6 +214,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
     setVideoFile(null);
     setVideoUploadProgress(0);
     setForm({ ...emptyLesson, order: String(items.length + 1) });
+    setFormOpen(false);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -262,7 +290,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
 
       success(
         videoFile
-          ? "Lesson saved. Video uploaded and queued for processing."
+          ? "Lesson saved. The video is now being prepared for students."
           : editingKey
             ? "Changes saved"
             : "Created successfully"
@@ -337,9 +365,19 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
   return (
     <div className="space-y-8">
       <div>
-        <p className="label-caps mb-4 text-charcoal-infill">
-          Lessons — {String(items.length).padStart(2, "0")}
-        </p>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="label-caps text-charcoal-infill">
+              Lessons — {String(items.length).padStart(2, "0")}
+            </p>
+            <p className="type-infill mt-1 text-charcoal-muted">
+              Reordering saves immediately. Adding or editing opens a separate window.
+            </p>
+          </div>
+          <button type="button" className="admin-btn admin-btn-primary" onClick={startAdd}>
+            Add lesson
+          </button>
+        </div>
         <ul>
           {items.map((lesson, index) => (
             <li
@@ -351,7 +389,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
                   {String(lesson.order).padStart(2, "0")}
                 </span>
                 <span className="col-span-3 sm:col-span-2 dim-label">
-                  {lesson.sheetRef}
+                  {lesson.sheetRef || `Lesson ${index + 1}`}
                 </span>
                 <div className="col-span-7 sm:col-span-4">
                   <span className="type-title text-base text-charcoal">
@@ -371,8 +409,10 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
                         }
                       >
                         Video:{" "}
-                        {videoStatuses[getLessonKey(lesson)]
-                          ?.processingStatus ?? lesson.videoProcessingStatus}
+                        {videoStatusLabel(
+                          videoStatuses[getLessonKey(lesson)]
+                            ?.processingStatus ?? lesson.videoProcessingStatus ?? ""
+                        )}
                         {videoStatuses[getLessonKey(lesson)]?.processingStatus ===
                           "failed" &&
                           videoStatuses[getLessonKey(lesson)]?.error?.message &&
@@ -435,18 +475,31 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
         </ul>
       </div>
 
-      <form
-        className="hairline-border bg-concrete-dark/30 p-6 space-y-6"
-        onSubmit={handleSubmit}
+      <AdminEditModal
+        open={formOpen}
+        title={editingKey ? "Edit lesson" : "Add lesson"}
+        context={`Course: ${courseSlug}`}
+        description="Lesson details and video are saved together. Closing this window cancels the draft."
+        saveLabel={editingKey ? "Save lesson" : "Add lesson"}
+        isSaving={isSaving}
+        isDirty={JSON.stringify(form) !== formSnapshot || Boolean(videoFile)}
+        size="lg"
+        onCancel={() => {
+          if (
+            (JSON.stringify(form) === formSnapshot && !videoFile) ||
+            window.confirm("Discard the changes to this lesson?")
+          ) {
+            resetForm();
+          }
+        }}
+        onSave={() => formRef.current?.requestSubmit()}
       >
-        <p className="eyebrow text-clay">
-          {editingKey ? "Edit lesson" : "Add a lesson"}
-        </p>
+      <form ref={formRef} className="space-y-6" onSubmit={handleSubmit}>
         <div className="grid gap-6 md:grid-cols-2">
           <FormField
             id="lesson-id"
             name="lesson-id"
-            label="ID"
+            label="Lesson short name"
             value={form.id}
             required
             onChange={(value) => updateForm("id", value)}
@@ -454,7 +507,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
           <FormField
             id="lesson-sheet-ref"
             name="lesson-sheet-ref"
-            label="Sheet reference"
+            label="Lesson label"
             value={form.sheetRef}
             required
             onChange={(value) => updateForm("sheetRef", value)}
@@ -486,9 +539,9 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
           />
           <div className="md:col-span-2">
             <ImageUploadField
-              label="Sheet preview"
+              label="Preview image"
               value={form.previewImage}
-              description="Optional thumb for the course sheet index."
+              description="Optional image shown beside this lesson."
               onChange={(value) => updateForm("previewImage", value)}
             />
           </div>
@@ -497,11 +550,11 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
               htmlFor="lesson-video"
               className="label-caps mb-2 block"
             >
-              Protected lesson video
+              Lesson video
             </label>
             <p className="type-infill mb-4 text-charcoal-muted">
-              MP4, WebM, Ogg, or QuickTime. The file uploads through the
-              authenticated server and is stored privately in Cloudflare R2.
+              Choose a common video file from your computer. It will be kept
+              private and prepared for secure student viewing.
               {editingKey &&
                 " Leave this empty to keep the currently uploaded video."}
             </p>
@@ -527,32 +580,15 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
               <ProcessProgressBar
                 className="mt-3"
                 compact
-                stepLabel="Uploading protected video"
+                stepLabel="Uploading private lesson video"
                 progress={videoUploadProgress}
               />
             )}
           </div>
         </div>
         {error && <p className="type-infill text-clay">{error}</p>}
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="submit"
-            className="admin-btn admin-btn-primary"
-            disabled={isSaving}
-          >
-            {isSaving ? "Saving" : editingKey ? "Update lesson" : "Add lesson"}
-          </button>
-          {editingKey && (
-            <button
-              type="button"
-              className="admin-btn admin-btn-secondary"
-              onClick={resetForm}
-            >
-              Cancel edit
-            </button>
-          )}
-        </div>
       </form>
+      </AdminEditModal>
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}
