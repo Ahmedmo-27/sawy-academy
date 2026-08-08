@@ -46,7 +46,7 @@ export function HorizontalPinGallery({
     registerGsap();
     const media = gsap.matchMedia();
 
-    media.add("(min-width: 768px)", () => {
+    media.add("(min-width: 0px)", () => {
       const pin = pinRef.current;
       const track = trackRef.current;
       const progress = progressRef.current;
@@ -93,12 +93,12 @@ export function HorizontalPinGallery({
       <div
         ref={pinRef}
         className={`horiz-pin__viewport relative flex h-[min(calc(70svh-var(--nav-height)),560px)] w-full items-center overflow-x-auto overscroll-x-contain sm:h-[min(calc(85svh-var(--nav-height)),720px)] lg:h-[min(calc(100svh-var(--nav-height)),820px)] ${
-          reduced ? "md:overflow-x-auto" : "md:overflow-hidden"
+          reduced ? "overflow-x-auto" : "overflow-hidden"
         }`}
       >
         <div
           ref={trackRef}
-          className="horiz-pin__track flex w-max flex-row gap-5 sm:gap-6 md:will-change-transform"
+          className="horiz-pin__track flex w-max flex-row gap-5 will-change-transform sm:gap-6"
         >
           {children}
         </div>
