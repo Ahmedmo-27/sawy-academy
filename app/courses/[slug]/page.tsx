@@ -65,6 +65,7 @@ function GroupCourseDetail({ group }: { group: CourseGroup }) {
         eyebrow={meta.eyebrow}
         title={group.title}
         description={meta.description}
+        tone="warm"
       />
 
       <ThresholdDoorway
@@ -144,6 +145,7 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
         eyebrow={`${course.level} · ${course.price}`}
         title={course.title}
         description={`${course.instructor}. ${course.description}`}
+        tone="warm"
       />
 
       <ThresholdDoorway label="DRAWING SET" />

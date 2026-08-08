@@ -96,7 +96,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
   return (
     <>
-      <header className="relative overflow-hidden">
+      <header className="page-header-warm relative overflow-hidden">
         <GridColumns />
         <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-0">
           <GsapReveal type="text" immediate>

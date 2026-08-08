@@ -277,7 +277,12 @@ function PortfolioSection({
   return (
     <>
       <ThresholdDoorway label={text(content.roomLabel, "PORTFOLIO")} />
-      <Section id="portfolio" rhythm="standard" contained={false}>
+      <Section
+        id="portfolio"
+        rhythm="standard"
+        contained={false}
+        className="room-field-warm"
+      >
         <PageContainer>
           <SectionHeader
             room={text(content.roomNumber, "02")}
@@ -435,7 +440,12 @@ function CoursesSection({
   return (
     <>
       <ThresholdDoorway label={text(content.roomLabel, "COURSES")} />
-      <Section id="courses" rhythm="standard" contained={false}>
+      <Section
+        id="courses"
+        rhythm="standard"
+        contained={false}
+        className="room-field-quiet"
+      >
         <PageContainer>
           <SectionHeader
             room={text(content.roomNumber, "03")}
@@ -573,7 +583,12 @@ function ResearchSection({
   return (
     <>
       <ThresholdDoorway label={text(content.roomLabel, "RESEARCH")} />
-      <Section id="researches" rhythm="standard" contained={false}>
+      <Section
+        id="researches"
+        rhythm="standard"
+        contained={false}
+        className="room-field-warm"
+      >
         <PageContainer>
           <SectionHeader
             room={text(content.roomNumber, "05")}
