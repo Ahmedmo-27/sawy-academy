@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { BlueprintMorphImage } from "@/components/animation/BlueprintMorphImage";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import {
@@ -36,10 +37,15 @@ export function MediaBay({
   objectPosition = "center",
 }: MediaBayProps) {
   const hasSrc = Boolean(src?.trim());
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
 
   return (
     <ImageFrame className={className}>
-      {hasSrc && morph ? (
+      {hasSrc && !failed && morph ? (
         <BlueprintMorphImage
           src={src!}
           alt={alt}
@@ -48,7 +54,7 @@ export function MediaBay({
           revealOnLoad={revealOnLoad}
           objectPosition={objectPosition}
         />
-      ) : hasSrc ? (
+      ) : hasSrc && !failed ? (
         <Image
           src={src!}
           alt={alt}
@@ -57,6 +63,7 @@ export function MediaBay({
           style={{ objectPosition }}
           sizes={sizes}
           priority={priority}
+          onError={() => setFailed(true)}
         />
       ) : (
         <MediaFallbackSketch kind={fallback} label={fallbackLabel} />

@@ -105,8 +105,8 @@ function HeroSection({
       <HeroConstruction />
       <GridColumns />
 
-      <PageContainer className="relative z-10 pt-[calc(var(--nav-height)+3rem+env(safe-area-inset-top))] sm:pt-32 lg:pt-40 pb-8 sm:pb-12 lg:pb-16">
-        <div className="grid min-w-0 grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-6 lg:items-center">
+      <PageContainer className="relative z-10 pt-[calc(var(--nav-height)+3rem+env(safe-area-inset-top))] pb-8 sm:pt-32 sm:pb-12 lg:pt-40 lg:pb-16">
+        <div className="grid min-w-0 grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:items-center lg:gap-6">
           <div className="order-2 min-w-0 max-w-full lg:order-none lg:col-span-5 lg:pr-4">
             <GsapReveal type="text" immediate className="min-w-0 max-w-full">
               <p className="eyebrow mb-3 break-words">

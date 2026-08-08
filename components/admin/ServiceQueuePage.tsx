@@ -3,9 +3,8 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
-import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { DataTable } from "@/components/admin/DataTable";
+import { DataTable, DataTableSkeleton } from "@/components/admin/DataTable";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { fetchWithProgress } from "@/lib/load/withFetchProgress";
@@ -38,12 +37,10 @@ export function ServiceQueuePage() {
       />
 
       {isLoading && (
-        <AdminLoader
-          label="Loading…"
-          stepLabel={stepLabel}
-          progress={progress}
-          fullScreen
-        />
+        <div>
+          <p className="dim-label mb-3" role="status">{stepLabel} · {Math.round(progress ?? 0)}%</p>
+          <DataTableSkeleton />
+        </div>
       )}
       {!isLoading && error && (
         <AdminErrorState
@@ -60,6 +57,32 @@ export function ServiceQueuePage() {
             router.push(`/admin/services/${requestKey(request)}`)
           }
           emptyMessage="No service requests are waiting for review."
+          searchPlaceholder="Search requests"
+          getSearchText={(request) =>
+            [request.name, request.email, request.type, request.status]
+              .filter(Boolean)
+              .join(" ")
+          }
+          filters={[
+            {
+              key: "status",
+              label: "Statuses",
+              options: Array.from(new Set(data.map((request) => request.status))).map((status) => ({
+                label: status,
+                value: status,
+              })),
+              getValue: (request) => request.status,
+            },
+            {
+              key: "type",
+              label: "Types",
+              options: Array.from(new Set(data.map((request) => request.type))).map((type) => ({
+                label: type,
+                value: type,
+              })),
+              getValue: (request) => request.type,
+            },
+          ]}
           columns={[
             {
               key: "name",

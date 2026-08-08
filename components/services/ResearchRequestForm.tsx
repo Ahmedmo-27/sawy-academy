@@ -1,11 +1,12 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { FormErrorSummary } from "@/components/forms/FormErrorSummary";
 import { ResearchEntryPicker } from "@/components/services/ResearchEntryPicker";
 import { ServiceFormField } from "@/components/services/ServiceFormField";
-import { isValidEmail, isValidUrl } from "@/components/services/validation";
 import { submitServiceRequest } from "@/lib/api/services";
 import type { Research, ResearchServicePayload } from "@/lib/api/types";
+import { issuesByField, researchRequestSchema } from "@/lib/validation/forms";
 
 const interestOptions = [
   {
@@ -68,32 +69,26 @@ export function ResearchRequestForm({ onSuccess }: ResearchRequestFormProps) {
   }
 
   function validate() {
-    const nextErrors: FieldErrors = {};
-
-    if (!form.name.trim()) nextErrors.name = "Full name is required.";
-    if (!form.email.trim()) {
-      nextErrors.email = "Email is required.";
-    } else if (!isValidEmail(form.email)) {
-      nextErrors.email = "Enter a valid email address.";
+    const result = researchRequestSchema.safeParse(form);
+    if (result.success) {
+      setErrors({});
+      return true;
     }
-    if (!form.interestType) {
-      nextErrors.interestType = "Select a type of interest.";
-    }
-    if (
-      form.interestType === "collaborate-existing" &&
-      !form.linkedResearchId
-    ) {
-      nextErrors.linkedResearchId = "Select an existing research entry.";
-    }
-    if (!form.researchAreaOrTopic.trim()) {
-      nextErrors.researchAreaOrTopic = "Describe the research area or topic.";
-    }
-    if (!isValidUrl(form.backgroundCvLink)) {
-      nextErrors.backgroundCvLink = "Enter a valid URL.";
-    }
-
+    const nextErrors = issuesByField(result.error) as FieldErrors;
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    requestAnimationFrame(() => {
+      const firstField = Object.keys(nextErrors)[0];
+      const idByField: Record<string, string> = {
+        name: "research-name",
+        email: "research-email",
+        interestType: "research-interest",
+        linkedResearchId: "research-entry",
+        researchAreaOrTopic: "research-topic",
+        backgroundCvLink: "research-cv",
+      };
+      document.getElementById(idByField[firstField])?.focus();
+    });
+    return false;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -140,6 +135,9 @@ export function ResearchRequestForm({ onSuccess }: ResearchRequestFormProps) {
       className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-2"
       onSubmit={(event) => void handleSubmit(event)}
     >
+      <div className="md:col-span-2">
+        <FormErrorSummary errors={Object.values(errors).filter((value): value is string => Boolean(value))} />
+      </div>
       <ServiceFormField
         id="research-name"
         label="Full name"
@@ -243,6 +241,7 @@ export function ResearchRequestForm({ onSuccess }: ResearchRequestFormProps) {
           type="submit"
           className="cta-entrance disabled:text-concrete/70"
           disabled={isSubmitting}
+          aria-busy={isSubmitting}
         >
           {isSubmitting ? "Submitting request…" : "Submit research request"}
         </button>

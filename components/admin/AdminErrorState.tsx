@@ -1,5 +1,5 @@
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import Link from "next/link";
+import { AsyncState } from "@/components/feedback/AsyncState";
 
 interface AdminErrorStateProps {
   title?: string;
@@ -18,26 +18,14 @@ export function AdminErrorState({
 }: AdminErrorStateProps) {
   return (
     <ThresholdFrame label="NEED HELP">
-      <div className="hairline-border bg-concrete-dark/30 p-8">
-        <p className="eyebrow text-clay">{title}</p>
-        <p className="type-body mt-4 max-w-xl text-charcoal-muted">{message}</p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          {backHref && (
-            <Link href={backHref} className="admin-btn admin-btn-primary">
-              {backLabel}
-            </Link>
-          )}
-          {onRetry && (
-            <button
-              type="button"
-              className="admin-btn admin-btn-secondary"
-              onClick={onRetry}
-            >
-              Try again
-            </button>
-          )}
-        </div>
-      </div>
+      <AsyncState
+        kind="error"
+        title={title}
+        message={message}
+        actionHref={backHref}
+        actionLabel={backHref ? backLabel : undefined}
+        onRetry={onRetry}
+      />
     </ThresholdFrame>
   );
 }

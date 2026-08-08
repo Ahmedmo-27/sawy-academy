@@ -44,54 +44,61 @@ export function HorizontalPinGallery({
   useEffect(() => {
     if (reduced) return;
     registerGsap();
-    const pin = pinRef.current;
-    const track = trackRef.current;
-    const progress = progressRef.current;
-    if (!pin || !track) return;
+    const media = gsap.matchMedia();
 
-    const getScroll = () =>
-      Math.max(0, track.scrollWidth - pin.clientWidth) * distanceFactor;
+    media.add("(min-width: 768px)", () => {
+      const pin = pinRef.current;
+      const track = trackRef.current;
+      const progress = progressRef.current;
+      if (!pin || !track) return;
 
-    gsap.set(track, { x: 0, force3D: true });
+      const getScroll = () =>
+        Math.max(0, track.scrollWidth - pin.clientWidth) * distanceFactor;
 
-    const tween = gsap.to(track, {
-      x: () => -getScroll(),
-      ease: "none",
-      scrollTrigger: {
-        trigger: pin,
-        // Pin just under the fixed navbar so horizontal scrub begins
-        // when the nav reaches the top of the cards — not under it.
-        start: () => `top ${getNavOffsetPx()}`,
-        end: () => `+=${Math.max(getScroll() * 1.05, pin.clientWidth * 0.55)}`,
-        pin: true,
-        scrub: 0.2,
-        invalidateOnRefresh: true,
-        anticipatePin: 1,
-        onUpdate: (self) => {
-          if (!progress) return;
-          progress.style.transform = `scaleX(${self.progress})`;
+      gsap.set(track, { x: 0, force3D: true });
+
+      const tween = gsap.to(track, {
+        x: () => -getScroll(),
+        ease: "none",
+        scrollTrigger: {
+          trigger: pin,
+          start: () => `top ${getNavOffsetPx()}`,
+          end: () =>
+            `+=${Math.max(getScroll() * 1.05, pin.clientWidth * 0.55)}`,
+          pin: true,
+          scrub: 0.2,
+          invalidateOnRefresh: true,
+          anticipatePin: 1,
+          onUpdate: (self) => {
+            if (!progress) return;
+            progress.style.transform = `scaleX(${self.progress})`;
+          },
         },
-      },
+      });
+
+      return () => {
+        tween.scrollTrigger?.kill();
+        tween.kill();
+        gsap.set(track, { clearProps: "transform" });
+        if (progress) progress.style.transform = "scaleX(0)";
+        scheduleScrollRefresh();
+      };
     });
 
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-      gsap.set(track, { clearProps: "transform" });
-      if (progress) progress.style.transform = "scaleX(0)";
-      scheduleScrollRefresh();
-    };
+    return () => media.revert();
   }, [reduced, distanceFactor]);
 
   return (
     <div ref={sectionRef} className={`horiz-pin ${className}`}>
       <div
         ref={pinRef}
-        className="horiz-pin__viewport relative flex h-[min(calc(70svh-var(--nav-height)),560px)] w-full items-center overflow-hidden sm:h-[min(calc(85svh-var(--nav-height)),720px)] lg:h-[min(calc(100svh-var(--nav-height)),820px)]"
+        className={`horiz-pin__viewport relative flex h-[min(calc(70svh-var(--nav-height)),560px)] w-full items-center overflow-x-auto overscroll-x-contain sm:h-[min(calc(85svh-var(--nav-height)),720px)] lg:h-[min(calc(100svh-var(--nav-height)),820px)] ${
+          reduced ? "md:overflow-x-auto" : "md:overflow-hidden"
+        }`}
       >
         <div
           ref={trackRef}
-          className="horiz-pin__track flex w-max flex-row gap-5 will-change-transform sm:gap-6"
+          className="horiz-pin__track flex w-max flex-row gap-5 sm:gap-6 md:will-change-transform"
         >
           {children}
         </div>

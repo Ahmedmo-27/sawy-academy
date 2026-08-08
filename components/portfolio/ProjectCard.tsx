@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { BlueprintMorphImage } from "@/components/animation/BlueprintMorphImage";
 
 interface ProjectCardProps {
@@ -11,6 +10,7 @@ interface ProjectCardProps {
   sheetRef: string;
   href: string;
   aspectClass?: string;
+  index?: number;
 }
 
 export function ProjectCard({
@@ -21,44 +21,49 @@ export function ProjectCard({
   sheetRef,
   href,
   aspectClass = "aspect-[4/3] sm:aspect-[4/5]",
+  index,
 }: ProjectCardProps) {
   return (
     <Link
       href={href}
-      className="interactive-card elevation-surface group block bg-concrete h-full"
+      className="group block h-full bg-concrete focus-visible:outline-offset-4"
     >
-      <ImageFrame className={aspectClass}>
-        <BlueprintMorphImage
-          src={image}
-          alt={title}
-          sizes="(max-width: 768px) 100vw, 33vw"
-        />
-        <div
-          className="project-overlay absolute inset-0 bg-charcoal/60 flex flex-col justify-end p-5 sm:p-6 pointer-events-none"
+      <div className="overflow-hidden bg-concrete-dark">
+        <ImageFrame
+          className={`${aspectClass} transition-transform duration-700 ease-out group-hover:scale-[1.025]`}
+        >
+          <BlueprintMorphImage
+            src={image}
+            alt={title}
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-charcoal/35 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            aria-hidden="true"
+          />
+        </ImageFrame>
+      </div>
+
+      <div className="grid grid-cols-[auto_1fr_auto] items-start gap-4 border-t border-hairline py-4">
+        <span className="dim-label pt-1">
+          {typeof index === "number"
+            ? String(index + 1).padStart(2, "0")
+            : sheetRef}
+        </span>
+        <div className="min-w-0">
+          <h2 className="font-serif text-lg leading-tight text-charcoal transition-colors group-hover:text-clay sm:text-xl">
+            {title}
+          </h2>
+          <p className="label-caps mt-2">
+            {category} · {year}
+          </p>
+        </div>
+        <span
+          className="pt-0.5 text-xl font-light text-charcoal transition-transform duration-300 group-hover:translate-x-1 group-hover:text-clay"
           aria-hidden="true"
         >
-            <p className="label-caps !text-concrete/90 mb-2">{sheetRef}</p>
-            <p className="type-title !text-concrete mb-1">{title}</p>
-            <p className="label-caps !text-concrete/80">
-              {category} / {year}
-            </p>
-          </div>
-      </ImageFrame>
-      <div className="p-6 group-hover:opacity-0 transition-opacity duration-300 hidden lg:block">
-        <ScaleBar scale="1:50" className="mb-4" />
-        <p className="dim-label mb-2">{sheetRef}</p>
-        <h2 className="type-title mb-2">{title}</h2>
-        <p className="label-caps">
-          {category} / {year}
-        </p>
-      </div>
-      <div className="p-6 lg:hidden">
-        <ScaleBar scale="1:50" className="mb-4" />
-        <p className="dim-label mb-2">{sheetRef}</p>
-        <h2 className="type-title mb-2">{title}</h2>
-        <p className="label-caps">
-          {category} / {year}
-        </p>
+          ↗
+        </span>
       </div>
     </Link>
   );

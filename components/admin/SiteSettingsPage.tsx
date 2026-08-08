@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -18,6 +18,7 @@ import {
 } from "@/lib/api/settings";
 import type { NavLinkItem, PageHeaderContent, SiteSettings } from "@/lib/api/types";
 import { DEFAULT_SITE_SETTINGS } from "@/lib/branding";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
 const PAGE_KEYS = [
   "portfolio",
@@ -134,16 +135,18 @@ function LinkEditor({
                 className="admin-btn admin-btn-secondary admin-btn-compact"
                 onClick={() => move(index, -1)}
                 disabled={index === 0}
+                aria-label={`Move ${link.label || `item ${index + 1}`} up`}
               >
-                Up
+                Move up
               </button>
               <button
                 type="button"
                 className="admin-btn admin-btn-secondary admin-btn-compact"
                 onClick={() => move(index, 1)}
                 disabled={index === links.length - 1}
+                aria-label={`Move ${link.label || `item ${index + 1}`} down`}
               >
-                Down
+                Move down
               </button>
               <button
                 type="button"
@@ -268,6 +271,13 @@ export function SiteSettingsPage() {
   >("branding");
 
   const settings = data ?? DEFAULT_SITE_SETTINGS;
+  const savedSnapshot = useRef<string | null>(null);
+  if (data && savedSnapshot.current === null) {
+    savedSnapshot.current = JSON.stringify(data);
+  }
+  const isDirty =
+    Boolean(data) && JSON.stringify(settings) !== savedSnapshot.current;
+  useUnsavedChanges(isDirty && !saving);
 
   function patch(next: Partial<SiteSettings>) {
     setData({ ...settings, ...next });
@@ -286,6 +296,7 @@ export function SiteSettingsPage() {
         servicesPage: settings.servicesPage,
       });
       setData(saved);
+      savedSnapshot.current = JSON.stringify(saved);
       success("Site settings saved");
     } catch (err) {
       toastError(toFriendlyAdminError(err, "save site settings"));
@@ -300,6 +311,7 @@ export function SiteSettingsPage() {
     try {
       const saved = await resetSiteSettings();
       setData(saved);
+      savedSnapshot.current = JSON.stringify(saved);
       neutral("Settings reset to defaults");
     } catch (err) {
       toastError(toFriendlyAdminError(err, "reset site settings"));
@@ -617,6 +629,20 @@ export function SiteSettingsPage() {
           ))}
         </div>
       )}
+
+      <div className="sticky bottom-0 z-20 mt-10 flex items-center justify-between gap-3 border border-hairline bg-concrete/95 p-3 nav-blur">
+        <p className="dim-label" role="status">
+          {isDirty ? "Unsaved changes" : "All changes saved"}
+        </p>
+        <button
+          type="button"
+          className="admin-btn admin-btn-primary"
+          onClick={handleSave}
+          disabled={saving || !isDirty}
+        >
+          {saving ? "Saving…" : "Save settings"}
+        </button>
+      </div>
 
       <ConfirmDialog
         open={resetOpen}

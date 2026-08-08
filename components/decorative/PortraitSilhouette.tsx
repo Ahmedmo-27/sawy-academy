@@ -43,36 +43,36 @@ export function PortraitSilhouette({ className = "" }: PortraitSilhouetteProps) 
         rx="42"
         ry="50"
         stroke="var(--color-construction)"
-        strokeWidth="1"
-        opacity="0.7"
+        strokeWidth="1.2"
+        opacity="0.82"
       />
       {/* Neck */}
       <path
         d="M132 172 Q150 188 168 172"
         stroke="var(--color-construction)"
-        strokeWidth="0.85"
-        opacity="0.55"
+        strokeWidth="1"
+        opacity="0.68"
       />
       {/* Shoulders / torso */}
       <path
         d="M78 320 C78 240 110 200 150 198 C190 200 222 240 222 320"
         stroke="var(--color-construction)"
-        strokeWidth="1"
-        opacity="0.65"
+        strokeWidth="1.2"
+        opacity="0.78"
       />
       {/* Lapel suggestion */}
       <path
         d="M150 198 L150 300"
         stroke="var(--color-construction)"
-        strokeWidth="0.5"
+        strokeWidth="0.65"
         strokeDasharray="3 3"
-        opacity="0.4"
+        opacity="0.52"
       />
       <path
         d="M150 220 L118 300 M150 220 L182 300"
         stroke="var(--color-construction)"
-        strokeWidth="0.45"
-        opacity="0.35"
+        strokeWidth="0.6"
+        opacity="0.48"
       />
       {/* Dimension ticks */}
       <g

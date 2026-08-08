@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { AdminLoader } from "@/components/admin/AdminLoader";
 import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { ProfileSectionShell } from "@/components/profile/ProfileSectionShell";
+import {
+  ProfileSectionError,
+  ProfileSectionLoading,
+} from "@/components/profile/ProfileSectionState";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { useToast } from "@/components/feedback/ToastProvider";
@@ -52,7 +55,7 @@ export function ProfileIdentityPanel() {
       }),
     []
   );
-  const { data, setData, isLoading, error, progress, stepLabel, refetch } =
+  const { data, setData, isLoading, error, refetch } =
     useAdminResource(loader, "Loading identity sheet");
   const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -152,32 +155,18 @@ export function ProfileIdentityPanel() {
   }
 
   if (isLoading) {
-    return (
-      <div id="identity" className="scroll-mt-28 lg:scroll-mt-32">
-        <AdminLoader
-          label="Loading identity sheet"
-          stepLabel={stepLabel}
-          progress={progress}
-        />
-      </div>
-    );
+    return <ProfileSectionLoading id="identity" label="Identity" />;
   }
 
   if (error || !data) {
     return (
-      <ProfileSectionShell id="identity" label="Identity">
-        <div className="hairline-border bg-concrete p-6 mt-4 sm:p-8">
-          <p className="eyebrow text-clay">Unable to load profile</p>
-          <p className="type-infill mt-3">{error || "Profile was not found."}</p>
-          <button
-            type="button"
-            className="action-primary mt-6"
-            onClick={() => void refetch()}
-          >
-            Retry
-          </button>
-        </div>
-      </ProfileSectionShell>
+      <ProfileSectionError
+        id="identity"
+        label="Identity"
+        title="Unable to load profile"
+        message={error || "Profile was not found."}
+        onRetry={() => void refetch()}
+      />
     );
   }
 

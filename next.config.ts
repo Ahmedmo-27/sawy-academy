@@ -1,4 +1,9 @@
 import type { NextConfig } from "next";
+import createBundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = createBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const apiProxyTarget =
   process.env.API_PROXY_TARGET ??
@@ -23,6 +28,21 @@ const nextConfig: NextConfig = {
     // The generated Tailwind bundle is small (~15 KiB). Inlining it removes
     // the render-blocking stylesheet request from the first-load waterfall.
     inlineCss: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "sawy-academy.onrender.com",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5000",
+        pathname: "/uploads/**",
+      },
+    ],
   },
   async rewrites() {
     const localContactRewrite = {
@@ -53,4 +73,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

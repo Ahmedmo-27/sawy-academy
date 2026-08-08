@@ -2,9 +2,10 @@
 
 import { useEffect } from "react";
 import Lenis from "lenis";
-import { gsap, ScrollTrigger, registerGsap, isReducedMotion } from "@/lib/gsap/config";
+import { gsap, ScrollTrigger, registerGsap } from "@/lib/gsap/config";
 import { scheduleScrollRefresh } from "@/lib/gsap/refresh";
 import { setLenisInstance } from "@/lib/smoothScroll";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface SmoothScrollProviderProps {
   children: React.ReactNode;
@@ -15,8 +16,14 @@ interface SmoothScrollProviderProps {
  * Disabled when prefers-reduced-motion is set.
  */
 export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
+  const reduced = useReducedMotion();
+
   useEffect(() => {
-    if (isReducedMotion()) return;
+    if (reduced) {
+      setLenisInstance(null);
+      document.documentElement.classList.remove("lenis");
+      return;
+    }
 
     registerGsap();
 
@@ -62,7 +69,7 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
       setLenisInstance(null);
       document.documentElement.classList.remove("lenis");
     };
-  }, []);
+  }, [reduced]);
 
   return <>{children}</>;
 }

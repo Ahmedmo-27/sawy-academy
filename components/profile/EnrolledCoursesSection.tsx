@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useCallback } from "react";
-import { AdminLoader } from "@/components/admin/AdminLoader";
 import { CourseProgressTrack } from "@/components/profile/CourseProgressTrack";
 import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
 import { ProfileSectionShell } from "@/components/profile/ProfileSectionShell";
+import {
+  ProfileSectionError,
+  ProfileSectionLoading,
+} from "@/components/profile/ProfileSectionState";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import type { Enrollment } from "@/lib/api/types";
@@ -34,36 +37,24 @@ export function EnrolledCoursesSection() {
       ),
     []
   );
-  const { data, isLoading, error, progress, stepLabel, refetch } =
+  const { data, isLoading, error, refetch } =
     useAdminResource(loader, "Loading enrollments");
 
   if (isLoading) {
     return (
-      <div id="enrollments" className="scroll-mt-28 lg:scroll-mt-32">
-        <AdminLoader
-          label="Loading enrollments"
-          stepLabel={stepLabel}
-          progress={progress}
-        />
-      </div>
+      <ProfileSectionLoading id="enrollments" label="Enrolled courses" />
     );
   }
 
   if (error) {
     return (
-      <ProfileSectionShell id="enrollments" label="Enrolled courses">
-        <div className="hairline-border bg-concrete p-6 mt-4 sm:p-8">
-          <p className="eyebrow text-clay">Unable to load courses</p>
-          <p className="type-infill mt-3">{error}</p>
-          <button
-            type="button"
-            className="action-primary mt-6"
-            onClick={() => void refetch()}
-          >
-            Retry
-          </button>
-        </div>
-      </ProfileSectionShell>
+      <ProfileSectionError
+        id="enrollments"
+        label="Enrolled courses"
+        title="Unable to load courses"
+        message={error}
+        onRetry={() => void refetch()}
+      />
     );
   }
 

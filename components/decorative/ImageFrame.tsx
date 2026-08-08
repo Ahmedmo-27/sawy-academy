@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { hoverTransition } from "@/lib/motion";
 
 interface ImageFrameProps {
@@ -11,11 +11,13 @@ interface ImageFrameProps {
 const bracketTransition = hoverTransition;
 
 export function ImageFrame({ children, className = "" }: ImageFrameProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <motion.div
       className={`relative group w-full max-w-full overflow-hidden ${className}`}
       initial="rest"
-      whileHover="hover"
+      whileHover={prefersReducedMotion ? "rest" : "hover"}
     >
       <motion.div
         className="absolute inset-0 overflow-hidden"

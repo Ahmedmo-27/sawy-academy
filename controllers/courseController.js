@@ -29,7 +29,9 @@ function populateCourse(query, includeLessons = false) {
   const populatedQuery = query.populate("relatedProductIds");
 
   if (includeLessons) {
-    return populatedQuery.populate("lessons");
+    // Video locations are access-controlled by GET /api/lessons/:id/video-access.
+    // Never include them in public course/catalog payloads.
+    return populatedQuery.populate({ path: "lessons", select: "-videoUrl" });
   }
 
   return populatedQuery;
@@ -80,7 +82,10 @@ async function getGroups(req, res, next) {
       .sort({ createdAt: 1 })
       .populate({
         path: "courses",
-        populate: [{ path: "relatedProductIds" }, { path: "lessons" }],
+        populate: [
+          { path: "relatedProductIds" },
+          { path: "lessons", select: "-videoUrl" },
+        ],
       });
 
     return sendSuccess(res, groups);

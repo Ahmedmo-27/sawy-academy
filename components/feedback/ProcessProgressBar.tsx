@@ -64,7 +64,7 @@ export function ProcessProgressBar({
       >
         {hasProgress ? (
           <div
-            className="absolute inset-y-0 left-0 bg-clay/60 transition-[width] duration-300 ease-out"
+            className="absolute inset-y-0 left-0 bg-clay/60 transition-[width] duration-300 ease-out motion-reduce:transition-none"
             style={{ width: `${displayProgress}%` }}
           />
         ) : (

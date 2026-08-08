@@ -565,6 +565,7 @@ export function HomepageBuilderPage() {
     try {
       const saved = await reorderHomeSections(next.map((s) => s.id));
       setData(saved);
+      success("Section order saved");
     } catch (err) {
       toastError(toFriendlyAdminError(err, "reorder homepage sections"));
       await refetch();
@@ -759,16 +760,18 @@ export function HomepageBuilderPage() {
                   className="admin-btn admin-btn-secondary admin-btn-compact"
                   onClick={() => move(index, -1)}
                   disabled={busy || index === 0}
+                  aria-label={`Move ${section.type} section up`}
                 >
-                  Up
+                  Move up
                 </button>
                 <button
                   type="button"
                   className="admin-btn admin-btn-secondary admin-btn-compact"
                   onClick={() => move(index, 1)}
                   disabled={busy || index === sections.length - 1}
+                  aria-label={`Move ${section.type} section down`}
                 >
-                  Down
+                  Move down
                 </button>
                 <button
                   type="button"

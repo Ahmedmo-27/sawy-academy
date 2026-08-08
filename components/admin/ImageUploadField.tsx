@@ -80,8 +80,6 @@ export function ImageUploadField({
             .filter(Boolean)
             .join(" ") || undefined
         }
-        aria-invalid={Boolean(error)}
-        aria-required={required || undefined}
         disabled={isUploading}
       >
         {value ? (
@@ -115,6 +113,13 @@ export function ImageUploadField({
         className="sr-only"
         tabIndex={-1}
         aria-labelledby={labelId}
+        aria-invalid={Boolean(error)}
+        aria-required={required || undefined}
+        aria-describedby={
+          [description ? descId : null, error ? errorId : null]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
         required={required && !value}
         onChange={(event) => void handleFile(event.target.files?.[0])}
       />

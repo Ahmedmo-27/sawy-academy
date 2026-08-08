@@ -34,7 +34,10 @@ export function Wordmark({ linked = true, size = "md" }: WordmarkProps) {
 
   if (linked) {
     return (
-      <Link href="/" className="group inline-flex shrink-0 cursor-pointer">
+      <Link
+        href="/"
+        className="group inline-flex min-h-11 shrink-0 items-center cursor-pointer"
+      >
         {content}
       </Link>
     );

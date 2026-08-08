@@ -98,7 +98,6 @@ export function ReferenceImagesField({
         aria-describedby={
           [descId, combinedError ? errorId : null].filter(Boolean).join(" ")
         }
-        aria-invalid={Boolean(combinedError)}
       >
         <div className="py-6 text-center">
           <p className="eyebrow text-clay">
@@ -117,6 +116,10 @@ export function ReferenceImagesField({
         className="sr-only"
         tabIndex={-1}
         aria-labelledby={labelId}
+        aria-invalid={Boolean(combinedError)}
+        aria-describedby={
+          [descId, combinedError ? errorId : null].filter(Boolean).join(" ")
+        }
         onChange={(event) => void handleFiles(event.target.files)}
       />
 

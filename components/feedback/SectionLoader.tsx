@@ -18,7 +18,7 @@ export function SectionLoader({
   className = "",
   fullScreen = false,
 }: SectionLoaderProps) {
-  if (fullScreen) return <LoadingScreen />;
+  if (fullScreen) return <LoadingScreen label={stepLabel ?? label} />;
 
   return (
     <div className={`py-16 ${className}`}>

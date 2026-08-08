@@ -18,10 +18,14 @@ export function LevelProgressLine({
     <div className={`relative h-px w-full max-w-[120px] bg-hairline overflow-hidden ${className}`}>
       <motion.div
         className="absolute inset-y-0 left-0 w-full bg-clay/50 origin-left"
-        initial={{ scaleX: prefersReducedMotion ? 1 : 0 }}
+        initial={{ scaleX: prefersReducedMotion ? progress : 0 }}
         whileInView={{ scaleX: progress }}
         viewport={{ once: true, margin: "-20px" }}
-        transition={{ duration: 1.2, ease: easeOut }}
+        transition={
+          prefersReducedMotion
+            ? { duration: 0 }
+            : { duration: 1.2, ease: easeOut }
+        }
       />
     </div>
   );

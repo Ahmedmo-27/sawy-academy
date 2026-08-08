@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { registerGsap } from "@/lib/gsap/config";
 import { scheduleScrollRefresh } from "@/lib/gsap/refresh";
 import { SmoothScrollProvider } from "./SmoothScrollProvider";
@@ -16,11 +17,13 @@ interface ScrollAnimationShellProps {
 
 export function ScrollAnimationShell({ children }: ScrollAnimationShellProps) {
   const pathname = usePathname();
+  const reduced = useReducedMotion();
 
   useEffect(() => {
+    if (reduced) return;
     registerGsap();
     scheduleScrollRefresh(120);
-  }, [pathname]);
+  }, [pathname, reduced]);
 
   return (
     <SmoothScrollProvider>

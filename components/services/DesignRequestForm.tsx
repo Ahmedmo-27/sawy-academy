@@ -1,11 +1,12 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { FormErrorSummary } from "@/components/forms/FormErrorSummary";
 import { ReferenceImagesField } from "@/components/services/ReferenceImagesField";
 import { ServiceFormField } from "@/components/services/ServiceFormField";
-import { isValidEmail } from "@/components/services/validation";
 import { submitServiceRequest } from "@/lib/api/services";
 import type { DesignServicePayload } from "@/lib/api/types";
+import { designRequestSchema, issuesByField } from "@/lib/validation/forms";
 
 const projectTypeOptions = [
   { label: "Residential", value: "Residential" },
@@ -67,21 +68,24 @@ export function DesignRequestForm({ onSuccess }: DesignRequestFormProps) {
   }
 
   function validate() {
-    const nextErrors: FieldErrors = {};
-
-    if (!form.name.trim()) nextErrors.name = "Full name is required.";
-    if (!form.email.trim()) {
-      nextErrors.email = "Email is required.";
-    } else if (!isValidEmail(form.email)) {
-      nextErrors.email = "Enter a valid email address.";
+    const result = designRequestSchema.safeParse(form);
+    if (result.success) {
+      setErrors({});
+      return true;
     }
-    if (!form.projectType) nextErrors.projectType = "Select a project type.";
-    if (!form.scopeOfWork.trim()) {
-      nextErrors.scopeOfWork = "Describe what should be designed.";
-    }
-
+    const nextErrors = issuesByField(result.error) as FieldErrors;
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    requestAnimationFrame(() => {
+      const firstField = Object.keys(nextErrors)[0];
+      const idByField: Record<string, string> = {
+        name: "design-name",
+        email: "design-email",
+        projectType: "design-project-type",
+        scopeOfWork: "design-scope",
+      };
+      document.getElementById(idByField[firstField])?.focus();
+    });
+    return false;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -130,6 +134,9 @@ export function DesignRequestForm({ onSuccess }: DesignRequestFormProps) {
       className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-2"
       onSubmit={(event) => void handleSubmit(event)}
     >
+      <div className="md:col-span-2">
+        <FormErrorSummary errors={Object.values(errors).filter((value): value is string => Boolean(value))} />
+      </div>
       <ServiceFormField
         id="design-name"
         label="Full name"
@@ -245,6 +252,7 @@ export function DesignRequestForm({ onSuccess }: DesignRequestFormProps) {
           type="submit"
           className="cta-entrance disabled:text-concrete/70"
           disabled={isSubmitting}
+          aria-busy={isSubmitting}
         >
           {isSubmitting ? "Submitting request…" : "Submit design request"}
         </button>

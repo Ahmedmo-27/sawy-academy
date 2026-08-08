@@ -3,8 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GsapReveal, GsapStagger } from "@/components/animation/GsapReveal";
-import { HorizontalPinGallery } from "@/components/animation/HorizontalPinGallery";
+import { GsapReveal } from "@/components/animation/GsapReveal";
 import { Magnetic } from "@/components/animation/Magnetic";
 import { SplitTextReveal } from "@/components/animation/SplitTextReveal";
 import { GridColumns } from "@/components/decorative/GridColumns";
@@ -15,9 +14,12 @@ import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { SectionLoader } from "@/components/feedback/SectionLoader";
+import { MediaGallery } from "@/components/media/MediaGallery";
+import { AsyncState } from "@/components/feedback/AsyncState";
 import { useCart } from "@/components/cart/CartProvider";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { getProduct } from "@/lib/api/products";
+import { ApiClientError } from "@/lib/api/client";
 import type { Product } from "@/lib/api/types";
 
 interface ProductDetailPageProps {
@@ -29,11 +31,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { addItem, hasItem } = useCart();
   const { success } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "missing">(
+  const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">(
     "loading"
   );
   const [progress, setProgress] = useState(0);
   const [justAdded, setJustAdded] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,16 +47,38 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         setStatus("ready");
         setProgress(100);
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
-        setStatus("missing");
+        setStatus(
+          error instanceof ApiClientError && error.status === 404
+            ? "missing"
+            : "error"
+        );
       });
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, reloadKey]);
 
   if (status === "missing") notFound();
+
+  if (status === "error") {
+    return (
+      <PageContainer className="pt-32 pb-20">
+        <AsyncState
+          kind="error"
+          title="The product sheet could not be loaded"
+          message="Check your connection and try opening this product again."
+          onRetry={() => {
+            setStatus("loading");
+            setReloadKey((value) => value + 1);
+          }}
+          actionHref="/products"
+          actionLabel="Product catalogue"
+        />
+      </PageContainer>
+    );
+  }
 
   if (status === "loading" || !product) {
     return (
@@ -156,43 +181,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         <Section rhythm="intimate" contained={false}>
           <PageContainer>
             <ThresholdFrame label="Product plates">
-              {gallery.length >= 2 ? (
-                <div className="pt-6">
-                  <HorizontalPinGallery>
-                    {gallery.map((src, index) => (
-                      <div
-                        key={`${src}-${index}`}
-                        className="w-[min(88vw,24rem)] shrink-0 sm:w-[min(42vw,28rem)]"
-                      >
-                        <MediaBay
-                          src={src}
-                          alt={`${product.name} plate ${index + 1}`}
-                          className="aspect-[4/3] sm:aspect-[4/5]"
-                          fallback="product"
-                          morph
-                        />
-                      </div>
-                    ))}
-                  </HorizontalPinGallery>
-                </div>
-              ) : (
-                <GsapStagger className="bay-grid pt-6">
-                  {gallery.map((src, index) => (
-                    <div
-                      key={`${src}-${index}`}
-                      className="col-span-12 md:col-span-6 bg-concrete"
-                    >
-                      <MediaBay
-                        src={src}
-                        alt={`${product.name} plate ${index + 1}`}
-                        className="aspect-[4/3] sm:aspect-[4/5]"
-                        fallback="product"
-                        morph
-                      />
-                    </div>
-                  ))}
-                </GsapStagger>
-              )}
+              <div className="pt-6">
+                <MediaGallery images={gallery} title={product.name} fallback="product" />
+              </div>
             </ThresholdFrame>
           </PageContainer>
         </Section>

@@ -1,10 +1,6 @@
-"use client";
-
-import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GsapReveal, GsapStagger } from "@/components/animation/GsapReveal";
-import { HorizontalPinGallery } from "@/components/animation/HorizontalPinGallery";
+import { GsapReveal } from "@/components/animation/GsapReveal";
 import { SplitTextReveal } from "@/components/animation/SplitTextReveal";
 import { GridColumns } from "@/components/decorative/GridColumns";
 import { MediaBay } from "@/components/decorative/MediaBay";
@@ -13,63 +9,83 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
-import { SectionLoader } from "@/components/feedback/SectionLoader";
-import { getResearch } from "@/lib/api/research";
-import type { Research } from "@/lib/api/types";
+import { MediaGallery } from "@/components/media/MediaGallery";
+import {
+  getServerResearch,
+  ServerResearchError,
+} from "@/lib/api/research.server";
+import { getSiteUrl } from "@/lib/site-url";
 
 interface ResearchDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default function ResearchDetailPage({ params }: ResearchDetailPageProps) {
-  const { slug } = use(params);
-  const [research, setResearch] = useState<Research | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "missing">(
-    "loading"
-  );
-  const [progress, setProgress] = useState(0);
+function formatPublicationDate(value?: string) {
+  if (!value) return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return new Intl.DateTimeFormat("en", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    getResearch(slug, {
-      onProgress: (value) => {
-        if (!cancelled) setProgress(value);
-      },
-    })
-      .then((data) => {
-        if (cancelled) return;
-        setResearch(data);
-        setStatus("ready");
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setStatus("missing");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [slug]);
-
-  if (status === "missing") notFound();
-
-  if (status === "loading" || !research) {
-    return (
-      <PageContainer className="pt-32 pb-20">
-        <SectionLoader
-          label="Loading research…"
-          stepLabel="Fetching publication sheet"
-          progress={progress}
-          fullScreen
-        />
-      </PageContainer>
-    );
+export default async function ResearchDetailPage({
+  params,
+}: ResearchDetailPageProps) {
+  const { slug } = await params;
+  let research;
+  try {
+    research = await getServerResearch(slug);
+  } catch (error) {
+    if (error instanceof ServerResearchError && error.status === 404) {
+      notFound();
+    }
+    throw error;
   }
 
   const paragraphs = research.abstract.split(/\n\n+/).filter(Boolean);
   const figures = research.figures ?? [];
+  const publicationDate = formatPublicationDate(research.publicationDate);
+  const siteUrl = getSiteUrl();
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    headline: research.title,
+    description: research.abstract,
+    datePublished: research.publicationDate,
+    author: research.authors?.map((name) => ({
+      "@type": "Person",
+      name,
+    })),
+    keywords: research.keywords?.join(", "),
+    citation: research.citation,
+    identifier: research.doi
+      ? { "@type": "PropertyValue", propertyID: "DOI", value: research.doi }
+      : undefined,
+    image: research.image
+      ? new URL(research.image, siteUrl).toString()
+      : undefined,
+    url: new URL(`/researches/${encodeURIComponent(slug)}`, siteUrl).toString(),
+    sameAs:
+      research.externalUrl ??
+      (research.doi ? `https://doi.org/${research.doi}` : undefined),
+    publisher: {
+      "@type": "Organization",
+      name: "Sawy Academy",
+      url: siteUrl.toString(),
+    },
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+        }}
+      />
       <header className="relative overflow-hidden">
         <GridColumns />
         <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-8 lg:pb-12">
@@ -96,7 +112,7 @@ export default function ResearchDetailPage({ params }: ResearchDetailPageProps) 
             </div>
             <div className="hairline-border p-6 lg:p-8 lg:col-span-7 bg-concrete/80">
               <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
                 <div>
                   <p className="label-caps mb-2">Category</p>
                   <p className="type-infill">{research.category}</p>
@@ -109,6 +125,25 @@ export default function ResearchDetailPage({ params }: ResearchDetailPageProps) 
                   <p className="label-caps mb-2">Venue</p>
                   <p className="type-infill">{research.venue}</p>
                 </div>
+                {publicationDate && (
+                  <div className="col-span-2 sm:col-span-1">
+                    <p className="label-caps mb-2">Published</p>
+                    <p className="type-infill">{publicationDate}</p>
+                  </div>
+                )}
+                {research.doi && (
+                  <div className="col-span-2 sm:col-span-2">
+                    <p className="label-caps mb-2">DOI</p>
+                    <a
+                      href={`https://doi.org/${research.doi}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="type-infill break-all underline decoration-hairline underline-offset-4 hover:text-clay"
+                    >
+                      {research.doi}
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -136,6 +171,61 @@ export default function ResearchDetailPage({ params }: ResearchDetailPageProps) 
                 </div>
               )}
 
+              {research.authors && research.authors.length > 0 && (
+                <div className="mt-10 hairline-t pt-8">
+                  <p className="label-caps mb-2">Authors</p>
+                  <p className="type-infill">{research.authors.join(", ")}</p>
+                </div>
+              )}
+
+              {research.keywords && research.keywords.length > 0 && (
+                <div className="mt-8 hairline-t pt-8">
+                  <p className="label-caps mb-3">Keywords</p>
+                  <ul className="flex flex-wrap gap-2" aria-label="Research keywords">
+                    {research.keywords.map((keyword) => (
+                      <li
+                        key={keyword}
+                        className="hairline-border px-3 py-2 label-caps"
+                      >
+                        {keyword}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {research.citation && (
+                <div className="mt-8 hairline-t pt-8">
+                  <p className="label-caps mb-2">Preferred citation</p>
+                  <blockquote className="type-infill">{research.citation}</blockquote>
+                </div>
+              )}
+
+              {(research.pdfUrl || research.externalUrl) && (
+                <div className="mt-8 flex flex-wrap gap-4 hairline-t pt-8">
+                  {research.pdfUrl && (
+                    <a
+                      href={research.pdfUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="action-primary"
+                    >
+                      Read PDF
+                    </a>
+                  )}
+                  {research.externalUrl && (
+                    <a
+                      href={research.externalUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="action-secondary"
+                    >
+                      View publication
+                    </a>
+                  )}
+                </div>
+              )}
+
               <div className="mt-12">
                 <Link href="/researches" className="action-secondary">
                   ← Research index
@@ -146,49 +236,17 @@ export default function ResearchDetailPage({ params }: ResearchDetailPageProps) 
         </PageContainer>
       </Section>
 
-      <Section rhythm="intimate" contained={false}>
-        <PageContainer>
-          <ThresholdFrame label="Figure plates">
-            {figures.length >= 2 ? (
+      {figures.length > 0 && (
+        <Section rhythm="intimate" contained={false}>
+          <PageContainer>
+            <ThresholdFrame label="Figure plates">
               <div className="pt-6">
-                <HorizontalPinGallery>
-                  {figures.map((src, index) => (
-                    <div
-                      key={`${src}-${index}`}
-                      className="w-[min(88vw,24rem)] shrink-0 sm:w-[min(42vw,28rem)]"
-                    >
-                      <MediaBay
-                        src={src}
-                        alt={`${research.title} figure ${index + 1}`}
-                        className="aspect-[4/3] sm:aspect-[4/5]"
-                        fallback="research"
-                        morph
-                      />
-                    </div>
-                  ))}
-                </HorizontalPinGallery>
+                <MediaGallery images={figures} title={research.title} fallback="research" />
               </div>
-            ) : (
-              <GsapStagger className="bay-grid pt-6">
-                {(figures.length > 0 ? figures : [""]).map((src, index) => (
-                  <div
-                    key={`${src || "empty"}-${index}`}
-                    className="col-span-12 md:col-span-6 bg-concrete"
-                  >
-                    <MediaBay
-                      src={src || undefined}
-                      alt={`${research.title} figure ${index + 1}`}
-                      className="aspect-[4/3] sm:aspect-[4/5]"
-                      fallback="research"
-                      morph
-                    />
-                  </div>
-                ))}
-              </GsapStagger>
-            )}
-          </ThresholdFrame>
-        </PageContainer>
-      </Section>
+            </ThresholdFrame>
+          </PageContainer>
+        </Section>
+      )}
     </>
   );
 }

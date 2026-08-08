@@ -1,4 +1,5 @@
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
+import { AsyncState } from "@/components/feedback/AsyncState";
 
 interface AdminEmptyStateProps {
   title?: string;
@@ -11,10 +12,7 @@ export function AdminEmptyState({
 }: AdminEmptyStateProps) {
   return (
     <ThresholdFrame label="EMPTY">
-      <div className="hairline-border bg-concrete-dark/30 p-8">
-        <p className="eyebrow text-clay">{title}</p>
-        <p className="type-body mt-3 max-w-md text-charcoal-muted">{message}</p>
-      </div>
+      <AsyncState title={title} message={message} />
     </ThresholdFrame>
   );
 }
