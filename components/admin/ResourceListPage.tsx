@@ -4,10 +4,9 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
-import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { DataTable } from "@/components/admin/DataTable";
+import { DataTable, DataTableSkeleton } from "@/components/admin/DataTable";
 import {
   resourceConfigs,
   type ResourceKind,
@@ -87,6 +86,7 @@ export function ResourceListPage({ kind }: ResourceListPageProps) {
 
     try {
       await config.reorder(withOrder.map(config.getKey));
+      neutral("Order saved");
     } catch (err) {
       setData(previous);
       const message = toFriendlyAdminError(err, "reorder these items");
@@ -144,12 +144,12 @@ export function ResourceListPage({ kind }: ResourceListPageProps) {
       )}
 
       {isLoading && (
-        <AdminLoader
-          label="Loading…"
-          stepLabel={stepLabel}
-          progress={progress}
-          fullScreen
-        />
+        <div>
+          <p className="dim-label mb-3" role="status">
+            {stepLabel || `Loading ${config.listLabel}`} · {Math.round(progress ?? 0)}%
+          </p>
+          <DataTableSkeleton />
+        </div>
       )}
       {!isLoading && error && (
         <AdminErrorState
@@ -166,6 +166,12 @@ export function ResourceListPage({ kind }: ResourceListPageProps) {
           pageSize={canReorder ? Math.max(rows.length, 1) : 10}
           onReorder={canReorder ? handleReorder : undefined}
           reorderDisabled={isReordering}
+          searchPlaceholder={`Search ${config.listLabel}`}
+          getSearchText={(record) =>
+            Object.values(record)
+              .filter((value) => typeof value === "string" || typeof value === "number")
+              .join(" ")
+          }
           emptyMessage={`No ${config.listLabel} yet. Click “Add ${singular}” to create the first one.`}
           columns={[
             ...config.listColumns.map((column) => ({

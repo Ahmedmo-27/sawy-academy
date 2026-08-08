@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useId, useState } from "react";
 import { DeviceLimitPanel } from "@/components/auth/DeviceLimitPanel";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
+import { FormErrorSummary } from "@/components/forms/FormErrorSummary";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiClientError } from "@/lib/api/client";
 import type { RegisteredDevice } from "@/lib/api/devices";
 import { postAuthPath } from "@/lib/auth/postAuthPath";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { issuesByField, signupSchema } from "@/lib/validation/forms";
 const MIN_PASSWORD_LENGTH = 8;
 
 const fieldClass =
@@ -26,6 +26,7 @@ export function SignupForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [fieldError, setFieldError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [authError, setAuthError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [blockedDevices, setBlockedDevices] = useState<RegisteredDevice[] | null>(
@@ -54,35 +55,22 @@ export function SignupForm() {
     setFieldError("");
     setBlockedDevices(null);
 
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
-
-    if (!trimmedName || !trimmedEmail || !password || !confirmPassword) {
-      setFieldError("All fields are required.");
-      return;
-    }
-    if (trimmedName.length < 2) {
-      setFieldError("Enter your full name.");
-      return;
-    }
-    if (!EMAIL_PATTERN.test(trimmedEmail)) {
-      setFieldError("Enter a valid email address.");
-      return;
-    }
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      setFieldError(
-        `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`
+    const result = signupSchema.safeParse({ name, email, password, confirmPassword });
+    if (!result.success) {
+      const nextErrors = issuesByField(result.error);
+      setFieldErrors(nextErrors);
+      setFieldError(Object.values(nextErrors)[0] ?? "Check your details.");
+      const first = Object.keys(nextErrors)[0];
+      requestAnimationFrame(() =>
+        document.getElementById(`signup-${first === "confirmPassword" ? "confirm" : first}`)?.focus()
       );
       return;
     }
-    if (password !== confirmPassword) {
-      setFieldError("Passwords do not match.");
-      return;
-    }
+    setFieldErrors({});
 
     setSubmitting(true);
     try {
-      await attemptSignup(trimmedName, trimmedEmail, password);
+      await attemptSignup(result.data.name, result.data.email, result.data.password);
     } catch (err) {
       if (
         err instanceof ApiClientError &&
@@ -129,6 +117,7 @@ export function SignupForm() {
         )}
 
         <form className="space-y-7" onSubmit={handleSubmit} noValidate>
+          <FormErrorSummary errors={Object.values(fieldErrors)} />
           <div>
             <label htmlFor="signup-name" className="label-caps block mb-2">
               Full name
@@ -141,13 +130,14 @@ export function SignupForm() {
               autoComplete="name"
               required
               aria-required="true"
-              aria-invalid={Boolean(errorMessage)}
-              aria-describedby={errorMessage ? formErrorId : undefined}
+              aria-invalid={Boolean(fieldErrors.name)}
+              aria-describedby={fieldErrors.name ? "signup-name-error" : errorMessage ? formErrorId : undefined}
               value={name}
               onChange={(event) => setName(event.target.value)}
               className={fieldClass}
               placeholder="Your name"
             />
+            {fieldErrors.name && <p id="signup-name-error" className="type-infill mt-2 text-clay" role="alert">{fieldErrors.name}</p>}
           </div>
 
           <div>
@@ -162,13 +152,14 @@ export function SignupForm() {
               autoComplete="email"
               required
               aria-required="true"
-              aria-invalid={Boolean(errorMessage)}
-              aria-describedby={errorMessage ? formErrorId : undefined}
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? "signup-email-error" : errorMessage ? formErrorId : undefined}
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className={fieldClass}
               placeholder="you@example.com"
             />
+            {fieldErrors.email && <p id="signup-email-error" className="type-infill mt-2 text-clay" role="alert">{fieldErrors.email}</p>}
           </div>
 
           <div>
@@ -192,13 +183,14 @@ export function SignupForm() {
               autoComplete="new-password"
               required
               aria-required="true"
-              aria-invalid={Boolean(errorMessage)}
-              aria-describedby={errorMessage ? formErrorId : undefined}
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-describedby={fieldErrors.password ? "signup-password-error" : errorMessage ? formErrorId : undefined}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               className={fieldClass}
               placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
             />
+            {fieldErrors.password && <p id="signup-password-error" className="type-infill mt-2 text-clay" role="alert">{fieldErrors.password}</p>}
           </div>
 
           <div>
@@ -213,19 +205,21 @@ export function SignupForm() {
               autoComplete="new-password"
               required
               aria-required="true"
-              aria-invalid={Boolean(errorMessage)}
-              aria-describedby={errorMessage ? formErrorId : undefined}
+              aria-invalid={Boolean(fieldErrors.confirmPassword)}
+              aria-describedby={fieldErrors.confirmPassword ? "signup-confirm-error" : errorMessage ? formErrorId : undefined}
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               className={fieldClass}
               placeholder="Repeat password"
             />
+            {fieldErrors.confirmPassword && <p id="signup-confirm-error" className="type-infill mt-2 text-clay" role="alert">{fieldErrors.confirmPassword}</p>}
           </div>
 
           <button
             type="submit"
             className="cta-entrance w-full justify-center"
             disabled={submitting}
+            aria-busy={submitting}
           >
             {submitting ? "Creating account…" : "Create account"}
           </button>

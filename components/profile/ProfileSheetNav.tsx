@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export const PROFILE_SECTIONS = [
@@ -60,6 +61,14 @@ export function ProfileSheetNav({
         className={`-mx-2 overflow-x-auto ${className}`}
       >
         <ul className="flex min-w-max items-end gap-2 border-b border-hairline px-2">
+          <li>
+            <Link
+              href="/dashboard"
+              className="relative flex min-h-11 items-center px-3 label-caps text-charcoal-infill transition-colors duration-200 hover:text-charcoal"
+            >
+              Overview
+            </Link>
+          </li>
           {PROFILE_SECTIONS.map((section) => {
             const isActive = activeId === section.id;
             return (
@@ -71,7 +80,7 @@ export function ProfileSheetNav({
                       ? "text-clay"
                       : "text-charcoal-infill hover:text-charcoal"
                   }`}
-                  aria-current={isActive ? "true" : undefined}
+                  aria-current={isActive ? "location" : undefined}
                 >
                   {section.label}
                   <span
@@ -93,6 +102,17 @@ export function ProfileSheetNav({
     <nav aria-label="Profile sections" className={className}>
       <p className="label-caps mb-4 text-charcoal/30">Sheet index</p>
       <ol className="space-y-2">
+        <li>
+          <Link
+            href="/dashboard"
+            className="group flex items-baseline gap-3 py-2.5 text-charcoal-infill transition-colors duration-200 hover:text-charcoal"
+          >
+            <span className="label-caps tabular-nums text-charcoal/25 group-hover:text-charcoal/40">
+              00
+            </span>
+            <span className="type-infill">Overview</span>
+          </Link>
+        </li>
         {PROFILE_SECTIONS.map((section, index) => {
           const isActive = activeId === section.id;
           return (
@@ -104,7 +124,7 @@ export function ProfileSheetNav({
                     ? "text-clay"
                     : "text-charcoal-infill hover:text-charcoal"
                 }`}
-                aria-current={isActive ? "true" : undefined}
+                aria-current={isActive ? "location" : undefined}
               >
                 <span className="label-caps tabular-nums text-charcoal/25 group-hover:text-charcoal/40">
                   {String(index + 1).padStart(2, "0")}

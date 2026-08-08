@@ -11,6 +11,13 @@ const researches = [
     abstract:
       "An investigation into how biogeometric proportion systems can inform residential layout in dense urban contexts, with case studies from Cairo and Giza.",
     collaborators: "Dr. Nadia Hassan",
+    authors: ["Ahmed Sawy", "Nadia Hassan"],
+    publicationDate: "2024-05-15",
+    doi: "10.5281/zenodo.11223344",
+    citation:
+      "Sawy, A., & Hassan, N. (2024). Biogeometric Principles in Contemporary Egyptian Housing.",
+    externalUrl: "https://doi.org/10.5281/zenodo.11223344",
+    keywords: ["biogeometry", "housing", "Cairo", "urban design"],
   },
   {
     id: "r2",
@@ -20,6 +27,9 @@ const researches = [
     venue: "Building & Environment, Elsevier",
     abstract:
       "Comparative study of traditional earth-building techniques and their thermal performance, proposing a framework for adaptive reuse in rural housing.",
+    authors: ["Ahmed Sawy"],
+    publicationDate: "2023-09-01",
+    keywords: ["earth construction", "thermal performance", "Nile Delta"],
   },
   {
     id: "r3",
@@ -29,6 +39,9 @@ const researches = [
     venue: "International Conference on Islamic Architecture, Istanbul",
     abstract:
       "Paper examining the relationship between geometric ordering systems and perceptual experience in Ottoman-influenced mosque typologies across Egypt.",
+    authors: ["Ahmed Sawy"],
+    publicationDate: "2023-06-18",
+    keywords: ["sacred geometry", "mosque architecture", "spatial perception"],
   },
   {
     id: "r4",

@@ -29,11 +29,23 @@ export function SiteShell({ children }: SiteShellProps) {
             <>{children}</>
           ) : (
             <CartProvider>
+              <a
+                href="#main-content"
+                className="fixed left-4 top-4 z-[400] -translate-y-24 bg-charcoal px-4 py-3 text-sm font-medium text-concrete transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-clay focus:ring-offset-2"
+              >
+                Skip to main content
+              </a>
               <SplashLoader />
               <PageTransition />
               <ScrollAnimationShell>
                 <Navigation />
-                <main className="flex-1 relative">{children}</main>
+                <main
+                  id="main-content"
+                  tabIndex={-1}
+                  className="flex-1 relative outline-none"
+                >
+                  {children}
+                </main>
                 <Footer />
               </ScrollAnimationShell>
             </CartProvider>

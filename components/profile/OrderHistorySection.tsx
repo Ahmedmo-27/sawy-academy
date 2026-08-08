@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import { useCallback, useState } from "react";
-import { AdminLoader } from "@/components/admin/AdminLoader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
 import { ProfileSectionShell } from "@/components/profile/ProfileSectionShell";
+import {
+  ProfileSectionError,
+  ProfileSectionLoading,
+} from "@/components/profile/ProfileSectionState";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import type { Order } from "@/lib/api/types";
@@ -54,37 +57,23 @@ export function OrderHistorySection() {
       ),
     []
   );
-  const { data, isLoading, error, progress, stepLabel, refetch } =
+  const { data, isLoading, error, refetch } =
     useAdminResource(loader, "Loading order history");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (isLoading) {
-    return (
-      <div id="orders" className="scroll-mt-28 lg:scroll-mt-32">
-        <AdminLoader
-          label="Loading order history"
-          stepLabel={stepLabel}
-          progress={progress}
-        />
-      </div>
-    );
+    return <ProfileSectionLoading id="orders" label="Order history" />;
   }
 
   if (error) {
     return (
-      <ProfileSectionShell id="orders" label="Order history">
-        <div className="hairline-border bg-concrete p-6 mt-4 sm:p-8">
-          <p className="eyebrow text-clay">Unable to load orders</p>
-          <p className="type-infill mt-3">{error}</p>
-          <button
-            type="button"
-            className="action-primary mt-6"
-            onClick={() => void refetch()}
-          >
-            Retry
-          </button>
-        </div>
-      </ProfileSectionShell>
+      <ProfileSectionError
+        id="orders"
+        label="Order history"
+        title="Unable to load orders"
+        message={error}
+        onRetry={() => void refetch()}
+      />
     );
   }
 
@@ -126,6 +115,7 @@ export function OrderHistorySection() {
                     )
                   }
                   aria-expanded={isOpen}
+                  aria-controls={`order-details-${order.id}`}
                 >
                   <div>
                     <p className="label-caps mb-1 text-charcoal/35 sm:hidden">
@@ -169,7 +159,10 @@ export function OrderHistorySection() {
                 </button>
 
                 {isOpen && (
-                  <div className="space-y-6 border-t border-hairline bg-concrete-dark/20 px-5 py-6 sm:px-6">
+                  <div
+                    id={`order-details-${order.id}`}
+                    className="space-y-6 border-t border-hairline bg-concrete-dark/20 px-5 py-6 sm:px-6"
+                  >
                     {shot ? (
                       <div>
                         <p className="label-caps mb-3">InstaPay screenshot</p>

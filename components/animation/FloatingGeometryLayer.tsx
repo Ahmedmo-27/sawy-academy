@@ -33,18 +33,19 @@ function WireCube({ x, y }: { x: string; y: string }) {
 
 export function FloatingGeometryLayer() {
   const layerRef = useRef<HTMLDivElement>(null);
-  const parallaxRef = useMouseParallax(0.015);
+  const ambientRef = useRef<HTMLDivElement>(null);
+  const parallaxRef = useMouseParallax(0.024);
   const reduced = useReducedMotion();
 
   useEffect(() => {
     if (reduced) return;
     registerGsap();
     const el = layerRef.current;
-    if (!el) return;
+    const ambient = ambientRef.current;
+    if (!el || !ambient) return;
 
     const tween = gsap.to(el, {
       y: -80,
-      rotation: 2,
       ease: "none",
       scrollTrigger: {
         trigger: document.body,
@@ -54,7 +55,7 @@ export function FloatingGeometryLayer() {
       },
     });
 
-    gsap.to(el, {
+    gsap.to(ambient, {
       rotation: -2,
       duration: 24,
       repeat: -1,
@@ -65,89 +66,90 @@ export function FloatingGeometryLayer() {
     return () => {
       tween.scrollTrigger?.kill();
       tween.kill();
-      gsap.killTweensOf(el);
+      gsap.killTweensOf(ambient);
     };
   }, [reduced]);
-
-  const setRefs = (node: HTMLDivElement | null) => {
-    layerRef.current = node;
-    (parallaxRef as React.MutableRefObject<HTMLDivElement | null>).current =
-      node;
-  };
 
   if (reduced) return null;
 
   return (
     <div
-      ref={setRefs}
+      ref={layerRef}
       className="pointer-events-none fixed inset-x-0 top-0 z-[1] h-[var(--app-height)] overflow-hidden will-change-transform"
       aria-hidden="true"
     >
-      <svg
-        className="absolute inset-0 h-full w-full"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        {SHAPES.map((shape, i) => {
-          if (shape.type === "rect") {
-            return (
-              <rect
-                key={i}
-                x={shape.x}
-                y={shape.y}
-                width={shape.w}
-                height={shape.h}
-                fill="none"
-                stroke="var(--color-clay)"
-                strokeWidth="0.5"
-                opacity="0.25"
-              />
-            );
-          }
-          if (shape.type === "circle") {
-            return (
-              <circle
-                key={i}
-                cx={shape.cx}
-                cy={shape.cy}
-                r={shape.r}
-                fill="none"
-                stroke="var(--color-clay)"
-                strokeWidth="0.5"
-                opacity="0.2"
-              />
-            );
-          }
-          if (shape.type === "line") {
-            return (
-              <g key={i} opacity="0.3">
-                <line
-                  x1={shape.x1}
-                  y1={shape.y1}
-                  x2={shape.x2}
-                  y2={shape.y2}
-                  stroke="var(--color-clay)"
-                  strokeWidth="0.5"
-                />
-                <circle
-                  cx={shape.x1}
-                  cy={shape.y1}
-                  r="2"
-                  fill="var(--color-clay)"
-                  opacity="0.4"
-                />
-                <circle
-                  cx={shape.x2}
-                  cy={shape.y2}
-                  r="2"
-                  fill="var(--color-clay)"
-                  opacity="0.4"
-                />
-              </g>
-            );
-          }
-          return <WireCube key={i} x={shape.x} y={shape.y} />;
-        })}
-      </svg>
+      <div ref={ambientRef} className="absolute inset-0 will-change-transform">
+        <div
+          ref={parallaxRef}
+          className="absolute inset-0 will-change-transform"
+        >
+          <svg
+            className="absolute inset-0 h-full w-full"
+            preserveAspectRatio="xMidYMid slice"
+          >
+            {SHAPES.map((shape, i) => {
+              if (shape.type === "rect") {
+                return (
+                  <rect
+                    key={i}
+                    x={shape.x}
+                    y={shape.y}
+                    width={shape.w}
+                    height={shape.h}
+                    fill="none"
+                    stroke="var(--color-clay)"
+                    strokeWidth="0.5"
+                    opacity="0.25"
+                  />
+                );
+              }
+              if (shape.type === "circle") {
+                return (
+                  <circle
+                    key={i}
+                    cx={shape.cx}
+                    cy={shape.cy}
+                    r={shape.r}
+                    fill="none"
+                    stroke="var(--color-clay)"
+                    strokeWidth="0.5"
+                    opacity="0.2"
+                  />
+                );
+              }
+              if (shape.type === "line") {
+                return (
+                  <g key={i} opacity="0.3">
+                    <line
+                      x1={shape.x1}
+                      y1={shape.y1}
+                      x2={shape.x2}
+                      y2={shape.y2}
+                      stroke="var(--color-clay)"
+                      strokeWidth="0.5"
+                    />
+                    <circle
+                      cx={shape.x1}
+                      cy={shape.y1}
+                      r="2"
+                      fill="var(--color-clay)"
+                      opacity="0.4"
+                    />
+                    <circle
+                      cx={shape.x2}
+                      cy={shape.y2}
+                      r="2"
+                      fill="var(--color-clay)"
+                      opacity="0.4"
+                    />
+                  </g>
+                );
+              }
+              return <WireCube key={i} x={shape.x} y={shape.y} />;
+            })}
+          </svg>
+        </div>
+      </div>
     </div>
   );
 }

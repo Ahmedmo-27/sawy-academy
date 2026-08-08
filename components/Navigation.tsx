@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { useCart } from "@/components/cart/CartProvider";
 import { useAuth } from "@/hooks/useAuth";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useSiteSettings } from "@/components/cms/SiteContentProvider";
 import { Wordmark } from "@/components/Wordmark";
 import { navTransition } from "@/lib/motion";
+import { getLenis } from "@/lib/smoothScroll";
 import type { NavLinkItem } from "@/lib/api/types";
 
 function isActive(pathname: string, href: string) {
@@ -71,15 +73,19 @@ function NavLink({
   href,
   label,
   active,
+  accessibleLabel,
 }: {
   href: string;
   label: string;
   active: boolean;
+  accessibleLabel?: string;
 }) {
   return (
     <Link
       href={href}
-      className={`relative eyebrow pb-0.5 transition-colors duration-200 ${
+      aria-label={accessibleLabel}
+      aria-current={active ? "page" : undefined}
+      className={`relative inline-flex min-h-11 items-center eyebrow transition-colors duration-200 ${
         active ? "text-clay" : "text-charcoal-infill hover:text-charcoal"
       }`}
     >
@@ -195,7 +201,7 @@ function FlyoutMenu({
       <button
         ref={buttonRef}
         type="button"
-        className={`relative eyebrow pb-0.5 inline-flex items-center gap-1.5 transition-colors duration-200 ${
+        className={`relative eyebrow inline-flex min-h-11 items-center gap-1.5 transition-colors duration-200 ${
           active ? "text-clay" : "text-charcoal-infill hover:text-charcoal"
         }`}
         aria-haspopup="menu"
@@ -221,7 +227,7 @@ function FlyoutMenu({
             id={menuId}
             role="menu"
             aria-label={item.label}
-            className="absolute left-0 top-full pt-3"
+            className="absolute left-0 top-full z-[60] pt-3"
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
@@ -233,13 +239,16 @@ function FlyoutMenu({
               }
             }}
           >
-            <div className="hairline-border bg-concrete/98 min-w-[13.5rem] backdrop-blur-sm">
+            <div className="hairline-border min-w-[13.5rem] bg-concrete shadow-[0_16px_40px_rgba(26,26,26,0.12)]">
               {children.map((child, i) => (
                 <div key={child.id || child.href} className={i > 0 ? "hairline-t" : ""}>
                   <Link
                     href={child.href}
                     role="menuitem"
-                    className={`block whitespace-nowrap px-5 py-3 eyebrow transition-colors duration-200 ${
+                    aria-current={
+                      isActive(pathname, child.href) ? "page" : undefined
+                    }
+                    className={`flex min-h-11 items-center whitespace-nowrap px-5 py-3 eyebrow transition-colors duration-200 ${
                       isActive(pathname, child.href)
                         ? "text-clay"
                         : "text-charcoal-infill hover:text-charcoal"
@@ -265,6 +274,9 @@ export function Navigation() {
   const [flyoutOpenId, setFlyoutOpenId] = useState<string | null>(null);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const restoreMobileFocusRef = useRef(true);
   const { count } = useCart();
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { settings } = useSiteSettings();
@@ -276,7 +288,7 @@ export function Navigation() {
       ? "/dashboard/profile"
       : "/login";
   const accountLabel = isAdmin
-    ? "Go to admin panel"
+    ? "Admin"
     : isAuthenticated
       ? user.name?.split(" ")[0] || "Account"
       : "Login";
@@ -299,6 +311,101 @@ export function Navigation() {
     setOpen(false);
     setFlyoutOpenId(null);
   }, [pathname]);
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1280px)");
+    const closeAtDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) setOpen(false);
+    };
+    desktop.addEventListener("change", closeAtDesktop);
+    return () => desktop.removeEventListener("change", closeAtDesktop);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const menu = mobileMenuRef.current;
+    if (!menu) return;
+    restoreMobileFocusRef.current = true;
+
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const fallbackButton = mobileMenuButtonRef.current;
+    const bodyOverflow = document.body.style.overflow;
+    const bodyPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+    const inertElements = Array.from(
+      document.querySelectorAll<HTMLElement>("#main-content, footer")
+    );
+    const previousInert = inertElements.map((element) => element.inert);
+
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    inertElements.forEach((element) => {
+      element.inert = true;
+    });
+    getLenis()?.stop();
+
+    const focusableSelector =
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusFirst = window.requestAnimationFrame(() => {
+      menu.querySelector<HTMLElement>(focusableSelector)?.focus();
+    });
+
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = Array.from(
+        menu.querySelectorAll<HTMLElement>(focusableSelector)
+      ).filter((element) => !element.hasAttribute("hidden"));
+      if (focusable.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!menu.contains(document.activeElement)) {
+        event.preventDefault();
+        first.focus();
+      } else if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFirst);
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = bodyOverflow;
+      document.body.style.paddingRight = bodyPaddingRight;
+      inertElements.forEach((element, index) => {
+        element.inert = previousInert[index];
+      });
+      getLenis()?.start();
+      if (restoreMobileFocusRef.current) {
+        if (previousFocus?.isConnected) {
+          previousFocus.focus();
+        } else {
+          fallbackButton?.focus();
+        }
+      }
+    };
+  }, [open]);
 
   return (
     <motion.header
@@ -338,15 +445,16 @@ export function Navigation() {
 
           <span className="h-4 w-px bg-hairline" aria-hidden="true" />
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <Link
               href="/cart"
+              aria-current={cartActive ? "page" : undefined}
               aria-label={
                 count > 0
                   ? `Cart, ${count} item${count === 1 ? "" : "s"}`
                   : "Cart"
               }
-              className={`relative inline-flex items-center transition-colors duration-200 ${
+              className={`relative inline-flex min-h-11 min-w-11 items-center justify-center transition-colors duration-200 ${
                 cartActive
                   ? "text-clay"
                   : "text-charcoal-infill hover:text-charcoal"
@@ -363,13 +471,14 @@ export function Navigation() {
             <NavLink
               href={accountHref}
               label={accountLabel}
+              accessibleLabel={isAdmin ? "Go to admin panel" : undefined}
               active={isActive(pathname, accountHref)}
             />
 
             {isAuthenticated && (
               <button
                 type="button"
-                className="eyebrow text-charcoal-infill transition-colors duration-200 hover:text-charcoal"
+                className="inline-flex min-h-11 items-center eyebrow text-charcoal-infill transition-colors duration-200 hover:text-charcoal"
                 onClick={() => setLogoutOpen(true)}
               >
                 Log out
@@ -379,8 +488,9 @@ export function Navigation() {
         </div>
 
         <button
+          ref={mobileMenuButtonRef}
           type="button"
-          className="xl:hidden eyebrow text-charcoal"
+          className="xl:hidden inline-flex min-h-11 min-w-11 items-center justify-center eyebrow text-charcoal"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="mobile-nav"
@@ -392,7 +502,19 @@ export function Navigation() {
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
+            ref={mobileMenuRef}
             id="mobile-nav"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            onClickCapture={(event) => {
+              if (
+                event.target instanceof Element &&
+                event.target.closest("a[href]")
+              ) {
+                restoreMobileFocusRef.current = false;
+              }
+            }}
             className="xl:hidden hairline-t bg-concrete/98 px-3 pb-6 pt-4 sm:px-4"
             initial={{ opacity: 0, y: -12, scaleY: 0.98 }}
             animate={{ opacity: 1, y: 0, scaleY: 1 }}
@@ -414,7 +536,7 @@ export function Navigation() {
                   <li key={item.id}>
                     <button
                       type="button"
-                      className={`w-full flex items-center justify-between eyebrow py-3 ${
+                      className={`w-full flex min-h-11 items-center justify-between eyebrow py-3 ${
                         active ? "text-clay" : "text-charcoal-infill"
                       }`}
                       aria-expanded={expanded}
@@ -444,7 +566,12 @@ export function Navigation() {
                             <li key={child.id || child.href}>
                               <Link
                                 href={child.href}
-                                className={`eyebrow block py-2.5 ${
+                                aria-current={
+                                  isActive(pathname, child.href)
+                                    ? "page"
+                                    : undefined
+                                }
+                                className={`eyebrow flex min-h-11 items-center py-2.5 ${
                                   isActive(pathname, child.href)
                                     ? "text-clay"
                                     : "text-charcoal-infill"
@@ -465,7 +592,10 @@ export function Navigation() {
                 <li key={item.id}>
                   <Link
                     href={item.href}
-                    className={`eyebrow block py-3 ${
+                    aria-current={
+                      isActive(pathname, item.href) ? "page" : undefined
+                    }
+                    className={`eyebrow flex min-h-11 items-center py-3 ${
                       isActive(pathname, item.href)
                         ? "text-clay"
                         : "text-charcoal-infill"
@@ -481,7 +611,8 @@ export function Navigation() {
           <div className="hairline-t mt-4 pt-4 flex flex-wrap items-center justify-between gap-4">
             <Link
               href="/cart"
-              className={`inline-flex items-center gap-2 eyebrow ${
+              aria-current={cartActive ? "page" : undefined}
+              className={`inline-flex min-h-11 items-center gap-2 eyebrow ${
                 cartActive ? "text-clay" : "text-charcoal-infill"
               }`}
               aria-label={
@@ -497,7 +628,10 @@ export function Navigation() {
             <div className="flex items-center gap-5">
               <Link
                 href={accountHref}
-                className={`eyebrow ${
+                aria-current={
+                  isActive(pathname, accountHref) ? "page" : undefined
+                }
+                className={`inline-flex min-h-11 items-center eyebrow ${
                   isActive(pathname, accountHref)
                     ? "text-clay"
                     : "text-charcoal-infill"
@@ -509,8 +643,12 @@ export function Navigation() {
               {isAuthenticated && (
                 <button
                   type="button"
-                  className="eyebrow text-charcoal-infill"
-                  onClick={() => setLogoutOpen(true)}
+                  className="inline-flex min-h-11 items-center eyebrow text-charcoal-infill"
+                  onClick={() => {
+                    restoreMobileFocusRef.current = false;
+                    setOpen(false);
+                    setLogoutOpen(true);
+                  }}
                 >
                   Log out
                 </button>

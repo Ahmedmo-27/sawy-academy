@@ -20,7 +20,7 @@ export function SectionCutDivider({
     <motion.div
       className={`relative w-full ${className}`}
       aria-hidden="true"
-      initial="hidden"
+      initial={prefersReducedMotion ? "visible" : "hidden"}
       whileInView="visible"
       viewport={viewportOnce}
     >
@@ -32,7 +32,10 @@ export function SectionCutDivider({
             hidden: { scaleX: 0 },
             visible: { scaleX: 1 },
           }}
-          transition={{ duration: 0.8, ease: easeOut }}
+          transition={{
+            duration: prefersReducedMotion ? 0 : 0.8,
+            ease: easeOut,
+          }}
         />
 
         <div className="mx-3 flex shrink-0 items-center sm:mx-4">
@@ -54,7 +57,11 @@ export function SectionCutDivider({
                 hidden: { opacity: 0 },
                 visible: { opacity: 1 },
               }}
-              transition={{ duration: 0.6, ease: easeOut, delay: 0.5 }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.6,
+                ease: easeOut,
+                delay: prefersReducedMotion ? 0 : 0.5,
+              }}
             >
               {label}
             </motion.span>
@@ -78,7 +85,11 @@ export function SectionCutDivider({
             hidden: { scaleX: 0 },
             visible: { scaleX: 1 },
           }}
-          transition={{ duration: 0.8, ease: easeOut, delay: 0.1 }}
+          transition={{
+            duration: prefersReducedMotion ? 0 : 0.8,
+            ease: easeOut,
+            delay: prefersReducedMotion ? 0 : 0.1,
+          }}
         />
       </div>
 
@@ -91,7 +102,11 @@ export function SectionCutDivider({
           hidden: { opacity: 0 },
           visible: { opacity: 0.15 },
         }}
-        transition={{ duration: 0.8, ease: easeOut, delay: 0.6 }}
+        transition={{
+          duration: prefersReducedMotion ? 0 : 0.8,
+          ease: easeOut,
+          delay: prefersReducedMotion ? 0 : 0.6,
+        }}
       >
         <defs>
           <pattern
@@ -150,7 +165,7 @@ function HatchMarks({
             visible: { scaleY: 1, opacity: 1 },
           }}
           transition={{
-            duration: 0.5,
+            duration: prefersReducedMotion ? 0 : 0.5,
             ease: easeOut,
             delay: prefersReducedMotion ? 0 : 0.3 + i * 0.04,
           }}

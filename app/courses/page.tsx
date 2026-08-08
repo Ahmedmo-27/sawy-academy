@@ -15,6 +15,7 @@ import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { SectionLoader } from "@/components/feedback/SectionLoader";
+import { AsyncState } from "@/components/feedback/AsyncState";
 import {
   asCourses,
   courseGroupSlug,
@@ -33,61 +34,96 @@ function CourseListing({
   numbered?: boolean;
   groupImage?: string;
 }) {
+  if (courses.length === 0) {
+    return (
+      <AsyncState
+        title="Courses are being prepared"
+        message="This programme does not have any published courses yet."
+      />
+    );
+  }
+
   return (
-    <GsapStagger className="space-y-0">
-      {courses.map((course, i) => (
-        <div
-          key={course.id}
-          className={`grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 py-8 ${
-            i > 0 ? "hairline-t" : ""
-          }`}
-        >
-          {numbered && (
-            <div className="lg:col-span-1">
-              <span className="label-caps text-clay">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-            </div>
-          )}
-          <div className={`${numbered ? "lg:col-span-2" : "lg:col-span-2"}`}>
-            <MediaBay
-              src={course.image || groupImage}
-              alt={course.title}
-              className="aspect-square max-w-[9rem] sm:max-w-[7rem]"
-              fallback="course"
-              morph
-            />
-          </div>
-          <div className="lg:col-span-5">
-            <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
-            <h3 className="type-title mb-2">
-              <Link
-                href={`/courses/${course.slug}`}
-                className="hover:text-clay transition-colors duration-200"
-              >
-                {course.title}
-              </Link>
-            </h3>
-            <p className="type-infill leading-relaxed">{course.description}</p>
+    <div role="list">
+      <GsapStagger className="divide-y divide-hairline">
+        {courses.map((course, i) => (
+          <div key={course.id} role="listitem">
             <Link
               href={`/courses/${course.slug}`}
-              className="action-secondary mt-4 inline-block"
+              aria-label={`View ${course.title} course details`}
+              className={`group grid min-h-11 gap-x-4 gap-y-5 py-6 transition-colors duration-300 hover:bg-concrete-dark/25 focus-visible:bg-concrete-dark/25 sm:px-4 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-5 ${
+                numbered
+                  ? "grid-cols-[auto_5rem_1fr] sm:grid-cols-[auto_6rem_1fr]"
+                  : "grid-cols-[5rem_1fr] sm:grid-cols-[6rem_1fr]"
+              }`}
             >
-              Open course details
+              {numbered && (
+                <div className="pt-1 lg:col-span-1 lg:pt-0">
+                  <span className="label-caps text-clay">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+              )}
+              <div
+                className={`${
+                  numbered
+                    ? "col-start-2 lg:col-start-auto lg:col-span-2"
+                    : "col-start-1 lg:col-start-auto lg:col-span-2"
+                }`}
+              >
+                <MediaBay
+                  src={course.image || groupImage}
+                  alt={course.title}
+                  className="aspect-square w-full"
+                  fallback="course"
+                  morph
+                  sizes="(min-width: 1024px) 9rem, 6rem"
+                />
+              </div>
+              <div
+                className={`${
+                  numbered
+                    ? "col-start-3 lg:col-start-auto lg:col-span-5"
+                    : "col-start-2 lg:col-start-auto lg:col-span-6"
+                } min-w-0`}
+              >
+                <ScaleBar scale="1:100" className="mb-3 max-w-[100px]" />
+                <h3 className="type-title mb-2 transition-colors duration-200 group-hover:text-clay">
+                  {course.title}
+                </h3>
+                <p className="type-infill line-clamp-2 leading-relaxed">
+                  {course.description}
+                </p>
+                <span className="action-secondary mt-4 inline-flex min-h-11 items-center">
+                  View course
+                </span>
+              </div>
+              <div
+                className={`${
+                  numbered
+                    ? "col-start-3 lg:col-start-auto"
+                    : "col-start-2 lg:col-start-auto"
+                } flex flex-wrap items-center gap-x-4 gap-y-2 lg:col-span-3 lg:flex-col lg:items-end`}
+              >
+                <span className="label-caps text-charcoal">
+                  {course.level}
+                </span>
+                <LevelProgressLine
+                  progress={parseLevelProgress(course.level)}
+                  className="w-24 lg:ml-auto lg:w-full lg:max-w-[140px]"
+                />
+                <span className="type-infill basis-full lg:basis-auto">
+                  {course.instructor}
+                </span>
+                <span className="type-body text-charcoal lg:mt-1">
+                  {course.price}
+                </span>
+              </div>
             </Link>
           </div>
-          <div className="lg:col-span-4 flex flex-col lg:items-end gap-3">
-            <span className="label-caps">{course.level}</span>
-            <LevelProgressLine
-              progress={parseLevelProgress(course.level)}
-              className="lg:ml-auto w-full max-w-[140px]"
-            />
-            <span className="type-infill">{course.instructor}</span>
-            <span className="type-body text-charcoal">{course.price}</span>
-          </div>
-        </div>
-      ))}
-    </GsapStagger>
+        ))}
+      </GsapStagger>
+    </div>
   );
 }
 
@@ -95,9 +131,14 @@ export default function CoursesPage() {
   const [courseGroups, setCourseGroups] = useState<CourseGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
+    setLoadError(false);
+    setProgress(0);
     logger.info("Courses page loading curriculum", {
       page: "/courses",
       endpoint: "/api/courses/groups",
@@ -122,7 +163,10 @@ export default function CoursesPage() {
           endpoint: "/api/courses/groups",
           error,
         });
-        if (!cancelled) setCourseGroups([]);
+        if (!cancelled) {
+          setCourseGroups([]);
+          setLoadError(true);
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -130,7 +174,7 @@ export default function CoursesPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
 
   return (
     <>
@@ -139,8 +183,8 @@ export default function CoursesPage() {
       <ThresholdDoorway label="CURRICULUM" />
 
       <Section rhythm="standard" contained={false}>
-        <PageContainer className="relative space-y-16 lg:space-y-24">
-          {/* Fixed drafting accents — stay in view and scrub with scroll */}
+        <PageContainer className="relative space-y-14 lg:space-y-20">
+          {/* Drafting accents stay local to the curriculum instead of following reading. */}
           <BioGeometryShape
             kind="coil"
             variant="draw"
@@ -148,10 +192,10 @@ export default function CoursesPage() {
             stroke="var(--color-clay)"
             opacity={0.5}
             drawEnd={0.5}
-            parallax={220}
+            parallax={80}
             parallaxX={40}
             parallaxRotate={12}
-            className="fixed right-[max(0.5rem,calc((100vw-72rem)/2-2rem))] top-[22%] z-0 hidden md:block"
+            className="pointer-events-none absolute -right-8 top-16 z-0 hidden lg:block"
           />
           <BioGeometryShape
             kind="c7"
@@ -160,20 +204,41 @@ export default function CoursesPage() {
             stroke="var(--color-clay-muted)"
             opacity={0.45}
             drawEnd={0.7}
-            parallax={140}
+            parallax={60}
             parallaxX={-50}
             parallaxRotate={-6}
-            className="fixed left-[max(0.5rem,calc((100vw-72rem)/2-1.5rem))] bottom-[18%] z-0 hidden md:block"
+            className="pointer-events-none absolute -left-8 bottom-16 z-0 hidden lg:block"
           />
 
-          {loading && (
-            <SectionLoader
-              label="Loading curriculum…"
-              stepLabel="Fetching course groups"
-              progress={progress}
-            />
+          {(loading || loadError || courseGroups.length === 0) && (
+            <ThresholdFrame label="Curriculum index" labelAsHeading>
+              <div className="relative z-[1] mt-4 hairline-border p-6 lg:p-10">
+                {loading && (
+                  <SectionLoader
+                    label="Loading curriculum…"
+                    stepLabel="Fetching course groups"
+                    progress={progress}
+                  />
+                )}
+                {!loading && loadError && (
+                  <AsyncState
+                    kind="error"
+                    title="The curriculum could not be loaded"
+                    message="Check your connection and try loading the course groups again."
+                    onRetry={() => setReloadKey((value) => value + 1)}
+                  />
+                )}
+                {!loading && !loadError && courseGroups.length === 0 && (
+                  <AsyncState
+                    title="No courses are published"
+                    message="The curriculum is currently being prepared. Please check back soon."
+                  />
+                )}
+              </div>
+            </ThresholdFrame>
           )}
           {!loading &&
+            !loadError &&
             courseGroups.map((group, groupIndex) => {
               const slug = courseGroupSlug(group);
               const courses = asCourses(group);
@@ -198,20 +263,31 @@ export default function CoursesPage() {
                       <div className="lg:col-span-8">
                         <p className="eyebrow mb-2">{group.subtitle}</p>
                         <SplitTextReveal type="lines">
-                          <h2 className="type-heading">
-                            <Link
-                              href={`/courses/${slug}`}
-                              className="hover:text-clay transition-colors duration-200"
-                            >
-                              {group.title}
-                            </Link>
-                          </h2>
+                          <h2 className="type-heading">{group.title}</h2>
                         </SplitTextReveal>
+                        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+                          <span className="label-caps text-charcoal">
+                            {courses.length}{" "}
+                            {courses.length === 1 ? "course" : "courses"}
+                          </span>
+                          <span className="label-caps">
+                            {group.type === "diploma"
+                              ? "Diploma programme"
+                              : "Level progression"}
+                          </span>
+                          <span className="type-infill text-charcoal">
+                            {group.bundlePrice
+                              ? group.bundlePrice
+                              : courses[0]?.price
+                                ? `From ${courses[0].price}`
+                                : "Pricing on request"}
+                          </span>
+                        </div>
                         <Link
                           href={`/courses/${slug}`}
-                          className="action-primary mt-5 inline-block"
+                          className="action-primary mt-5 inline-flex min-h-11 items-center"
                         >
-                          Open course details
+                          Explore programme
                         </Link>
                       </div>
                       <div className="lg:col-span-4">
@@ -221,6 +297,7 @@ export default function CoursesPage() {
                           className="aspect-[16/10]"
                           fallback="course"
                           morph
+                          sizes="(min-width: 1024px) 24rem, 100vw"
                         />
                       </div>
                     </div>
@@ -261,7 +338,7 @@ export default function CoursesPage() {
                               price={group.bundlePrice}
                               kind="diploma"
                               label="Enroll in Diploma"
-                              className="action-primary lg:mt-2 disabled:text-clay-muted disabled:cursor-not-allowed"
+                              className="action-primary inline-flex min-h-11 items-center lg:mt-2 disabled:text-clay-muted disabled:cursor-not-allowed"
                             />
                           </div>
                         )}

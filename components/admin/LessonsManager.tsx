@@ -55,6 +55,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
   const [deleteTarget, setDeleteTarget] = useState<Lesson | null>(null);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isReordering, setIsReordering] = useState(false);
 
   function updateForm(key: keyof LessonForm, value: string) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -102,7 +103,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
       }
 
       resetForm();
-    } catch (err) {
+    } catch {
       const message = "We couldn't save this lesson. Please try again.";
       setError(message);
       toastError(message);
@@ -116,16 +117,22 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
     if (nextIndex < 0 || nextIndex >= items.length) return;
 
     const next = [...items];
+    const previous = items;
     const [item] = next.splice(index, 1);
     next.splice(nextIndex, 0, item);
     setItems(next.map((lesson, order) => ({ ...lesson, order: order + 1 })));
+    setIsReordering(true);
 
     try {
       await reorderLessons(courseSlug, next.map(getLessonKey));
-    } catch (err) {
+      success("Lesson order saved");
+    } catch {
+      setItems(previous);
       const message = "We couldn't reorder the lessons. Please try again.";
       setError(message);
       toastError(message);
+    } finally {
+      setIsReordering(false);
     }
   }
 
@@ -144,7 +151,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
       );
       setDeleteTarget(null);
       neutral("Deleted");
-    } catch (err) {
+    } catch {
       const message = "We couldn't delete this lesson. Please try again.";
       setError(message);
       toastError(message);
@@ -183,17 +190,19 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
                     type="button"
                     className="admin-btn admin-btn-secondary admin-btn-compact"
                     onClick={() => void moveLesson(index, -1)}
-                    disabled={index === 0}
+                    disabled={isReordering || index === 0}
+                    aria-label={`Move ${lesson.title} up`}
                   >
-                    Up
+                    Move up
                   </button>
                   <button
                     type="button"
                     className="admin-btn admin-btn-secondary admin-btn-compact"
                     onClick={() => void moveLesson(index, 1)}
-                    disabled={index === items.length - 1}
+                    disabled={isReordering || index === items.length - 1}
+                    aria-label={`Move ${lesson.title} down`}
                   >
-                    Down
+                    Move down
                   </button>
                   <button
                     type="button"

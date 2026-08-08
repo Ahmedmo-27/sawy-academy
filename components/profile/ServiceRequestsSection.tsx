@@ -1,10 +1,13 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { AdminLoader } from "@/components/admin/AdminLoader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
 import { ProfileSectionShell } from "@/components/profile/ProfileSectionShell";
+import {
+  ProfileSectionError,
+  ProfileSectionLoading,
+} from "@/components/profile/ProfileSectionState";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { fetchWithProgress } from "@/lib/load/withFetchProgress";
 import type { ServiceRequest } from "@/lib/api/types";
@@ -36,37 +39,23 @@ export function ServiceRequestsSection() {
       ),
     []
   );
-  const { data, isLoading, error, progress, stepLabel, refetch } =
+  const { data, isLoading, error, refetch } =
     useAdminResource(loader, "Loading service requests");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (isLoading) {
-    return (
-      <div id="services" className="scroll-mt-28 lg:scroll-mt-32">
-        <AdminLoader
-          label="Loading service requests"
-          stepLabel={stepLabel}
-          progress={progress}
-        />
-      </div>
-    );
+    return <ProfileSectionLoading id="services" label="Service requests" />;
   }
 
   if (error) {
     return (
-      <ProfileSectionShell id="services" label="Service requests">
-        <div className="hairline-border bg-concrete p-6 mt-4 sm:p-8">
-          <p className="eyebrow text-clay">Unable to load requests</p>
-          <p className="type-infill mt-3">{error}</p>
-          <button
-            type="button"
-            className="action-primary mt-6"
-            onClick={() => void refetch()}
-          >
-            Retry
-          </button>
-        </div>
-      </ProfileSectionShell>
+      <ProfileSectionError
+        id="services"
+        label="Service requests"
+        title="Unable to load requests"
+        message={error}
+        onRetry={() => void refetch()}
+      />
     );
   }
 
@@ -104,6 +93,7 @@ export function ServiceRequestsSection() {
                   )
                 }
                 aria-expanded={isOpen}
+                aria-controls={`service-details-${request.id}`}
               >
                 <div className="min-w-0">
                   <p className="label-caps mb-2 text-charcoal-infill">
@@ -130,7 +120,10 @@ export function ServiceRequestsSection() {
               </button>
 
               {isOpen && (
-                <div className="space-y-6 border-t border-hairline px-6 pb-8 pt-6 sm:px-8">
+                <div
+                  id={`service-details-${request.id}`}
+                  className="space-y-6 border-t border-hairline px-6 pb-8 pt-6 sm:px-8"
+                >
                   <div className="grid gap-6 sm:grid-cols-2">
                     <div>
                       <p className="label-caps mb-2">Contact</p>

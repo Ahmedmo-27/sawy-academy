@@ -66,7 +66,7 @@ export type ResourceForm = Record<string, string>;
 export interface ResourceField {
   name: string;
   label: string;
-  type?: "text" | "email" | "number" | "select" | "textarea" | "upload" | "gallery" | "course-picker";
+  type?: "text" | "email" | "number" | "url" | "date" | "select" | "textarea" | "upload" | "gallery" | "course-picker";
   required?: boolean;
   options?: Array<{ label: string; value: string }>;
   /** Load select options dynamically before rendering the form */
@@ -134,6 +134,27 @@ function parseGalleryForm(value: string | undefined): string[] {
   }
 }
 
+function parseCommaList(value: string | undefined): string[] {
+  return [...new Set(
+    (value ?? "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean)
+  )];
+}
+
+function commaList(record: ResourceRecord, key: string) {
+  const value = record[key];
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string").join(", ")
+    : "";
+}
+
+function dateInputValue(record: ResourceRecord, key: string) {
+  const value = text(record, key);
+  return value ? value.slice(0, 10) : "";
+}
+
 function productPayload(form: ResourceForm): ProductInput {
   return {
     id: form.id,
@@ -168,7 +189,14 @@ function researchPayload(form: ResourceForm): ResearchInput {
     category: form.category as ResearchInput["category"],
     venue: form.venue,
     abstract: form.abstract,
-    collaborators: form.collaborators,
+    collaborators: form.collaborators || undefined,
+    authors: parseCommaList(form.authors),
+    publicationDate: form.publicationDate || undefined,
+    doi: form.doi || undefined,
+    citation: form.citation || undefined,
+    pdfUrl: form.pdfUrl || undefined,
+    externalUrl: form.externalUrl || undefined,
+    keywords: parseCommaList(form.keywords),
     image: form.image || undefined,
     figures: parseGalleryForm(form.figures),
   };
@@ -726,6 +754,13 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       venue: "",
       abstract: "",
       collaborators: "",
+      authors: "",
+      publicationDate: "",
+      doi: "",
+      citation: "",
+      pdfUrl: "",
+      externalUrl: "",
+      keywords: "",
       image: "",
       figures: "[]",
     },
@@ -750,6 +785,33 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         required: true,
       },
       { name: "collaborators", label: "Collaborators" },
+      {
+        name: "authors",
+        label: "Authors",
+        hint: "Optional. Separate multiple names with commas.",
+      },
+      {
+        name: "publicationDate",
+        label: "Publication date",
+        type: "date",
+      },
+      {
+        name: "doi",
+        label: "DOI",
+        hint: "Enter the DOI identifier, for example 10.1000/example.",
+      },
+      {
+        name: "citation",
+        label: "Preferred citation",
+        type: "textarea",
+      },
+      { name: "pdfUrl", label: "PDF URL", type: "url" },
+      { name: "externalUrl", label: "Publication URL", type: "url" },
+      {
+        name: "keywords",
+        label: "Keywords",
+        hint: "Optional. Separate keywords with commas.",
+      },
       {
         name: "image",
         label: "Cover image",
@@ -780,6 +842,13 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       venue: text(record, "venue"),
       abstract: text(record, "abstract"),
       collaborators: text(record, "collaborators"),
+      authors: commaList(record, "authors"),
+      publicationDate: dateInputValue(record, "publicationDate"),
+      doi: text(record, "doi"),
+      citation: text(record, "citation"),
+      pdfUrl: text(record, "pdfUrl"),
+      externalUrl: text(record, "externalUrl"),
+      keywords: commaList(record, "keywords"),
       image: text(record, "image"),
       figures: galleryJson(record, "figures"),
     }),

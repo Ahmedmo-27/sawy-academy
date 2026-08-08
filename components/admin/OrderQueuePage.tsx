@@ -3,9 +3,8 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
-import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { DataTable } from "@/components/admin/DataTable";
+import { DataTable, DataTableSkeleton } from "@/components/admin/DataTable";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { fetchWithProgress } from "@/lib/load/withFetchProgress";
@@ -34,12 +33,10 @@ export function OrderQueuePage() {
       />
 
       {isLoading && (
-        <AdminLoader
-          label="Loading…"
-          stepLabel={stepLabel}
-          progress={progress}
-          fullScreen
-        />
+        <div>
+          <p className="dim-label mb-3" role="status">{stepLabel} · {Math.round(progress ?? 0)}%</p>
+          <DataTableSkeleton />
+        </div>
       )}
       {!isLoading && error && (
         <AdminErrorState
@@ -54,6 +51,23 @@ export function OrderQueuePage() {
           getRowKey={orderKey}
           onRowClick={(order) => router.push(`/admin/orders/${orderKey(order)}`)}
           emptyMessage="No payments are waiting for review."
+          searchPlaceholder="Search orders or students"
+          getSearchText={(order) =>
+            [order.id, order.userName, order.userEmail, order.status, order.amount]
+              .filter(Boolean)
+              .join(" ")
+          }
+          filters={[
+            {
+              key: "status",
+              label: "Statuses",
+              options: Array.from(new Set(data.map((order) => order.status))).map((status) => ({
+                label: status,
+                value: status,
+              })),
+              getValue: (order) => order.status,
+            },
+          ]}
           columns={[
             {
               key: "id",

@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useId, useState } from "react";
 import { DeviceLimitPanel } from "@/components/auth/DeviceLimitPanel";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
+import { FormErrorSummary } from "@/components/forms/FormErrorSummary";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiClientError } from "@/lib/api/client";
 import type { RegisteredDevice } from "@/lib/api/devices";
 import { postAuthPath } from "@/lib/auth/postAuthPath";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { issuesByField, loginSchema } from "@/lib/validation/forms";
 
 const fieldClass =
   "w-full bg-transparent border-0 border-b border-hairline px-0 py-3 type-body text-charcoal focus-visible:border-clay transition-colors duration-200";
@@ -23,6 +23,7 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [fieldError, setFieldError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [authError, setAuthError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [blockedDevices, setBlockedDevices] = useState<RegisteredDevice[] | null>(
@@ -42,19 +43,23 @@ export function LoginForm() {
     setFieldError("");
     setBlockedDevices(null);
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail || !password) {
-      setFieldError("Email and password are required.");
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      const nextErrors = issuesByField(result.error);
+      setFieldErrors(nextErrors);
+      setFieldError(Object.values(nextErrors)[0] ?? "Check your details.");
+      requestAnimationFrame(() => {
+        document
+          .getElementById(nextErrors.email ? "login-email" : "login-password")
+          ?.focus();
+      });
       return;
     }
-    if (!EMAIL_PATTERN.test(trimmedEmail)) {
-      setFieldError("Enter a valid email address.");
-      return;
-    }
+    setFieldErrors({});
 
     setSubmitting(true);
     try {
-      await attemptLogin(trimmedEmail, password);
+      await attemptLogin(result.data.email, result.data.password);
     } catch (err) {
       if (
         err instanceof ApiClientError &&
@@ -101,6 +106,7 @@ export function LoginForm() {
         )}
 
         <form className="space-y-7" onSubmit={handleSubmit} noValidate>
+          <FormErrorSummary errors={Object.values(fieldErrors)} />
           <div>
             <label htmlFor="login-email" className="label-caps block mb-2">
               Email
@@ -113,13 +119,14 @@ export function LoginForm() {
               autoComplete="email"
               required
               aria-required="true"
-              aria-invalid={Boolean(errorMessage)}
-              aria-describedby={errorMessage ? formErrorId : undefined}
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? "login-email-error" : errorMessage ? formErrorId : undefined}
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className={fieldClass}
               placeholder="you@example.com"
             />
+            {fieldErrors.email && <p id="login-email-error" className="type-infill mt-2 text-clay" role="alert">{fieldErrors.email}</p>}
           </div>
 
           <div>
@@ -143,19 +150,21 @@ export function LoginForm() {
               autoComplete="current-password"
               required
               aria-required="true"
-              aria-invalid={Boolean(errorMessage)}
-              aria-describedby={errorMessage ? formErrorId : undefined}
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-describedby={fieldErrors.password ? "login-password-error" : errorMessage ? formErrorId : undefined}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               className={fieldClass}
               placeholder="••••••••"
             />
+            {fieldErrors.password && <p id="login-password-error" className="type-infill mt-2 text-clay" role="alert">{fieldErrors.password}</p>}
           </div>
 
           <button
             type="submit"
             className="cta-entrance w-full justify-center"
             disabled={submitting}
+            aria-busy={submitting}
           >
             {submitting ? "Signing in…" : "Sign in"}
           </button>

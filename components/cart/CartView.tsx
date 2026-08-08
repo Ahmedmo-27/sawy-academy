@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { CourseImagePlaceholder } from "@/components/cart/CourseImagePlaceholder";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { useCart } from "@/components/cart/CartProvider";
 import { useToast } from "@/components/feedback/ToastProvider";
+import { AsyncState } from "@/components/feedback/AsyncState";
+import { Skeleton } from "@/components/feedback/Skeleton";
 import { formatPrice, parsePrice } from "@/lib/cart/pricing";
 
 function OrderSummary({
@@ -66,36 +69,39 @@ export function CartView() {
     updateQuantity,
   } = useCart();
   const { neutral } = useToast();
+  const [announcement, setAnnouncement] = useState("");
 
-  function handleRemove(id: string) {
+  function handleRemove(id: string, name?: string) {
     removeItem(id);
     neutral("Removed from cart");
+    setAnnouncement(`${name ?? "Item"} removed from cart.`);
   }
 
   if (!hydrated) {
     return (
-      <p className="label-caps text-charcoal-muted loader-pulse">
-        Reading sheet
-      </p>
+      <div role="status" aria-label="Loading cart" className="space-y-4">
+        <Skeleton className="h-8 w-36" />
+        <Skeleton className="h-36 w-full" />
+      </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="hairline-border bg-concrete-dark/30 p-6 lg:p-12">
-        <p className="eyebrow text-clay">Empty sheet</p>
-        <p className="type-infill mt-3 max-w-md">
-          No line items on this order yet. Browse the product bay to begin.
-        </p>
-        <Link href="/products" className="action-primary mt-8 inline-flex">
-          View products
-        </Link>
-      </div>
+      <AsyncState
+        title="Your cart is empty"
+        message="No line items on this order yet. Browse the product bay to begin."
+        actionLabel="View products"
+        actionHref="/products"
+      />
     );
   }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--spacing-gutter)] items-start">
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </p>
       <div className="lg:col-span-8 min-w-0">
         <p className="label-caps mb-4 text-charcoal-infill">
           Line Items · {count}
@@ -159,10 +165,11 @@ export function CartView() {
                         aria-label={`Decrease quantity of ${item.name}`}
                         onClick={() => {
                           if (item.quantity <= 1) {
-                            handleRemove(item.id);
+                            handleRemove(item.id, item.name);
                             return;
                           }
                           updateQuantity(item.id, item.quantity - 1);
+                          setAnnouncement(`${item.name} quantity decreased to ${item.quantity - 1}.`);
                         }}
                       >
                         −
@@ -174,9 +181,10 @@ export function CartView() {
                         type="button"
                         className="action-secondary tabular-nums min-w-[1.5rem]"
                         aria-label={`Increase quantity of ${item.name}`}
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
+                        onClick={() => {
+                          updateQuantity(item.id, item.quantity + 1);
+                          setAnnouncement(`${item.name} quantity increased to ${item.quantity + 1}.`);
+                        }}
                       >
                         +
                       </button>
@@ -184,7 +192,7 @@ export function CartView() {
                     <button
                       type="button"
                       className="action-secondary"
-                      onClick={() => handleRemove(item.id)}
+                      onClick={() => handleRemove(item.id, item.name)}
                     >
                       Remove
                     </button>

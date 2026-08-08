@@ -3,11 +3,13 @@ import { GeometricLattice } from "@/components/decorative/GeometricLattice";
 interface LoadingScreenProps {
   className?: string;
   fading?: boolean;
+  label?: string;
 }
 
 export function LoadingScreen({
   className = "",
   fading = false,
+  label = "Loading Sawy Academy",
 }: LoadingScreenProps) {
   return (
     <div
@@ -16,7 +18,7 @@ export function LoadingScreen({
       } ${className}`}
       aria-live="polite"
       aria-busy={!fading}
-      aria-label="Loading Sawy Academy"
+      aria-label={label}
     >
       <GeometricLattice opacity={0.14} />
 
@@ -59,7 +61,7 @@ export function LoadingScreen({
           <p className="mb-6 font-serif text-lg font-light text-charcoal-muted">
             Academy
           </p>
-          <p className="label-caps loader-pulse text-clay">Loading</p>
+          <p className="label-caps loader-pulse text-clay">{label}</p>
         </div>
 
         <div className="pointer-events-none absolute inset-8" aria-hidden="true">

@@ -58,7 +58,8 @@ export function GsapReveal({
       case "clip":
         gsap.set(el, { clipPath: "inset(0 0 100% 0)" });
         to.clipPath = "inset(0 0 0% 0)";
-        to.duration = 0.8;
+        to.duration = 1.05;
+        to.ease = "power3.inOut";
         break;
       default:
         gsap.set(el, { y: 16 });

@@ -114,9 +114,26 @@ export interface Research extends TimestampedRecord {
   venue: string;
   abstract: string;
   collaborators?: string;
+  authors?: string[];
+  publicationDate?: string;
+  doi?: string;
+  citation?: string;
+  pdfUrl?: string;
+  externalUrl?: string;
+  keywords?: string[];
   image?: string;
   figures?: string[];
   slug: string;
+}
+
+export type ResearchSort = "newest" | "oldest" | "title";
+
+export interface ResearchPage {
+  items: Research[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
 }
 
 export type OrderStatus = "pending" | "verified" | "rejected";

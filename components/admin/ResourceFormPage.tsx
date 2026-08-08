@@ -27,6 +27,8 @@ import {
   toFriendlyAdminError,
 } from "@/lib/admin/friendly";
 import { useToast } from "@/components/feedback/ToastProvider";
+import { FormErrorSummary } from "@/components/forms/FormErrorSummary";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import type { Course } from "@/lib/api/types";
 
 interface ResourceFormPageProps {
@@ -66,6 +68,27 @@ function validateField(field: ResourceField, value: string) {
     return `${field.label} must be a number.`;
   }
 
+  if (field.type === "url" && value) {
+    try {
+      const url = new URL(value);
+      if (url.protocol !== "http:" && url.protocol !== "https:") {
+        return `${field.label} must use HTTP or HTTPS.`;
+      }
+    } catch {
+      return `${field.label} must be a valid URL.`;
+    }
+  }
+
+  if (
+    field.name === "doi" &&
+    value &&
+    !/^((https?:\/\/(?:dx\.)?doi\.org\/)|(doi:\s*))?10\.\d{4,9}\/\S+$/i.test(
+      value.trim()
+    )
+  ) {
+    return "DOI must be a valid DOI identifier.";
+  }
+
   return "";
 }
 
@@ -85,6 +108,11 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
   const [loadStepLabel, setLoadStepLabel] = useState("Loading form…");
   const [isSaving, setIsSaving] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [savedSnapshot, setSavedSnapshot] = useState(
+    JSON.stringify(config.emptyForm)
+  );
+  const isDirty = !isLoading && JSON.stringify(form) !== savedSnapshot;
+  useUnsavedChanges(isDirty && !isSaving);
 
   const loadRecord = useCallback(async () => {
     setIsLoading(true);
@@ -132,14 +160,17 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
 
       if (!lookupKey) {
         setForm(config.emptyForm);
+        setSavedSnapshot(JSON.stringify(config.emptyForm));
         setLoadProgress(100);
         return;
       }
 
       const cached = readCachedAdminRecord(kind, lookupKey);
       if (cached) {
+        const cachedForm = config.toForm(cached);
         setRecord(cached);
-        setForm(config.toForm(cached));
+        setForm(cachedForm);
+        setSavedSnapshot(JSON.stringify(cachedForm));
       }
 
       reportProgress("Loading record…");
@@ -149,7 +180,9 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
         completedSteps += 1;
         setLoadProgress(100);
         setRecord(nextRecord);
-        setForm(config.toForm(nextRecord));
+        const nextForm = config.toForm(nextRecord);
+        setForm(nextForm);
+        setSavedSnapshot(JSON.stringify(nextForm));
         cacheAdminRecord(kind, lookupKey, nextRecord);
       } catch (err) {
         if (cached) {
@@ -183,6 +216,14 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
     });
 
     setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      window.setTimeout(() => {
+        const firstInvalid = document.querySelector<HTMLElement>(
+          'form [aria-invalid="true"]'
+        );
+        firstInvalid?.focus();
+      }, 0);
+    }
     return Object.keys(nextErrors).length === 0;
   }
 
@@ -201,6 +242,7 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
 
       const key = config.getKey(saved);
       if (key) cacheAdminRecord(kind, key, saved);
+      setSavedSnapshot(JSON.stringify(form));
       success(isEdit ? "Changes saved" : "Created successfully");
       router.push(config.getEditHref(saved));
     } catch (err) {
@@ -273,6 +315,7 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
           className="hairline-border bg-concrete p-6 lg:p-8"
           onSubmit={handleSubmit}
         >
+          <FormErrorSummary errors={Object.values(errors).filter(Boolean)} />
           <div className="grid gap-6 md:grid-cols-2">
             {fields.map((field) => {
               if (field.type === "upload") {
@@ -334,13 +377,10 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
                     required={field.required}
                     options={field.options}
                     error={errors[field.name]}
+                    hint={field.hint}
+                    showCharacterCount={field.type === "textarea"}
                     onChange={(value) => updateForm(field.name, value)}
                   />
-                  {field.hint && !errors[field.name] && (
-                    <p className="type-infill mt-2 text-charcoal-muted">
-                      {field.hint}
-                    </p>
-                  )}
                 </div>
               );
             })}
@@ -350,7 +390,7 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
             <p className="type-body mt-6 text-clay">{saveError}</p>
           )}
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="sticky bottom-0 z-10 -mx-6 mt-8 flex flex-wrap items-center gap-3 border-t border-hairline bg-concrete/95 px-6 py-4 nav-blur lg:-mx-8 lg:px-8">
             <button
               type="submit"
               className="admin-btn admin-btn-primary"
@@ -372,6 +412,9 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
               >
                 Delete
               </button>
+            )}
+            {isDirty && !isSaving && (
+              <span className="dim-label ml-auto" role="status">Unsaved changes</span>
             )}
           </div>
         </form>

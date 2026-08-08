@@ -4,11 +4,6 @@ import { listProducts } from "@/lib/api/products";
 import { runParallelStagedLoad, type StagedLoadCallback } from "@/lib/load/stagedLoad";
 import type { DashboardMetric } from "@/lib/api/types";
 
-/**
- * Dashboard uses endpoints that exist on the Express API today.
- * Orders/services stay at 0 until those routes are mounted — calling
- * them here only creates noisy 404s in the browser console.
- */
 export async function getDashboardMetrics(
   onProgress?: StagedLoadCallback
 ): Promise<DashboardMetric[]> {
@@ -30,11 +25,25 @@ export async function getDashboardMetrics(
       sheetRef: "GRP",
     },
     {
+      id: "diploma-groups",
+      label: "Diploma groups",
+      value: groupList.filter((group) => group.type === "diploma").length,
+      href: "/admin/course-groups",
+      sheetRef: "DIP",
+    },
+    {
       id: "courses",
-      label: "Total sub-courses",
+      label: "Total courses",
       value: courseList.length,
       href: "/admin/courses",
       sheetRef: "CRS",
+    },
+    {
+      id: "courses-with-lessons",
+      label: "Courses with lessons",
+      value: courseList.filter((course) => (course.lessons?.length ?? 0) > 0).length,
+      href: "/admin/courses",
+      sheetRef: "LSN",
     },
     {
       id: "products",
@@ -44,25 +53,11 @@ export async function getDashboardMetrics(
       sheetRef: "PRD",
     },
     {
-      id: "pending-orders",
-      label: "Pending orders",
-      value: 0,
-      href: "/admin/orders",
-      sheetRef: "ORD",
-    },
-    {
-      id: "pending-services",
-      label: "Pending service requests",
-      value: 0,
-      href: "/admin/services",
-      sheetRef: "SRV",
-    },
-    {
-      id: "pending-verifications",
-      label: "Pending payment verifications",
-      value: 0,
-      href: "/admin/orders",
-      sheetRef: "PAY",
+      id: "product-categories",
+      label: "Product categories",
+      value: new Set(productList.map((product) => product.category).filter(Boolean)).size,
+      href: "/admin/products",
+      sheetRef: "CAT",
     },
   ];
 }

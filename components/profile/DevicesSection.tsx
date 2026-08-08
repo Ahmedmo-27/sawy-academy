@@ -1,9 +1,12 @@
 "use client";
 
 import { FormEvent, useCallback, useState } from "react";
-import { AdminLoader } from "@/components/admin/AdminLoader";
 import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
 import { ProfileSectionShell } from "@/components/profile/ProfileSectionShell";
+import {
+  ProfileSectionError,
+  ProfileSectionLoading,
+} from "@/components/profile/ProfileSectionState";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminResource } from "@/hooks/useAdminResource";
@@ -37,7 +40,7 @@ export function DevicesSection() {
       }>("/api/devices/me", "Fetching registered devices", onProgress),
     []
   );
-  const { data, isLoading, error, progress, stepLabel, refetch } =
+  const { data, isLoading, error, refetch } =
     useAdminResource(loader, "Loading registered devices");
 
   const [requestKind, setRequestKind] = useState<RequestKind>("replace");
@@ -112,32 +115,18 @@ export function DevicesSection() {
   }
 
   if (isLoading) {
-    return (
-      <div id="devices" className="scroll-mt-28 lg:scroll-mt-32">
-        <AdminLoader
-          label="Loading registered devices"
-          stepLabel={stepLabel}
-          progress={progress}
-        />
-      </div>
-    );
+    return <ProfileSectionLoading id="devices" label="Registered devices" />;
   }
 
   if (error) {
     return (
-      <ProfileSectionShell id="devices" label="Registered devices">
-        <div className="hairline-border bg-concrete p-6 mt-4 sm:p-8">
-          <p className="eyebrow text-clay">Unable to load devices</p>
-          <p className="type-infill mt-3">{error}</p>
-          <button
-            type="button"
-            className="action-primary mt-6"
-            onClick={() => void refetch()}
-          >
-            Retry
-          </button>
-        </div>
-      </ProfileSectionShell>
+      <ProfileSectionError
+        id="devices"
+        label="Registered devices"
+        title="Unable to load devices"
+        message={error}
+        onRetry={() => void refetch()}
+      />
     );
   }
 

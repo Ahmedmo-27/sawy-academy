@@ -12,18 +12,19 @@ import { useFocusTrap } from "@/lib/a11y/focusTrap";
 import { easeOut, navTransition } from "@/lib/motion";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", sheetRef: "ADM-00" },
-  { href: "/admin/homepage", label: "Homepage", sheetRef: "CMS-01" },
-  { href: "/admin/settings", label: "Site Settings", sheetRef: "CMS-02" },
-  { href: "/admin/course-groups", label: "Course Groups", sheetRef: "GRP-01" },
-  { href: "/admin/courses", label: "Courses", sheetRef: "CRS-02" },
-  { href: "/admin/products", label: "Products", sheetRef: "PRD-03" },
-  { href: "/admin/portfolio", label: "Portfolio", sheetRef: "PRT-04" },
-  { href: "/admin/research", label: "Research", sheetRef: "RES-05" },
-  { href: "/admin/orders", label: "Orders", sheetRef: "ORD-06" },
-  { href: "/admin/services", label: "Services", sheetRef: "SRV-07" },
-  { href: "/admin/users", label: "Users", sheetRef: "USR-08" },
+  { href: "/admin", label: "Dashboard", sheetRef: "ADM-00", group: "Overview" },
+  { href: "/admin/homepage", label: "Homepage", sheetRef: "CMS-01", group: "Content" },
+  { href: "/admin/settings", label: "Site Settings", sheetRef: "CMS-02", group: "Content" },
+  { href: "/admin/course-groups", label: "Course Groups", sheetRef: "GRP-01", group: "Catalogue" },
+  { href: "/admin/courses", label: "Courses", sheetRef: "CRS-02", group: "Catalogue" },
+  { href: "/admin/products", label: "Products", sheetRef: "PRD-03", group: "Catalogue" },
+  { href: "/admin/portfolio", label: "Portfolio", sheetRef: "PRT-04", group: "Content" },
+  { href: "/admin/research", label: "Research", sheetRef: "RES-05", group: "Content" },
+  { href: "/admin/orders", label: "Orders", sheetRef: "ORD-06", group: "Operations" },
+  { href: "/admin/services", label: "Services", sheetRef: "SRV-07", group: "Operations" },
+  { href: "/admin/users", label: "Users", sheetRef: "USR-08", group: "People" },
 ];
+const navGroups = ["Overview", "Content", "Catalogue", "Operations", "People"];
 
 function isActive(pathname: string, href: string) {
   return href === "/admin"
@@ -41,8 +42,12 @@ function NavLinks({
   const pathname = usePathname();
 
   return (
-    <ul className="flex w-full flex-col gap-1">
-      {navItems.map((item) => {
+    <div className="flex w-full flex-col gap-4">
+      {navGroups.map((group) => (
+      <div key={group}>
+        {!collapsed && <p className="dim-label mb-1 px-3">{group}</p>}
+        <ul className="flex w-full flex-col gap-1">
+      {navItems.filter((item) => item.group === group).map((item) => {
         const active = isActive(pathname, item.href);
         return (
           <li key={item.href} className="w-full min-w-0">
@@ -92,7 +97,10 @@ function NavLinks({
           </li>
         );
       })}
-    </ul>
+        </ul>
+      </div>
+      ))}
+    </div>
   );
 }
 
@@ -103,15 +111,30 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [commandQuery, setCommandQuery] = useState("");
+  const [commandIndex, setCommandIndex] = useState(0);
   const prefersReducedMotion = useReducedMotion();
   const mobileDrawerRef = useRef<HTMLDivElement>(null);
   const mobileCloseRef = useRef<HTMLButtonElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const commandRef = useRef<HTMLDivElement>(null);
+  const commandInputRef = useRef<HTMLInputElement>(null);
 
   useFocusTrap(mobileNavOpen, mobileDrawerRef, {
     initialFocusRef: mobileCloseRef,
     restoreFocus: false,
   });
+  useFocusTrap(commandOpen, commandRef, {
+    initialFocusRef: commandInputRef,
+    restoreFocus: true,
+  });
+
+  const commandResults = navItems.filter((item) =>
+    item.label.toLocaleLowerCase().includes(commandQuery.trim().toLocaleLowerCase())
+  );
+  const currentNavItem =
+    navItems.find((item) => isActive(pathname, item.href)) ?? navItems[0];
 
   useEffect(() => {
     setCollapsed(localStorage.getItem("sawy-admin-sidebar") === "collapsed");
@@ -119,7 +142,30 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMobileNavOpen(false);
+    setCommandOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    function onShortcut(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLocaleLowerCase() === "k") {
+        event.preventDefault();
+        setCommandOpen((open) => !open);
+      }
+    }
+    window.addEventListener("keydown", onShortcut);
+    return () => window.removeEventListener("keydown", onShortcut);
+  }, []);
+
+  useEffect(() => {
+    if (!commandOpen) return;
+    setCommandQuery("");
+    setCommandIndex(0);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [commandOpen]);
 
   useEffect(() => {
     if (!mobileNavOpen) return;
@@ -129,13 +175,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     }
 
     const previousOverflow = document.body.style.overflow;
+    const menuButton = menuButtonRef.current;
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKeyDown);
 
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
-      menuButtonRef.current?.focus();
+      menuButton?.focus();
     };
   }, [mobileNavOpen]);
 
@@ -174,16 +221,19 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <p className="eyebrow text-clay truncate">Sawy Academy</p>
           <p className="label-caps mt-1">Admin</p>
         </Link>
-        <button
-          ref={menuButtonRef}
-          type="button"
-          className="admin-btn admin-btn-secondary admin-btn-compact shrink-0"
-          onClick={() => setMobileNavOpen(true)}
-          aria-expanded={mobileNavOpen}
-          aria-controls="admin-mobile-nav"
-        >
-          Menu
-        </button>
+        <div className="flex gap-2">
+          <button type="button" className="admin-btn admin-btn-secondary admin-btn-compact" onClick={() => setCommandOpen(true)} aria-label="Open command palette">Search</button>
+          <button
+            ref={menuButtonRef}
+            type="button"
+            className="admin-btn admin-btn-secondary admin-btn-compact shrink-0"
+            onClick={() => setMobileNavOpen(true)}
+            aria-expanded={mobileNavOpen}
+            aria-controls="admin-mobile-nav"
+          >
+            Menu
+          </button>
+        </div>
       </div>
 
       {/* Mobile drawer — slides in from the right */}
@@ -261,6 +311,79 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {commandOpen && (
+          <>
+            <motion.button
+              type="button"
+              className="fixed inset-0 z-[70] bg-charcoal/55"
+              aria-label="Close command palette"
+              onClick={() => setCommandOpen(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+            <motion.div
+              ref={commandRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Admin command palette"
+              className="fixed left-1/2 top-[12vh] z-[71] w-[min(38rem,92vw)] -translate-x-1/2 hairline-border bg-concrete p-3 shadow-2xl"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") setCommandOpen(false);
+                if (event.key === "ArrowDown") {
+                  event.preventDefault();
+                  setCommandIndex((index) => Math.min(commandResults.length - 1, index + 1));
+                }
+                if (event.key === "ArrowUp") {
+                  event.preventDefault();
+                  setCommandIndex((index) => Math.max(0, index - 1));
+                }
+                if (event.key === "Enter" && commandResults[commandIndex]) {
+                  router.push(commandResults[commandIndex].href);
+                }
+              }}
+            >
+              <label htmlFor="admin-command-search" className="sr-only">Go to an admin page</label>
+              <input
+                ref={commandInputRef}
+                id="admin-command-search"
+                value={commandQuery}
+                onChange={(event) => {
+                  setCommandQuery(event.target.value);
+                  setCommandIndex(0);
+                }}
+                placeholder="Go to a page…"
+                className="w-full border border-hairline bg-concrete-dark/30 px-4 py-3 type-body"
+                role="combobox"
+                aria-expanded="true"
+                aria-controls="admin-command-results"
+                aria-activedescendant={commandResults[commandIndex] ? `command-${commandResults[commandIndex].sheetRef}` : undefined}
+              />
+              <ul id="admin-command-results" role="listbox" className="mt-2 max-h-[55vh] overflow-y-auto">
+                {commandResults.map((item, index) => (
+                  <li key={item.href} id={`command-${item.sheetRef}`} role="option" aria-selected={index === commandIndex}>
+                    <button
+                      type="button"
+                      className={`flex w-full items-center justify-between px-4 py-3 text-left ${index === commandIndex ? "bg-concrete-dark" : ""}`}
+                      onMouseEnter={() => setCommandIndex(index)}
+                      onClick={() => router.push(item.href)}
+                    >
+                      <span>{item.label}</span><span className="dim-label">{item.sheetRef}</span>
+                    </button>
+                  </li>
+                ))}
+                {commandResults.length === 0 && <li className="p-4 type-infill">No matching pages.</li>}
+              </ul>
+              <p className="dim-label border-t border-hairline px-4 pt-3">↑↓ navigate · Enter open · Esc close</p>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex lg:min-h-screen lg:w-full lg:flex-col lg:border-r lg:border-hairline bg-concrete-dark/70">
         {/* flex-1 fills the tall aside so the nav below has sticky runway;
@@ -329,15 +452,23 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-30 hidden border-b border-hairline bg-concrete/95 nav-blur lg:block">
           <PageContainer className="flex h-16 items-center justify-between gap-4">
             <div className="min-w-0">
-              <p className="label-caps">Control room</p>
+              <nav aria-label="Breadcrumb" className="flex items-center gap-2">
+                <Link href="/admin" className="label-caps hover:text-clay">Admin</Link>
+                {pathname !== "/admin" && (
+                  <>
+                    <span aria-hidden="true">/</span>
+                    <span className="label-caps" aria-current="page">{currentNavItem.label}</span>
+                  </>
+                )}
+              </nav>
               <p className="type-infill mt-1 truncate">{user.name}</p>
             </div>
-            <Link
-              href="/"
-              className="admin-btn admin-btn-secondary admin-btn-compact shrink-0"
-            >
-              View live site
-            </Link>
+            <div className="flex items-center gap-2">
+              <button type="button" className="admin-btn admin-btn-secondary admin-btn-compact" onClick={() => setCommandOpen(true)}>
+                Search <kbd className="ml-2 opacity-60">Ctrl K</kbd>
+              </button>
+              <Link href="/" className="admin-btn admin-btn-secondary admin-btn-compact shrink-0">View live site</Link>
+            </div>
           </PageContainer>
         </header>
 

@@ -42,19 +42,15 @@ function destinationName(pathname: string): string {
   }
 }
 
-/**
- * Cipher-inspired column curtain, redrawn as an architectural sheet transition.
- * It intercepts public, same-origin links and keeps the destination covered until
- * the App Router has committed the next page.
- */
+/** Architectural column curtain between public App Router pages. */
 export function PageTransition() {
+  const pathname = usePathname();
+  const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
   const busyRef = useRef(false);
   const fallbackRef = useRef<number | null>(null);
-  const previousPathRef = useRef<string | null>(null);
+  const previousPathRef = useRef(pathname);
   const [destination, setDestination] = useState("Sawy Academy");
-  const pathname = usePathname();
-  const router = useRouter();
   const reduced = useReducedMotion();
 
   const reveal = () => {
@@ -70,24 +66,21 @@ export function PageTransition() {
       fallbackRef.current = null;
     }
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        gsap.set(overlay, {
-          autoAlpha: 0,
-          pointerEvents: "none",
-        });
-        busyRef.current = false;
-        getLenis()?.start();
-        scheduleScrollRefresh();
-      },
-    });
-
-    tl.to([label, rule], {
-      autoAlpha: 0,
-      y: -10,
-      duration: 0.18,
-      ease: "power2.in",
-    })
+    gsap
+      .timeline({
+        onComplete: () => {
+          gsap.set(overlay, { autoAlpha: 0, pointerEvents: "none" });
+          busyRef.current = false;
+          getLenis()?.start();
+          scheduleScrollRefresh();
+        },
+      })
+      .to([label, rule], {
+        autoAlpha: 0,
+        y: -10,
+        duration: 0.18,
+        ease: "power2.in",
+      })
       .set(panels, { transformOrigin: "50% 0%" })
       .to(
         panels,
@@ -97,19 +90,14 @@ export function PageTransition() {
           stagger: { each: 0.045, from: "end" },
           ease: "power3.inOut",
         },
-        0.08
+        0.08,
       );
   };
-
-  useEffect(() => {
-    previousPathRef.current = pathname;
-  }, []);
 
   useEffect(() => {
     if (!busyRef.current || previousPathRef.current === pathname) return;
     previousPathRef.current = pathname;
 
-    // Two frames let the new route paint while it is still hidden by the curtain.
     const frame = window.requestAnimationFrame(() => {
       window.requestAnimationFrame(reveal);
     });
@@ -168,7 +156,6 @@ export function PageTransition() {
         return;
       }
 
-      // In-page anchors should retain their native scrolling behavior.
       if (
         url.pathname === window.location.pathname &&
         url.search === window.location.search &&
@@ -184,16 +171,14 @@ export function PageTransition() {
       getLenis()?.stop();
 
       gsap.killTweensOf([overlay, panels, label, rule]);
-      gsap.set(overlay, {
-        autoAlpha: 1,
-        pointerEvents: "auto",
-      });
-      gsap.set(panels, {
-        scaleY: 0,
-        transformOrigin: "50% 100%",
-      });
+      gsap.set(overlay, { autoAlpha: 1, pointerEvents: "auto" });
+      gsap.set(panels, { scaleY: 0, transformOrigin: "50% 100%" });
       gsap.set(label, { autoAlpha: 0, y: 12 });
-      gsap.set(rule, { autoAlpha: 1, scaleX: 0, transformOrigin: "0% 50%" });
+      gsap.set(rule, {
+        autoAlpha: 1,
+        scaleX: 0,
+        transformOrigin: "0% 50%",
+      });
 
       gsap
         .timeline({
@@ -201,11 +186,9 @@ export function PageTransition() {
             router.push(`${url.pathname}${url.search}${url.hash}`, {
               scroll: true,
             });
-
-            // Query-only navigation does not update usePathname.
             fallbackRef.current = window.setTimeout(
               reveal,
-              routePathWillChange ? 1800 : 180
+              routePathWillChange ? 1800 : 180,
             );
           },
         })
@@ -223,7 +206,7 @@ export function PageTransition() {
             duration: 0.28,
             ease: "power2.out",
           },
-          0.28
+          0.28,
         )
         .to(
           rule,
@@ -232,7 +215,7 @@ export function PageTransition() {
             duration: 0.38,
             ease: "power2.out",
           },
-          0.3
+          0.3,
         );
     };
 
@@ -248,12 +231,11 @@ export function PageTransition() {
     };
   }, [reduced, router]);
 
-  if (reduced) return null;
-
   return (
     <div
       ref={overlayRef}
       className="pointer-events-none fixed inset-0 z-[290] invisible"
+      style={reduced ? { display: "none" } : undefined}
       aria-hidden="true"
     >
       <div className="absolute inset-0 grid grid-cols-6">

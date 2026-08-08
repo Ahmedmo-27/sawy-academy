@@ -3,11 +3,15 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useCart } from "@/components/cart/CartProvider";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
+import { AsyncState } from "@/components/feedback/AsyncState";
+import { Skeleton } from "@/components/feedback/Skeleton";
+import { FormErrorSummary } from "@/components/forms/FormErrorSummary";
+import { PaymentProofUpload } from "@/components/forms/PaymentProofUpload";
 import { createOrder } from "@/lib/api/orders";
 import { ApiClientError } from "@/lib/api/client";
+import { checkoutSchema } from "@/lib/validation/forms";
 
 export function CheckoutForm() {
   const router = useRouter();
@@ -18,14 +22,19 @@ export function CheckoutForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setError("");
 
     if (items.length === 0) {
       setError("Your cart is empty.");
       return;
     }
-    if (!screenshotUrl) {
-      setError("Upload an InstaPay payment screenshot to continue.");
+    const result = checkoutSchema.safeParse({ screenshotUrl });
+    if (!result.success) {
+      setError(result.error.issues[0]?.message ?? "Upload payment proof.");
+      requestAnimationFrame(() =>
+        form.querySelector<HTMLElement>("[aria-invalid='true']")?.focus()
+      );
       return;
     }
 
@@ -39,7 +48,7 @@ export function CheckoutForm() {
           name: item.name,
           price: item.price,
         })),
-        screenshotUrl,
+        screenshotUrl: result.data.screenshotUrl,
       });
       clearCart();
       router.replace(
@@ -60,23 +69,21 @@ export function CheckoutForm() {
 
   if (!hydrated) {
     return (
-      <p className="label-caps text-charcoal-muted loader-pulse">
-        Reading sheet
-      </p>
+      <div role="status" aria-label="Loading checkout" className="space-y-4">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-48 w-full" />
+      </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="hairline-border bg-concrete-dark/30 p-6">
-        <p className="eyebrow text-clay">Nothing to settle</p>
-        <p className="type-infill mt-3 max-w-md">
-          Add line items before uploading payment proof.
-        </p>
-        <Link href="/products" className="action-primary mt-8 inline-flex">
-          View products
-        </Link>
-      </div>
+      <AsyncState
+        title="Nothing to settle"
+        message="Add line items before uploading payment proof."
+        actionLabel="View products"
+        actionHref="/products"
+      />
     );
   }
 
@@ -101,6 +108,7 @@ export function CheckoutForm() {
       </div>
 
       <form onSubmit={handleSubmit}>
+        <FormErrorSummary errors={error ? [error] : []} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 hairline-b py-6 mb-6">
           <div>
             <p className="label-caps mb-2">Payment</p>
@@ -110,12 +118,10 @@ export function CheckoutForm() {
               amount manually — no card gateway on this sheet.
             </p>
           </div>
-          <ImageUploadField
-            label="InstaPay Screenshot"
-            description="Upload a clear screenshot of your InstaPay payment confirmation. Image files only."
+          <PaymentProofUpload
             value={screenshotUrl}
             onChange={setScreenshotUrl}
-            required
+            disabled={submitting}
             error={
               error === "Upload an InstaPay payment screenshot to continue."
                 ? error
@@ -135,6 +141,7 @@ export function CheckoutForm() {
             type="submit"
             className="cta-entrance"
             disabled={submitting}
+            aria-busy={submitting}
           >
             {submitting ? "Submitting…" : "Submit for Verification"}
           </button>

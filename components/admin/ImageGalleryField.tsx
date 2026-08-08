@@ -118,16 +118,18 @@ export function ImageGalleryField({
                   className="label-caps text-[0.6rem] text-charcoal-muted hover:text-clay"
                   onClick={() => move(index, -1)}
                   disabled={index === 0}
+                  aria-label={`Move ${label} image ${index + 1} earlier`}
                 >
-                  ←
+                  Move earlier
                 </button>
                 <button
                   type="button"
                   className="label-caps text-[0.6rem] text-charcoal-muted hover:text-clay"
                   onClick={() => move(index, 1)}
                   disabled={index === items.length - 1}
+                  aria-label={`Move ${label} image ${index + 1} later`}
                 >
-                  →
+                  Move later
                 </button>
                 <button
                   type="button"
@@ -157,7 +159,6 @@ export function ImageGalleryField({
             .filter(Boolean)
             .join(" ") || undefined
         }
-        aria-invalid={Boolean(error)}
         disabled={isUploading || atLimit}
       >
         <div className="py-6 text-center">
@@ -180,6 +181,12 @@ export function ImageGalleryField({
         className="sr-only"
         tabIndex={-1}
         aria-labelledby={labelId}
+        aria-invalid={Boolean(error)}
+        aria-describedby={
+          [description ? descId : null, error ? errorId : null]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
         onChange={(event) => void handleFile(event.target.files?.[0])}
       />
 

@@ -3,7 +3,6 @@
 import { use, useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import { GsapReveal, GsapStagger } from "@/components/animation/GsapReveal";
-import { HorizontalPinGallery } from "@/components/animation/HorizontalPinGallery";
 import { SplitTextReveal } from "@/components/animation/SplitTextReveal";
 import { GridColumns } from "@/components/decorative/GridColumns";
 import { MediaBay } from "@/components/decorative/MediaBay";
@@ -13,7 +12,9 @@ import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { SectionLoader } from "@/components/feedback/SectionLoader";
-import { apiGet } from "@/lib/api/client";
+import { MediaGallery } from "@/components/media/MediaGallery";
+import { AsyncState } from "@/components/feedback/AsyncState";
+import { ApiClientError, apiGet } from "@/lib/api/client";
 import type { Project } from "@/lib/api/types";
 
 interface ProjectDetailPageProps {
@@ -23,10 +24,11 @@ interface ProjectDetailPageProps {
 export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const { slug } = use(params);
   const [project, setProject] = useState<Project | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "missing">(
+  const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">(
     "loading"
   );
   const [progress, setProgress] = useState(0);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,16 +42,38 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         setProject(data);
         setStatus("ready");
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
-        setStatus("missing");
+        setStatus(
+          error instanceof ApiClientError && error.status === 404
+            ? "missing"
+            : "error"
+        );
       });
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, reloadKey]);
 
   if (status === "missing") notFound();
+
+  if (status === "error") {
+    return (
+      <PageContainer className="pt-32 pb-20">
+        <AsyncState
+          kind="error"
+          title="The project sheet could not be loaded"
+          message="Check your connection and try opening this project again."
+          onRetry={() => {
+            setStatus("loading");
+            setReloadKey((value) => value + 1);
+          }}
+          actionHref="/portfolio"
+          actionLabel="Portfolio index"
+        />
+      </PageContainer>
+    );
+  }
 
   if (status === "loading" || !project) {
     return (
@@ -144,23 +168,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         <PageContainer>
           <ThresholdFrame label="Drawing set">
             <div className="pt-6">
-              <HorizontalPinGallery>
-                {gallery.map((src, index) => (
-                  <div
-                    key={`${src}-${index}`}
-                    className="w-[min(90vw,28rem)] shrink-0 sm:w-[min(48vw,36rem)]"
-                  >
-                    <MediaBay
-                      src={src}
-                      alt={`${project.title} plate ${index + 1}`}
-                      className="aspect-[4/3] sm:aspect-[4/5]"
-                      fallback="plan"
-                      morph
-                      sizes="(min-width: 1024px) 36rem, 90vw"
-                    />
-                  </div>
-                ))}
-              </HorizontalPinGallery>
+              <MediaGallery images={gallery} title={project.title} fallback="plan" />
             </div>
           </ThresholdFrame>
         </PageContainer>
