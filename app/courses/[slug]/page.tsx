@@ -76,6 +76,30 @@ function GroupCourseDetail({ group }: { group: CourseGroup }) {
           <BioGeometryShape
             kind={isLeveled ? "bg3" : "spiral"}
             variant="draw"
+            size={136}
+            stroke="var(--color-clay)"
+            opacity={0.3}
+            drawEnd={0.45}
+            parallax={64}
+            parallaxX={12}
+            parallaxRotate={5}
+            className="fixed -right-8 top-[28%] z-0 md:hidden"
+          />
+          <BioGeometryShape
+            kind="coil"
+            variant="draw"
+            size={104}
+            stroke="var(--color-clay-muted)"
+            opacity={0.26}
+            drawEnd={0.65}
+            parallax={48}
+            parallaxX={-10}
+            parallaxRotate={-4}
+            className="fixed -left-7 bottom-[12%] z-0 md:hidden"
+          />
+          <BioGeometryShape
+            kind={isLeveled ? "bg3" : "spiral"}
+            variant="draw"
             size={isLeveled ? 260 : 300}
             stroke="var(--color-clay)"
             opacity={0.5}
@@ -135,6 +159,31 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
             priority
             revealOnLoad
             sizes="100vw"
+          />
+
+          <BioGeometryShape
+            kind="spiral"
+            variant="draw"
+            size={136}
+            stroke="var(--color-clay)"
+            opacity={0.3}
+            drawEnd={0.45}
+            parallax={64}
+            parallaxX={12}
+            parallaxRotate={5}
+            className="fixed -right-8 top-[28%] z-0 md:hidden"
+          />
+          <BioGeometryShape
+            kind="c7"
+            variant="draw"
+            size={112}
+            stroke="var(--color-clay-muted)"
+            opacity={0.26}
+            drawEnd={0.65}
+            parallax={48}
+            parallaxX={-12}
+            parallaxRotate={-4}
+            className="fixed -left-7 bottom-[12%] z-0 md:hidden"
           />
 
           <BioGeometryShape
@@ -293,6 +342,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
           label="Loading course…"
           stepLabel="Fetching curriculum"
           progress={progress}
+          fullScreen
         />
       </PageContainer>
     );

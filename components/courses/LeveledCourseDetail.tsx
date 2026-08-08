@@ -98,7 +98,7 @@ function LevelRowView({
   const duration = formatCourseDuration(row.course);
 
   return (
-    <li className="relative flex gap-4 sm:gap-6">
+    <li className="relative flex min-w-0 gap-3 sm:gap-6">
       {/* Progression rail — ScaleBar language as a vertical sequence */}
       <div className="flex flex-col items-center w-4 shrink-0 pt-1" aria-hidden="true">
         <span
@@ -120,13 +120,13 @@ function LevelRowView({
       </div>
 
       <div
-        className={`flex-1 grid grid-cols-12 gap-4 py-6 ${
+        className={`grid min-w-0 flex-1 grid-cols-1 gap-4 py-5 sm:grid-cols-12 sm:py-6 ${
           !isLast ? "hairline-b" : ""
         } ${locked ? "opacity-50" : ""}`}
       >
-        <div className="col-span-12 sm:col-span-7">
+        <div className="min-w-0 sm:col-span-7">
           <p className="dim-label mb-2">{row.sheetRef}</p>
-          <h2 className="type-title text-base mb-2">
+          <h2 className="type-title mb-2 break-words text-base">
             {locked ? (
               <span>{row.course.title}</span>
             ) : (
@@ -138,7 +138,7 @@ function LevelRowView({
               </Link>
             )}
           </h2>
-          <p className="type-infill leading-relaxed max-w-lg">
+          <p className="type-infill max-w-lg break-words leading-relaxed">
             {row.course.description}
           </p>
           {(state === "unlocked_in_progress" ||
@@ -150,7 +150,7 @@ function LevelRowView({
           )}
         </div>
 
-        <div className="col-span-12 sm:col-span-5 flex flex-col sm:items-end gap-3">
+        <div className="flex min-w-0 flex-col gap-3 sm:col-span-5 sm:items-end">
           <span className="label-caps">{row.course.level}</span>
           <span className="label-caps text-charcoal-infill">{duration}</span>
           {/* Per-level price — mock data prices levels individually */}
@@ -208,11 +208,11 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
   }, [slug, courses, levels]);
 
   return (
-    <div className="space-y-16 lg:space-y-20">
+    <div className="min-w-0 space-y-10 sm:space-y-16 lg:space-y-20">
       <MediaBay
         src={group.image}
         alt={group.title}
-        className="aspect-[16/10] lg:aspect-[21/9]"
+        className="aspect-[4/3] sm:aspect-[16/10] lg:aspect-[21/9]"
         fallback="course"
         morph
         priority
@@ -220,7 +220,7 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
         sizes="100vw"
       />
 
-      <div className="hairline-border p-6 lg:p-10">
+      <div className="hairline-border p-4 sm:p-6 lg:p-10">
         <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
         <p className="label-caps mb-2">Leveled progression</p>
         <p className="type-infill max-w-xl leading-relaxed">{group.subtitle}</p>
@@ -239,8 +239,11 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
         </div>
       </div>
 
-      <ThresholdFrame label={`Level index — ${group.title}`}>
-        <div className="hairline-border p-6 lg:p-10 mt-4">
+      <ThresholdFrame
+        label={`Level index — ${group.title}`}
+        className="min-w-0"
+      >
+        <div className="mt-4 min-w-0 hairline-border p-4 sm:p-6 lg:p-10">
           <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
           <p className="label-caps mb-8 text-charcoal-infill">
             Sequence — {String(levels.length).padStart(2, "0")} levels

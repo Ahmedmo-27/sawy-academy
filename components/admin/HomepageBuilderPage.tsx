@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
-import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { FormField } from "@/components/admin/FormField";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { LoadingScreen } from "@/components/feedback/LoadingScreen";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAdminResource } from "@/hooks/useAdminResource";
 import { fetchWithProgress } from "@/lib/load/withFetchProgress";
@@ -526,8 +526,10 @@ export function HomepageBuilderPage() {
       ),
     []
   );
-  const { data, setData, isLoading, error, progress, stepLabel, refetch } =
-    useAdminResource(loader, "Loading homepage");
+  const { data, setData, isLoading, error, refetch } = useAdminResource(
+    loader,
+    "Loading homepage"
+  );
   const { success, error: toastError, neutral } = useToast();
   const [busy, setBusy] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -674,13 +676,7 @@ export function HomepageBuilderPage() {
   }
 
   if (isLoading) {
-    return (
-      <AdminLoader
-        label="Loading homepage"
-        stepLabel={stepLabel}
-        progress={progress}
-      />
-    );
+    return <LoadingScreen />;
   }
   if (error) {
     return (

@@ -88,6 +88,7 @@ export default function LessonPage({ params }: LessonPageProps) {
           label="Loading lesson…"
           stepLabel="Fetching course sheet"
           progress={progress}
+          fullScreen
         />
       </PageContainer>
     );

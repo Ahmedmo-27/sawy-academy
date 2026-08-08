@@ -1,9 +1,5 @@
-import { AdminLoader } from "@/components/admin/AdminLoader";
+import { LoadingScreen } from "@/components/feedback/LoadingScreen";
 
 export default function AdminLoading() {
-  return (
-    <div className="p-8 lg:p-10">
-      <AdminLoader label="Loading…" />
-    </div>
-  );
+  return <LoadingScreen />;
 }

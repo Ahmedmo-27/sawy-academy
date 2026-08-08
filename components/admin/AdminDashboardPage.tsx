@@ -34,6 +34,7 @@ export function AdminDashboardPage() {
           label="Loading overview…"
           stepLabel={stepLabel}
           progress={progress}
+          fullScreen
         />
       )}
       {!isLoading && error && (

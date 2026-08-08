@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger, registerGsap } from "@/lib/gsap/config";
+import { scheduleScrollRefresh } from "@/lib/gsap/refresh";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { scrollToY } from "@/lib/smoothScroll";
 
@@ -129,33 +130,21 @@ export function ScrollProgressScale() {
     marker.addEventListener("pointerup", endDrag);
     marker.addEventListener("pointercancel", endDrag);
 
-    let refreshRaf = 0;
-    const refresh = () => {
-      cancelAnimationFrame(refreshRaf);
-      refreshRaf = requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
-    };
-
-    // Recalculate as layout / assets settle (pre- and post-load)
-    const ro = new ResizeObserver(refresh);
-    ro.observe(document.documentElement);
-    ro.observe(document.body);
-
-    const onLoad = () => refresh();
+    // Recalculate once after batches of layout and asset changes settle.
+    const onLoad = () => scheduleScrollRefresh();
     window.addEventListener("load", onLoad);
-    window.addEventListener("resize", onLoad);
-    void document.fonts?.ready.then(refresh);
+    void document.fonts?.ready.then(() => scheduleScrollRefresh());
 
     // Late images that expand document height after first paint
     const bindImage = (img: HTMLImageElement) => {
       if (img.complete) return;
-      img.addEventListener("load", refresh, { once: true });
-      img.addEventListener("error", refresh, { once: true });
+      img.addEventListener("load", onLoad, { once: true });
+      img.addEventListener("error", onLoad, { once: true });
     };
     document.querySelectorAll("img").forEach((img) => bindImage(img));
 
     const mo = new MutationObserver((mutations) => {
+      scheduleScrollRefresh();
       for (const m of mutations) {
         m.addedNodes.forEach((node) => {
           if (node instanceof HTMLImageElement) bindImage(node);
@@ -167,19 +156,11 @@ export function ScrollProgressScale() {
     });
     mo.observe(document.body, { childList: true, subtree: true });
 
-    // Double-raf so we measure after the first layout pass
-    const boot = requestAnimationFrame(() => {
-      refresh();
-      requestAnimationFrame(refresh);
-    });
+    scheduleScrollRefresh();
 
     return () => {
-      cancelAnimationFrame(boot);
-      cancelAnimationFrame(refreshRaf);
-      ro.disconnect();
       mo.disconnect();
       window.removeEventListener("load", onLoad);
-      window.removeEventListener("resize", onLoad);
       marker.removeEventListener("pointerdown", onPointerDown);
       track.removeEventListener("pointerdown", onTrackPointerDown);
       marker.removeEventListener("pointermove", onPointerMove);

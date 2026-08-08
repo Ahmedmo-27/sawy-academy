@@ -148,6 +148,7 @@ export function ResourceListPage({ kind }: ResourceListPageProps) {
           label="Loading…"
           stepLabel={stepLabel}
           progress={progress}
+          fullScreen
         />
       )}
       {!isLoading && error && (

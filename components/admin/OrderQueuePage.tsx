@@ -38,6 +38,7 @@ export function OrderQueuePage() {
           label="Loading…"
           stepLabel={stepLabel}
           progress={progress}
+          fullScreen
         />
       )}
       {!isLoading && error && (

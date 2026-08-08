@@ -42,6 +42,7 @@ export function ServiceQueuePage() {
           label="Loading…"
           stepLabel={stepLabel}
           progress={progress}
+          fullScreen
         />
       )}
       {!isLoading && error && (

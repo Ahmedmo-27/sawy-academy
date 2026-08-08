@@ -314,6 +314,7 @@ export function SiteSettingsPage() {
         label="Loading site settings"
         stepLabel={stepLabel}
         progress={progress}
+        fullScreen
       />
     );
   }
