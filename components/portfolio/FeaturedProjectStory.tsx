@@ -226,7 +226,7 @@ export function FeaturedProjectStory({
   if (projects.length === 0) return null;
 
   return (
-    <section ref={rootRef} className="section-standard">
+    <section ref={rootRef} className="section-standard min-w-0 max-w-full">
       <div className="mb-6 flex items-end justify-between border-b border-charcoal pb-3">
         <div>
           <p className="eyebrow mb-2 text-clay">Selected work</p>
@@ -322,15 +322,21 @@ export function FeaturedProjectStory({
         </div>
       </div>
 
-      <div className={reduced ? "grid gap-10" : "grid gap-10 lg:hidden"}>
+      <div
+        className={
+          reduced
+            ? "grid min-w-0 max-w-full grid-cols-1 gap-10"
+            : "grid min-w-0 max-w-full grid-cols-1 gap-10 lg:hidden"
+        }
+      >
         {projects.map((project, index) => (
           <Link
             key={project.id}
             href={`/portfolio/${project.slug}`}
             data-story-mobile-card
-            className="group block"
+            className="group block min-w-0 max-w-full overflow-hidden"
           >
-            <div className="relative aspect-[4/3] overflow-hidden bg-concrete-dark">
+            <div className="relative aspect-[4/3] w-full max-w-full overflow-hidden bg-concrete-dark sm:aspect-[16/10] md:aspect-[4/3]">
               <Image
                 src={project.image}
                 alt={project.title}
@@ -345,9 +351,9 @@ export function FeaturedProjectStory({
                 {String(projects.length).padStart(2, "0")}
               </p>
             </div>
-            <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-hairline py-4">
-              <div>
-                <h3 className="font-serif text-2xl font-light leading-tight">
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-hairline py-4">
+              <div className="min-w-0">
+                <h3 className="font-serif text-xl font-light leading-tight sm:text-2xl">
                   {project.title}
                 </h3>
                 <p className="label-caps mt-2">
