@@ -319,7 +319,7 @@ export function Navigation() {
       >
         <Wordmark />
 
-        <div className="hidden lg:flex items-center gap-5 xl:gap-6 shrink-0">
+        <div className="hidden xl:flex items-center gap-6 shrink-0">
           <ul className="flex items-center gap-5 xl:gap-6">
             {navItems.map((item) => (
               <li key={item.id}>
@@ -380,7 +380,7 @@ export function Navigation() {
 
         <button
           type="button"
-          className="lg:hidden eyebrow text-charcoal"
+          className="xl:hidden eyebrow text-charcoal"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="mobile-nav"
@@ -393,7 +393,7 @@ export function Navigation() {
         {open && (
           <motion.div
             id="mobile-nav"
-            className="lg:hidden hairline-t bg-concrete/98 px-3 pb-6 pt-4 sm:px-4"
+            className="xl:hidden hairline-t bg-concrete/98 px-3 pb-6 pt-4 sm:px-4"
             initial={{ opacity: 0, y: -12, scaleY: 0.98 }}
             animate={{ opacity: 1, y: 0, scaleY: 1 }}
             exit={{ opacity: 0, y: -8, scaleY: 0.98 }}

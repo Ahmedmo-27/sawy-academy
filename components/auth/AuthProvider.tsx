@@ -74,10 +74,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem(LEGACY_TOKEN_KEY);
 
       const storedUser = readStoredUser();
-      if (storedUser) {
-        setUser(storedUser);
-        setHasSession(true);
+      if (!storedUser) {
+        // There is no client-side indication of an existing session. Avoid a
+        // speculative /auth/me request (and its expected 401) for guests.
+        setIsLoading(false);
+        return;
       }
+
+      setUser(storedUser);
+      setHasSession(true);
 
       try {
         const result = await getMeRequest();
