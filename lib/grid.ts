@@ -3,7 +3,7 @@ export const MODULE = 8;
 
 /** Progressive content width — full bleed on phones, capped on larger viewports */
 export const SITE_MAX =
-  "max-w-full sm:max-w-[36rem] md:max-w-[48rem] lg:max-w-[64rem] xl:max-w-[72rem] 2xl:max-w-[90rem]";
+  "max-w-full sm:max-w-[36rem] md:max-w-[48rem] lg:max-w-[64rem] xl:max-w-[72rem] 2xl:max-w-[80rem]";
 
 /**
  * Horizontal gutter scales with viewport.
