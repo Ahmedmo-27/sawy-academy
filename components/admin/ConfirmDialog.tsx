@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { useFocusTrap } from "@/lib/a11y/focusTrap";
 
@@ -88,7 +89,7 @@ export function ConfirmDialog({
     };
   }, [open]);
 
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
   function handleConfirm() {
     if (reasonRequired && !reason.trim()) {
@@ -109,9 +110,9 @@ export function ConfirmDialog({
         ? "admin-btn admin-btn-danger"
         : "admin-btn admin-btn-primary";
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/50 px-6"
+      className="fixed inset-0 z-[100] flex min-h-dvh items-center justify-center bg-charcoal/60 px-6 py-8"
       role="presentation"
       onClick={() => {
         if (!isBusy) onCancel();
@@ -197,6 +198,7 @@ export function ConfirmDialog({
           </div>
         </ThresholdFrame>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
