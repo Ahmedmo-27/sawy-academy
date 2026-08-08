@@ -2,6 +2,7 @@ const logger = require("../utils/logger");
 const { clearSessionCookie } = require("../lib/auth/sessionCookie");
 
 function errorHandler(err, req, res, next) {
+  void next; // Express identifies error middleware by its four-argument signature.
   const statusCode = err.statusCode || err.status || 500;
 
   const errorBody = {
@@ -18,7 +19,7 @@ function errorHandler(err, req, res, next) {
 
   const details = {
     method: req.method,
-    path: req.originalUrl || req.url,
+    path: req.path || req.originalUrl?.split("?")[0] || req.url?.split("?")[0],
     status: statusCode,
     error: err,
   };

@@ -2,6 +2,7 @@ const express = require("express");
 const courseController = require("../controllers/courseController");
 const courseGroupController = require("../controllers/courseGroupController");
 const lessonController = require("../controllers/lessonController");
+const videoUploadController = require("../controllers/videoUploadController");
 const {
   authenticate,
   requireAdmin,
@@ -20,6 +21,22 @@ router.delete("/groups/:id", adminWrite, courseGroupController.remove);
 router.patch("/:slug/lessons/reorder", adminWrite, lessonController.reorder);
 router.get("/:slug/lessons", lessonController.list);
 router.post("/:slug/lessons", adminWrite, lessonController.create);
+router.post(
+  "/:slug/lessons/:lessonId/video",
+  adminWrite,
+  videoUploadController.uploadMiddleware,
+  videoUploadController.create
+);
+router.get(
+  "/:slug/lessons/:lessonId/video/status",
+  adminWrite,
+  videoUploadController.status
+);
+router.post(
+  "/:slug/lessons/:lessonId/video/retry",
+  adminWrite,
+  videoUploadController.retry
+);
 router.put("/:slug/lessons/:lessonId", adminWrite, lessonController.update);
 router.delete("/:slug/lessons/:lessonId", adminWrite, lessonController.remove);
 

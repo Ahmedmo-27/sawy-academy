@@ -96,6 +96,7 @@ async function authenticate(req, res, next) {
       token,
       user,
       userId: user._id,
+      sessionId: session._id,
       deviceId: session.deviceId,
     };
 
@@ -119,6 +120,13 @@ async function requireDevice(req, res, next) {
     const requestDeviceId = extractDeviceId(req) || req.auth.deviceId;
     if (!requestDeviceId) {
       throw createHttpError(400, "Device identifier required");
+    }
+    if (requestDeviceId !== req.auth.deviceId) {
+      throw createHttpError(
+        401,
+        "The request device does not match the authenticated session.",
+        { code: "DEVICE_MISMATCH" }
+      );
     }
 
     await verifyDeviceRegistered(req.auth.userId, requestDeviceId);
@@ -151,6 +159,7 @@ async function optionalAuthenticate(req, res, next) {
       token,
       user,
       userId: user._id,
+      sessionId: session._id,
       deviceId: session.deviceId,
     };
   } catch {

@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sawy-academy-media-gateway",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-08",
+  "compatibility_flags": ["nodejs_compat"],
+  "r2_buckets": [
+    {
+      "binding": "VIDEO_BUCKET",
+      "bucket_name": "sawy-academy-videos"
+    }
+  ],
+  "vars": {
+    "MEDIA_ALLOWED_ORIGIN": "https://sawy-academy.example.com"
+  },
+  // Configure with: npx wrangler secret put VIDEO_MEDIA_GRANT_SECRET
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}

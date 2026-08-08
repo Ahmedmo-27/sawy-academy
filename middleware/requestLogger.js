@@ -7,7 +7,8 @@ function requestLogger(req, res, next) {
     const durationMs = Date.now() - startedAt;
     const details = {
       method: req.method,
-      path: req.originalUrl || req.url,
+      // Query strings can contain short-lived media grants or other secrets.
+      path: req.path || req.originalUrl?.split("?")[0] || req.url?.split("?")[0],
       status: res.statusCode,
       durationMs,
       ip: req.ip,

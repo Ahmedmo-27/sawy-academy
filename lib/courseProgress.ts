@@ -1,3 +1,8 @@
+import {
+  getPrerequisiteMessage as getSharedPrerequisiteMessage,
+  isLevelLocked as isSharedLevelLocked,
+} from "@/lib/courseProgressRules";
+
 /**
  * Level-gate helpers for CourseGroup.type === "leveled".
  *
@@ -46,12 +51,7 @@ export function getPrerequisiteMessage(
   levelOrder: number,
   isAuthenticated: boolean
 ): string | undefined {
-  if (levelOrder <= 1) return undefined;
-  const previous = levelOrder - 1;
-  if (!isAuthenticated) {
-    return `Sign in and complete Level ${previous} to unlock`;
-  }
-  return `Complete Level ${previous} first`;
+  return getSharedPrerequisiteMessage(levelOrder, isAuthenticated);
 }
 
 /**
@@ -62,7 +62,7 @@ export function isLevelLocked(
   levelOrder: number,
   previousLevelCompleted: boolean
 ): boolean {
-  return levelOrder > 1 && !previousLevelCompleted;
+  return isSharedLevelLocked(levelOrder, previousLevelCompleted);
 }
 
 export function resolveLevelAccess({

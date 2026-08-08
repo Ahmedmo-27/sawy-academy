@@ -23,10 +23,12 @@ const errorHandler = require("./middleware/errorHandler");
 const requestLogger = require("./middleware/requestLogger");
 const requireCsrf = require("./middleware/csrfMiddleware");
 const logger = require("./utils/logger");
+const { parseTrustProxy } = require("./lib/trustProxy");
 
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", parseTrustProxy(process.env.TRUST_PROXY));
 
 const defaultAllowedOrigins = [
   "https://sawy-academy.onrender.com",
