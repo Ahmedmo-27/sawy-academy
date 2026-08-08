@@ -86,7 +86,7 @@ export default async function ResearchDetailPage({
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
         }}
       />
-      <header className="relative overflow-hidden">
+      <header className="page-header-warm relative overflow-hidden">
         <GridColumns />
         <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-8 lg:pb-12">
           <GsapReveal type="text" immediate>

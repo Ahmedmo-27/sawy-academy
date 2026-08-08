@@ -15,11 +15,11 @@ export function Footer() {
     <footer className="mt-auto relative z-10">
       <ThresholdDoorway label="SITE FOOTER" />
 
-      <div className="section-intimate">
+      <div className="site-footer-contrast section-intimate">
         <PageContainer>
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10">
             <div>
-              <Wordmark linked={false} size="sm" />
+              <Wordmark linked={false} size="sm" tone="light" />
               <ScaleBar scale="1:200" className="mt-6 mb-4 max-w-[100px]" />
               <p className="type-title mb-2">{branding.professorTitle}</p>
               <p className="type-infill leading-relaxed max-w-xs">

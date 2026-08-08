@@ -3,15 +3,25 @@ import { HeroBackdrop } from "./decorative/HeroBackdrop";
 import { GridColumns } from "./decorative/GridColumns";
 import { PageContainer } from "./layout/PageContainer";
 
+export type PageHeaderTone = "neutral" | "warm";
+
 interface PageHeaderProps {
   eyebrow: string;
   title: string;
   description?: string;
+  tone?: PageHeaderTone;
 }
 
-export function PageHeader({ eyebrow, title, description }: PageHeaderProps) {
+export function PageHeader({
+  eyebrow,
+  title,
+  description,
+  tone = "neutral",
+}: PageHeaderProps) {
   return (
-    <header className="relative section-intimate overflow-hidden">
+    <header
+      className={`page-header-tone page-header-${tone} relative section-intimate overflow-hidden`}
+    >
       <HeroBackdrop variant="page" />
       <GridColumns />
       <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-8 lg:pb-12">
