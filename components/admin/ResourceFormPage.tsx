@@ -54,7 +54,7 @@ function deleteMessage(kind: ResourceKind, label: string) {
   if (kind === "courses") {
     // TODO: Fetch active enrollment count from the API and surface it here
     // (e.g. "This course has N active enrollments") before confirming delete.
-    return `Delete “${label}”? This can't be undone. If students are enrolled, deleting will affect their access — enrollment count is not yet checked against the API.`;
+    return `Delete “${label}”? This can't be undone. Deleting a course may remove access for enrolled students, and their current number is not available here.`;
   }
   return `Delete “${label}”? This can't be undone.`;
 }
@@ -72,10 +72,10 @@ function validateField(field: ResourceField, value: string) {
     try {
       const url = new URL(value);
       if (url.protocol !== "http:" && url.protocol !== "https:") {
-        return `${field.label} must use HTTP or HTTPS.`;
+        return `${field.label} must be a complete web link.`;
       }
     } catch {
-      return `${field.label} must be a valid URL.`;
+      return `${field.label} must be a valid web link.`;
     }
   }
 
@@ -86,7 +86,7 @@ function validateField(field: ResourceField, value: string) {
       value.trim()
     )
   ) {
-    return "DOI must be a valid DOI identifier.";
+    return "Enter a valid official publication number.";
   }
 
   return "";
@@ -113,6 +113,8 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
   );
   const isDirty = !isLoading && JSON.stringify(form) !== savedSnapshot;
   useUnsavedChanges(isDirty && !isSaving);
+  const singularTitle = config.title.replace(/s$/, "");
+  const recordContext = isEdit ? recordLabelFromForm(form, record) : `New ${singularTitle.toLowerCase()}`;
 
   const loadRecord = useCallback(async () => {
     setIsLoading(true);
@@ -301,8 +303,10 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
     <div className="space-y-10">
       <AdminPageHeader
         eyebrow={config.eyebrow}
-        title={isEdit ? `Edit ${config.title.replace(/s$/, "")}` : `Add ${config.title.replace(/s$/, "").toLowerCase()}`}
-        description="Fill in the details below, then click Save."
+        context={recordContext}
+        title={isEdit ? `Edit ${singularTitle}` : `Add ${singularTitle.toLowerCase()}`}
+        description={`Complete the ${singularTitle.toLowerCase()} details below. Required fields are marked with an asterisk.`}
+        guidance="Nothing is published or updated until you choose Save changes. Cancel returns to the list without saving."
         action={
           <Link href={config.basePath} className="admin-btn admin-btn-secondary">
             Back to list
@@ -316,6 +320,12 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
           onSubmit={handleSubmit}
         >
           <FormErrorSummary errors={Object.values(errors).filter(Boolean)} />
+          <div className="mb-6">
+            <h2 className="type-title">Main details</h2>
+            <p className="type-infill mt-1 text-charcoal-muted">
+              These details are used wherever this item appears on the site.
+            </p>
+          </div>
           <div className="grid gap-6 md:grid-cols-2">
             {fields.map((field) => {
               if (field.type === "upload") {
@@ -396,7 +406,7 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
               className="admin-btn admin-btn-primary"
               disabled={isSaving}
             >
-              {isSaving ? "Saving…" : "Save"}
+              {isSaving ? "Saving…" : "Save changes"}
             </button>
             <Link
               href={config.basePath}
@@ -414,7 +424,7 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
               </button>
             )}
             {isDirty && !isSaving && (
-              <span className="dim-label ml-auto" role="status">Unsaved changes</span>
+              <span className="dim-label ml-auto" role="status" aria-live="polite">Changes not saved</span>
             )}
           </div>
         </form>

@@ -174,8 +174,8 @@ export function DataTable<T>({
         <div className="hairline-border grid gap-3 bg-concrete-dark/30 p-3 sm:grid-cols-[minmax(12rem,1fr)_auto]">
           {getSearchText && (
             <div>
-              <label htmlFor={searchId} className="sr-only">
-                Search
+              <label htmlFor={searchId} className="label-caps mb-2 block">
+                Find an item
               </label>
               <input
                 id={searchId}
@@ -459,7 +459,7 @@ export function DataTable<T>({
           Previous
         </button>
         <p className="dim-label">
-          Sheet {String(currentPage).padStart(2, "0")} /{" "}
+          Page {String(currentPage).padStart(2, "0")} of{" "}
           {String(pageCount).padStart(2, "0")}
         </p>
         <button

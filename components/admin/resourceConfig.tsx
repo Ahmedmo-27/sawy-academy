@@ -314,7 +314,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       relatedProductIds: "",
     },
     fields: [
-      { name: "id", label: "Course code", required: true, hint: "A short unique code, e.g. d1" },
+      { name: "id", label: "Course page name", required: true, hint: "A brief unique name used in the course page address, for example design-1." },
       { name: "title", label: "Course name", required: true },
       {
         name: "groupId",
@@ -344,8 +344,8 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       },
       {
         name: "relatedProductIds",
-        label: "Related product codes",
-        hint: "Optional. Separate multiple codes with commas.",
+        label: "Related product numbers",
+        hint: "Optional. Enter each product number separated by a comma.",
       },
     ],
     list: async () =>
@@ -545,7 +545,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       gallery: "[]",
     },
     fields: [
-      { name: "id", label: "ID", required: true },
+      { name: "id", label: "Product number", required: true, hint: "A short unique number or name used to identify this product." },
       { name: "name", label: "Name", required: true },
       {
         name: "description",
@@ -565,7 +565,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         name: "gallery",
         label: "Gallery",
         type: "gallery",
-        hint: "Optional additional product plates for the detail page.",
+        hint: "Optional additional product images for the product page.",
       },
     ],
     list: async () => (await listProducts()).map(asRecord),
@@ -588,7 +588,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
     listColumns: [
       {
         key: "id",
-        header: "ID",
+        header: "Product number",
         value: (record) => text(record, "id"),
         sortValue: (record) => text(record, "id"),
       },
@@ -633,7 +633,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       aspect: "",
     },
     fields: [
-      { name: "id", label: "ID", required: true },
+      { name: "id", label: "Project page name", required: true, hint: "A brief unique name used in the project page address." },
       { name: "title", label: "Title", required: true },
       {
         name: "category",
@@ -648,9 +648,9 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       { name: "image", label: "Cover image", type: "upload", required: true },
       {
         name: "gallery",
-        label: "Drawing set",
+        label: "Additional images",
         type: "gallery",
-        hint: "Additional plates for the project detail gallery.",
+        hint: "Additional images shown on the project page.",
       },
       {
         name: "beforeImage",
@@ -665,7 +665,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       },
       {
         name: "aspect",
-        label: "Aspect",
+        label: "Image shape",
         type: "select",
         options: ["tall", "wide", "square"].map((value) => ({
           label: value,
@@ -706,17 +706,11 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
     listColumns: [
       {
         key: "order",
-        header: "#",
+        header: "Order",
         className: "w-16",
         value: (record) =>
           String(Number(record.order) || 0).padStart(2, "0"),
         sortValue: (record) => Number(record.order) || 0,
-      },
-      {
-        key: "sheetRef",
-        header: "Sheet",
-        value: (record) => text(record, "sheetRef"),
-        sortValue: (record) => text(record, "sheetRef"),
       },
       {
         key: "title",
@@ -765,7 +759,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       figures: "[]",
     },
     fields: [
-      { name: "id", label: "ID", required: true },
+      { name: "id", label: "Publication page name", required: true, hint: "A brief unique name used in the publication page address." },
       { name: "title", label: "Title", required: true },
       { name: "year", label: "Year", required: true },
       {
@@ -777,10 +771,10 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
           (value) => ({ label: value, value })
         ),
       },
-      { name: "venue", label: "Venue", required: true },
+      { name: "venue", label: "Published at", required: true },
       {
         name: "abstract",
-        label: "Abstract",
+        label: "Summary",
         type: "textarea",
         required: true,
       },
@@ -797,32 +791,32 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       },
       {
         name: "doi",
-        label: "DOI",
-        hint: "Enter the DOI identifier, for example 10.1000/example.",
+        label: "Published work number",
+        hint: "If available, enter the official publication number, for example 10.1000/example.",
       },
       {
         name: "citation",
-        label: "Preferred citation",
+        label: "How to credit this work",
         type: "textarea",
       },
-      { name: "pdfUrl", label: "PDF URL", type: "url" },
-      { name: "externalUrl", label: "Publication URL", type: "url" },
+      { name: "pdfUrl", label: "Document web link", type: "url" },
+      { name: "externalUrl", label: "Publication web link", type: "url" },
       {
         name: "keywords",
-        label: "Keywords",
-        hint: "Optional. Separate keywords with commas.",
+        label: "Search words",
+        hint: "Optional. Separate search words with commas.",
       },
       {
         name: "image",
         label: "Cover image",
         type: "upload",
-        hint: "Optional jacket / poster / key figure.",
+        hint: "Optional cover, poster, or main image.",
       },
       {
         name: "figures",
-        label: "Figure plates",
+        label: "Additional images",
         type: "gallery",
-        hint: "Optional diagrams and plates for the research detail page.",
+        hint: "Optional diagrams and images for the publication page.",
       },
     ],
     list: async () => (await listResearch()).map(asRecord),
@@ -867,7 +861,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       },
       {
         key: "venue",
-        header: "Venue",
+        header: "Published at",
         value: (record) => text(record, "venue"),
         sortValue: (record) => text(record, "venue"),
       },
@@ -895,12 +889,12 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       deviceLimit: "2",
     },
     fields: [
-      { name: "id", label: "ID", required: true },
+      { name: "id", label: "Account number", required: true, hint: "The unique number for this account. Avoid changing it after the account is created." },
       { name: "name", label: "Name", required: true },
       { name: "email", label: "Email", type: "email", required: true },
       {
         name: "role",
-        label: "Role",
+        label: "Account type",
         type: "select",
         required: true,
         options: [
@@ -910,7 +904,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       },
       {
         name: "deviceLimit",
-        label: "Device limit",
+        label: "Allowed devices",
         type: "number",
         required: true,
         hint: "Maximum registered devices for this student. Raise this to grant an extra slot after reviewing a request.",
@@ -947,13 +941,13 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
       },
       {
         key: "role",
-        header: "Role",
+        header: "Account type",
         value: (record) => text(record, "role") || "student",
         sortValue: (record) => text(record, "role"),
       },
       {
         key: "createdAt",
-        header: "Registered",
+        header: "Joined",
         value: (record) => text(record, "createdAt") || "Not recorded",
         sortValue: (record) => text(record, "createdAt"),
       },

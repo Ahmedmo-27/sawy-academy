@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { AdminEditModal } from "@/components/admin/AdminEditModal";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -39,6 +40,11 @@ function newId(prefix: string) {
   return `${prefix}-${Date.now().toString(36)}`;
 }
 
+function pageName(key: string) {
+  if (key === "researches") return "Research";
+  return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
 function PageField({
   id,
   label,
@@ -56,7 +62,7 @@ function PageField({
   const options =
     known || !value
       ? NAV_PAGE_OPTIONS
-      : [...NAV_PAGE_OPTIONS, { label: `Current · ${value}`, value }];
+    : [...NAV_PAGE_OPTIONS, { label: "Current selection", value }];
 
   return (
     <FormField
@@ -83,14 +89,55 @@ function LinkEditor({
   onChange: (links: NavLinkItem[]) => void;
   allowChildren?: boolean;
 }) {
-  function updateLink(index: number, patch: Partial<NavLinkItem>) {
-    onChange(
-      links.map((link, i) => (i === index ? { ...link, ...patch } : link))
+  const [editor, setEditor] = useState<{
+    index: number | null;
+    draft: NavLinkItem;
+    initial: string;
+  } | null>(null);
+  const [removeIndex, setRemoveIndex] = useState<number | null>(null);
+
+  function openAdd() {
+    setEditor({
+      index: null,
+      draft: { id: newId("link"), label: "", href: "/" },
+      initial: "",
+    });
+  }
+
+  function openEdit(index: number) {
+    const draft = {
+      ...links[index],
+      children: links[index].children?.map((child) => ({ ...child })),
+    };
+    setEditor({ index, draft, initial: JSON.stringify(draft) });
+  }
+
+  function updateDraft(patch: Partial<NavLinkItem>) {
+    setEditor((current) =>
+      current
+        ? { ...current, draft: { ...current.draft, ...patch } }
+        : current
     );
   }
 
-  function removeLink(index: number) {
-    onChange(links.filter((_, i) => i !== index));
+  function saveDraft() {
+    if (!editor) return;
+    if (editor.index === null) {
+      onChange([...links, editor.draft]);
+    } else {
+      onChange(
+        links.map((link, index) =>
+          index === editor.index ? editor.draft : link
+        )
+      );
+    }
+    setEditor(null);
+  }
+
+  function confirmRemove() {
+    if (removeIndex === null) return;
+    onChange(links.filter((_, index) => index !== removeIndex));
+    setRemoveIndex(null);
   }
 
   function move(index: number, dir: -1 | 1) {
@@ -109,27 +156,48 @@ function LinkEditor({
         <button
           type="button"
           className="admin-btn admin-btn-secondary admin-btn-compact"
-          onClick={() =>
-            onChange([
-              ...links,
-              { id: newId("link"), label: "New link", href: "/" },
-            ])
-          }
+          onClick={openAdd}
         >
           Add link
         </button>
       </div>
 
+      {links.length === 0 && (
+        <div className="border border-dashed border-hairline bg-concrete p-4">
+          <p className="type-infill text-charcoal-muted">
+            No links configured. Add a link to include one here.
+          </p>
+        </div>
+      )}
+
       {links.map((link, index) => (
         <div
           key={link.id}
-          className="border border-hairline bg-concrete p-4 space-y-3"
+          className="border border-hairline bg-concrete p-4"
         >
-          <div className="flex flex-wrap gap-2 justify-between">
-            <p className="label-caps text-charcoal-infill">
-              Item {index + 1}
-            </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="label-caps text-clay">Item {index + 1}</p>
+              <p className="mt-1 font-medium text-charcoal">
+                {link.label || "Untitled link"}
+              </p>
+              <p className="type-infill mt-1 break-all text-charcoal-muted">
+                {link.href || "Menu only"}
+                {allowChildren && link.children?.length
+                  ? ` · ${link.children.length} submenu ${
+                      link.children.length === 1 ? "link" : "links"
+                    }`
+                  : ""}
+              </p>
+            </div>
             <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="admin-btn admin-btn-primary admin-btn-compact"
+                onClick={() => openEdit(index)}
+              >
+                Edit
+              </button>
               <button
                 type="button"
                 className="admin-btn admin-btn-secondary admin-btn-compact"
@@ -151,46 +219,68 @@ function LinkEditor({
               <button
                 type="button"
                 className="admin-btn admin-btn-danger admin-btn-compact"
-                onClick={() => removeLink(index)}
+                onClick={() => setRemoveIndex(index)}
               >
-                Remove
+                Remove link
               </button>
             </div>
           </div>
+        </div>
+      ))}
 
+      <AdminEditModal
+        open={Boolean(editor)}
+        title={
+          editor?.index === null
+            ? `Add ${title.toLowerCase()} link`
+            : `Edit ${title.toLowerCase()} link`
+        }
+        description="Changes are kept in this draft until you save the link."
+        context={title}
+        saveLabel={editor?.index === null ? "Add link" : "Save link"}
+        isDirty={
+          Boolean(editor) &&
+          (editor?.index === null ||
+            JSON.stringify(editor?.draft) !== editor?.initial)
+        }
+        onCancel={() => setEditor(null)}
+        onSave={saveDraft}
+      >
+        {editor && (
+          <div className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <FormField
-              id={`${link.id}-label`}
+              id={`${editor.draft.id}-label`}
               name="label"
               label="Link text"
-              value={link.label}
-              onChange={(value) => updateLink(index, { label: value })}
+              value={editor.draft.label}
+              onChange={(value) => updateDraft({ label: value })}
             />
             <PageField
-              id={`${link.id}-page`}
+              id={`${editor.draft.id}-page`}
               label="Goes to"
-              value={link.href}
+              value={editor.draft.href}
               emptyLabel={
                 allowChildren ? "Menu only (opens submenu)" : "Select a page"
               }
-              onChange={(value) => updateLink(index, { href: value })}
+              onChange={(value) => updateDraft({ href: value })}
             />
           </div>
 
           {allowChildren && (
-            <div className="pl-3 border-l border-hairline space-y-3">
+            <div className="border-l border-hairline pl-3 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="label-caps">Submenu links</p>
                 <button
                   type="button"
                   className="admin-btn admin-btn-secondary admin-btn-compact"
                   onClick={() =>
-                    updateLink(index, {
+                    updateDraft({
                       children: [
-                        ...(link.children ?? []),
+                        ...(editor.draft.children ?? []),
                         {
                           id: newId("child"),
-                          label: "Submenu link",
+                          label: "",
                           href: "/",
                         },
                       ],
@@ -200,7 +290,7 @@ function LinkEditor({
                   Add submenu link
                 </button>
               </div>
-              {(link.children ?? []).map((child, childIndex) => (
+              {(editor.draft.children ?? []).map((child, childIndex) => (
                 <div
                   key={child.id}
                   className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-2 items-end"
@@ -211,9 +301,9 @@ function LinkEditor({
                     label="Link text"
                     value={child.label}
                     onChange={(value) => {
-                      const children = [...(link.children ?? [])];
+                      const children = [...(editor.draft.children ?? [])];
                       children[childIndex] = { ...child, label: value };
-                      updateLink(index, { children });
+                      updateDraft({ children });
                     }}
                   />
                   <PageField
@@ -222,19 +312,19 @@ function LinkEditor({
                     value={child.href}
                     emptyLabel="Select a page"
                     onChange={(value) => {
-                      const children = [...(link.children ?? [])];
+                      const children = [...(editor.draft.children ?? [])];
                       children[childIndex] = { ...child, href: value };
-                      updateLink(index, { children });
+                      updateDraft({ children });
                     }}
                   />
                   <button
                     type="button"
                     className="admin-btn admin-btn-danger admin-btn-compact mb-1"
                     onClick={() => {
-                      const children = (link.children ?? []).filter(
+                      const children = (editor.draft.children ?? []).filter(
                         (_, i) => i !== childIndex
                       );
-                      updateLink(index, {
+                      updateDraft({
                         children: children.length ? children : undefined,
                       });
                     }}
@@ -245,8 +335,23 @@ function LinkEditor({
               ))}
             </div>
           )}
-        </div>
-      ))}
+          </div>
+        )}
+      </AdminEditModal>
+
+      <ConfirmDialog
+        open={removeIndex !== null}
+        title="Remove link?"
+        message={
+          removeIndex === null
+            ? ""
+            : `Remove “${links[removeIndex]?.label || "Untitled link"}” from ${title.toLowerCase()}? This takes effect in the settings draft immediately.`
+        }
+        confirmLabel="Remove link"
+        confirmTone="danger"
+        onCancel={() => setRemoveIndex(null)}
+        onConfirm={confirmRemove}
+      />
     </div>
   );
 }
@@ -269,6 +374,11 @@ export function SiteSettingsPage() {
   const [activeTab, setActiveTab] = useState<
     "branding" | "seo" | "navigation" | "pages" | "contact" | "services"
   >("branding");
+  const [pageHeaderEditor, setPageHeaderEditor] = useState<{
+    key: (typeof PAGE_KEYS)[number];
+    draft: PageHeaderContent;
+    initial: string;
+  } | null>(null);
 
   const settings = data ?? DEFAULT_SITE_SETTINGS;
   const savedSnapshot = useRef<string | null>(null);
@@ -281,6 +391,33 @@ export function SiteSettingsPage() {
 
   function patch(next: Partial<SiteSettings>) {
     setData({ ...settings, ...next });
+  }
+
+  function openPageHeaderEditor(
+    key: (typeof PAGE_KEYS)[number],
+    header: PageHeaderContent
+  ) {
+    const draft = { ...header };
+    setPageHeaderEditor({ key, draft, initial: JSON.stringify(draft) });
+  }
+
+  function patchPageHeaderDraft(next: Partial<PageHeaderContent>) {
+    setPageHeaderEditor((current) =>
+      current
+        ? { ...current, draft: { ...current.draft, ...next } }
+        : current
+    );
+  }
+
+  function savePageHeaderDraft() {
+    if (!pageHeaderEditor) return;
+    patch({
+      pageHeaders: {
+        ...settings.pageHeaders,
+        [pageHeaderEditor.key]: pageHeaderEditor.draft,
+      },
+    });
+    setPageHeaderEditor(null);
   }
 
   async function handleSave() {
@@ -343,19 +480,19 @@ export function SiteSettingsPage() {
   const branding = settings.branding;
   const tabs = [
     { id: "branding" as const, label: "Branding" },
-    { id: "seo" as const, label: "SEO" },
-    { id: "navigation" as const, label: "Nav & footer" },
-    { id: "pages" as const, label: "Page headers" },
+    { id: "seo" as const, label: "Search appearance" },
+    { id: "navigation" as const, label: "Menus & footer" },
+    { id: "pages" as const, label: "Page introductions" },
     { id: "contact" as const, label: "Contact page" },
-    { id: "services" as const, label: "Services media" },
+    { id: "services" as const, label: "Service images" },
   ];
 
   return (
     <div>
       <AdminPageHeader
-        eyebrow="CMS-01"
+        eyebrow="Website"
         title="Site settings"
-        description="Brand identity, navigation, footer links, SEO, and page headers across the public site."
+        description="Manage the academy name, menus, search appearance, page introductions, contact details, and images."
         action={
           <div className="flex flex-wrap gap-2">
             <button
@@ -400,18 +537,18 @@ export function SiteSettingsPage() {
           {(
             [
               ["name", "Academy name"],
-              ["wordmark", "Wordmark"],
-              ["wordmarkSuffix", "Wordmark suffix"],
+              ["wordmark", "Main logo text"],
+              ["wordmarkSuffix", "Logo ending"],
               ["professor", "Professor name"],
               ["professorTitle", "Professor title"],
-              ["role", "Role"],
-              ["institution", "Institution"],
-              ["tagline", "Tagline"],
+              ["role", "Job title"],
+              ["institution", "Organization"],
+              ["tagline", "Short slogan"],
               ["email", "Email"],
               ["phone", "Phone"],
               ["mobile", "Mobile"],
-              ["established", "Established"],
-              ["footerBlurb", "Footer blurb"],
+              ["established", "Year established"],
+              ["footerBlurb", "Footer description"],
             ] as const
           ).map(([key, label]) => (
             <FormField
@@ -428,7 +565,7 @@ export function SiteSettingsPage() {
           <FormField
             id="brand-affiliation"
             name="affiliation"
-            label="Affiliation"
+            label="Associated organization"
             type="textarea"
             rows={3}
             value={branding.affiliation ?? ""}
@@ -480,7 +617,7 @@ export function SiteSettingsPage() {
           <FormField
             id="seo-title"
             name="title"
-            label="Document title"
+            label="Browser tab title"
             value={settings.seo.title}
             onChange={(value) =>
               patch({ seo: { ...settings.seo, title: value } })
@@ -489,7 +626,7 @@ export function SiteSettingsPage() {
           <FormField
             id="seo-description"
             name="description"
-            label="Meta description"
+            label="Search result description"
             type="textarea"
             rows={4}
             value={settings.seo.description}
@@ -503,7 +640,7 @@ export function SiteSettingsPage() {
       {activeTab === "navigation" && (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           <LinkEditor
-            title="Primary navigation"
+            title="Main menu"
             links={settings.navigation.items}
             allowChildren
             onChange={(items) => patch({ navigation: { items } })}
@@ -527,55 +664,29 @@ export function SiteSettingsPage() {
             return (
               <div
                 key={key}
-                className="border border-hairline bg-concrete p-4 space-y-3"
+                className="border border-hairline bg-concrete p-4"
               >
-                <p className="label-caps text-clay">/{key}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <FormField
-                    id={`${key}-eyebrow`}
-                    name="eyebrow"
-                    label="Eyebrow"
-                    value={header.eyebrow}
-                    onChange={(value) =>
-                      patch({
-                        pageHeaders: {
-                          ...settings.pageHeaders,
-                          [key]: { ...header, eyebrow: value },
-                        },
-                      })
-                    }
-                  />
-                  <FormField
-                    id={`${key}-title`}
-                    name="title"
-                    label="Title"
-                    value={header.title}
-                    onChange={(value) =>
-                      patch({
-                        pageHeaders: {
-                          ...settings.pageHeaders,
-                          [key]: { ...header, title: value },
-                        },
-                      })
-                    }
-                  />
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="label-caps text-clay">{pageName(key)} page</p>
+                    <p className="mt-2 font-serif text-xl text-charcoal">
+                      {header.title || "Untitled page header"}
+                    </p>
+                    <p className="type-infill mt-1 text-charcoal-muted">
+                      {header.eyebrow || "No small heading"}
+                    </p>
+                    <p className="type-infill mt-2 max-w-2xl text-charcoal-muted">
+                      {header.description || "No description"}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-primary admin-btn-compact"
+                    onClick={() => openPageHeaderEditor(key, header)}
+                  >
+                    Edit introduction
+                  </button>
                 </div>
-                <FormField
-                  id={`${key}-description`}
-                  name="description"
-                  label="Description"
-                  type="textarea"
-                  rows={3}
-                  value={header.description}
-                  onChange={(value) =>
-                    patch({
-                      pageHeaders: {
-                        ...settings.pageHeaders,
-                        [key]: { ...header, description: value },
-                      },
-                    })
-                  }
-                />
               </div>
             );
           })}
@@ -629,6 +740,58 @@ export function SiteSettingsPage() {
           ))}
         </div>
       )}
+
+      <AdminEditModal
+        open={Boolean(pageHeaderEditor)}
+        title={
+          pageHeaderEditor
+            ? `Edit ${pageName(pageHeaderEditor.key)} page introduction`
+            : "Edit page introduction"
+        }
+        description="Update the heading and description shown at the top of this page."
+        context="Page introductions"
+        saveLabel="Save introduction"
+        isDirty={
+          Boolean(pageHeaderEditor) &&
+          JSON.stringify(pageHeaderEditor?.draft) !== pageHeaderEditor?.initial
+        }
+        onCancel={() => setPageHeaderEditor(null)}
+        onSave={savePageHeaderDraft}
+      >
+        {pageHeaderEditor && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                id={`${pageHeaderEditor.key}-eyebrow`}
+                name="eyebrow"
+                label="Small heading"
+                value={pageHeaderEditor.draft.eyebrow}
+                onChange={(value) =>
+                  patchPageHeaderDraft({ eyebrow: value })
+                }
+              />
+              <FormField
+                id={`${pageHeaderEditor.key}-title`}
+                name="title"
+                label="Title"
+                value={pageHeaderEditor.draft.title}
+                onChange={(value) => patchPageHeaderDraft({ title: value })}
+              />
+            </div>
+            <FormField
+              id={`${pageHeaderEditor.key}-description`}
+              name="description"
+              label="Description"
+              type="textarea"
+              rows={4}
+              value={pageHeaderEditor.draft.description}
+              onChange={(value) =>
+                patchPageHeaderDraft({ description: value })
+              }
+            />
+          </div>
+        )}
+      </AdminEditModal>
 
       <div className="sticky bottom-0 z-20 mt-10 flex items-center justify-between gap-3 border border-hairline bg-concrete/95 p-3 nav-blur">
         <p className="dim-label" role="status">

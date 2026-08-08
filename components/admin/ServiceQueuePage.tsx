@@ -34,6 +34,7 @@ export function ServiceQueuePage() {
         eyebrow="Requests"
         title="Service requests"
         description="Messages from people asking for design, research, collaboration, or device access help."
+        guidance="Choose “Open request” to read the full message and update its status."
       />
 
       {isLoading && (
@@ -53,9 +54,6 @@ export function ServiceQueuePage() {
         <DataTable
           data={data}
           getRowKey={requestKey}
-          onRowClick={(request) =>
-            router.push(`/admin/services/${requestKey(request)}`)
-          }
           emptyMessage="No service requests are waiting for review."
           searchPlaceholder="Search requests"
           getSearchText={(request) =>
@@ -111,6 +109,20 @@ export function ServiceQueuePage() {
               sortable: true,
               render: (request) => <StatusBadge status={request.status} />,
               sortValue: (request) => request.status,
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              className: "text-right",
+              render: (request) => (
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-secondary admin-btn-compact"
+                  onClick={() => router.push(`/admin/services/${requestKey(request)}`)}
+                >
+                  Open request
+                </button>
+              ),
             },
           ]}
         />
