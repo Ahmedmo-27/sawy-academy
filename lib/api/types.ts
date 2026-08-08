@@ -31,6 +31,12 @@ export interface Lesson extends TimestampedRecord {
   order: number;
   summary?: string;
   content?: string;
+  /** Safe availability flag; the private R2 object key is never returned. */
+  videoAvailable?: boolean;
+  /** Current state of the asynchronous protected-video processing pipeline. */
+  videoProcessingStatus?: "none" | "queued" | "processing" | "ready" | "failed";
+  videoProcessingUpdatedAt?: string;
+  /** Legacy YouTube location retained only until an explicit migration. */
   videoUrl?: string;
   previewImage?: string;
 }
@@ -332,4 +338,47 @@ export interface HomeSection {
 export interface HomePageConfig extends TimestampedRecord {
   key?: string;
   sections: HomeSection[];
+}
+
+export type VideoAccessFlagStatus =
+  | "open"
+  | "in_review"
+  | "resolved"
+  | "dismissed";
+
+export interface VideoAccessFlag extends TimestampedRecord {
+  _id: string;
+  userId: { _id: string; name: string; email: string };
+  deviceId: string;
+  lessonId: { _id: string; title: string; slug?: string; sheetRef?: string };
+  assetId: string;
+  reasonCode: "distinct_ip_threshold";
+  status: VideoAccessFlagStatus;
+  notes: string;
+  distinctIpCount: number;
+  threshold: number;
+  windowMinutes: number;
+  firstDetectedAt: string;
+  lastDetectedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: { _id: string; name: string; email: string };
+}
+
+export interface HlsKeyAccessLog {
+  _id: string;
+  userId: string;
+  sessionId: string;
+  deviceId: string;
+  lessonId?: { _id: string; title: string; slug?: string; sheetRef?: string };
+  assetId?: string;
+  ip: string;
+  userAgent: string;
+  outcome: "success" | "denied" | "error";
+  reason: string;
+  occurredAt: string;
+}
+
+export interface VideoAccessFlagDetail {
+  flag: VideoAccessFlag;
+  logs: HlsKeyAccessLog[];
 }

@@ -22,6 +22,7 @@ const navItems = [
   { href: "/admin/research", label: "Research", sheetRef: "RES-05", group: "Content" },
   { href: "/admin/orders", label: "Orders", sheetRef: "ORD-06", group: "Operations" },
   { href: "/admin/services", label: "Services", sheetRef: "SRV-07", group: "Operations" },
+  { href: "/admin/video-access-flags", label: "Video Access", sheetRef: "VAC-09", group: "Operations" },
   { href: "/admin/users", label: "Users", sheetRef: "USR-08", group: "People" },
 ];
 const navGroups = ["Overview", "Content", "Catalogue", "Operations", "People"];

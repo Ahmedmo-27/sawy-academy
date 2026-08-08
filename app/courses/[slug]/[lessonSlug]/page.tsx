@@ -191,6 +191,16 @@ export default function LessonPage({ params }: LessonPageProps) {
     };
   }, [lesson, isAuthenticated, isAuthLoading]);
 
+  async function refreshVideoManifest() {
+    if (!lesson) {
+      throw new Error("Lesson is not available");
+    }
+
+    const access = await getLessonVideoAccess(lesson.id);
+    setVideoAccess(access);
+    return access.manifestUrl;
+  }
+
   if (status === "missing") notFound();
 
   if (status === "error") {
@@ -285,9 +295,10 @@ export default function LessonPage({ params }: LessonPageProps) {
               <div className="hairline-border bg-concrete-dark p-2 sm:p-3 lg:p-4">
                 {videoStatus === "allowed" && videoAccess ? (
                   <VideoPlayer
-                    embedUrl={videoAccess.embedUrl}
+                    manifestUrl={videoAccess.manifestUrl}
                     title={lesson.title}
                     watermarkText={videoAccess.watermarkText}
+                    onRefreshManifest={refreshVideoManifest}
                   />
                 ) : videoStatus === "locked" ? (
                   <div className="flex aspect-video items-center justify-center bg-charcoal p-[1rem] sm:p-[2rem]">

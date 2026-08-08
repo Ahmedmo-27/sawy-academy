@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import Hls, { ErrorTypes, Events } from "hls.js";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 interface VideoPlayerProps {
-  embedUrl: string;
+  manifestUrl: string;
   title: string;
   watermarkText: string;
+  onRefreshManifest: () => Promise<string>;
 }
 
 const WATERMARK_POSITIONS = [
@@ -15,22 +17,19 @@ const WATERMARK_POSITIONS = [
   "right-[8%] top-[54%]",
 ] as const;
 
-function safeYouTubeEmbedUrl(value: string, autoplay: boolean) {
+const MAX_REFRESH_ATTEMPTS = 2;
+const MAX_HLS_RECOVERY_ATTEMPTS = 2;
+
+function safeManifestUrl(value: string) {
+  if (value.startsWith("/") && !value.startsWith("//")) return value;
   try {
-    const url = new URL(value);
-    if (
-      url.protocol !== "https:" ||
-      url.hostname !== "www.youtube-nocookie.com" ||
-      !/^\/embed\/[A-Za-z0-9_-]{11}$/.test(url.pathname)
-    ) {
+    const pageOrigin =
+      typeof window === "undefined" ? "https://local.invalid" : window.location.origin;
+    const url = new URL(value, pageOrigin);
+    const sameOrigin = url.origin === pageOrigin;
+    if (url.protocol !== "https:" && !(sameOrigin && url.protocol === "http:")) {
       return null;
     }
-
-    url.searchParams.set("modestbranding", "1");
-    url.searchParams.set("rel", "0");
-    url.searchParams.set("disablekb", "0");
-    url.searchParams.set("fs", "1");
-    if (autoplay) url.searchParams.set("autoplay", "1");
     return url.toString();
   } catch {
     return null;
@@ -38,17 +37,40 @@ function safeYouTubeEmbedUrl(value: string, autoplay: boolean) {
 }
 
 export function VideoPlayer({
-  embedUrl,
+  manifestUrl,
   title,
   watermarkText,
+  onRefreshManifest,
 }: VideoPlayerProps) {
   const headingId = useId();
-  const [activated, setActivated] = useState(false);
-  const [watermarkPosition, setWatermarkPosition] = useState(0);
-  const playerUrl = useMemo(
-    () => safeYouTubeEmbedUrl(embedUrl, activated),
-    [embedUrl, activated]
+  const playerRef = useRef<HTMLDivElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const hlsRef = useRef<Hls | null>(null);
+  const refreshManifestRef = useRef(onRefreshManifest);
+  const refreshingRef = useRef(false);
+  const refreshAttemptsRef = useRef(0);
+  const networkRecoveryRef = useRef(0);
+  const mediaRecoveryRef = useRef(0);
+  const resumeRef = useRef<{ time: number; playing: boolean } | null>(null);
+  const [sourceUrl, setSourceUrl] = useState(() =>
+    safeManifestUrl(manifestUrl)
   );
+  const [sourceVersion, setSourceVersion] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [playbackError, setPlaybackError] = useState("");
+  const [watermarkPosition, setWatermarkPosition] = useState(0);
+
+  useEffect(() => {
+    refreshManifestRef.current = onRefreshManifest;
+  }, [onRefreshManifest]);
+
+  useEffect(() => {
+    setSourceUrl(safeManifestUrl(manifestUrl));
+    refreshAttemptsRef.current = 0;
+    networkRecoveryRef.current = 0;
+    mediaRecoveryRef.current = 0;
+    setPlaybackError("");
+  }, [manifestUrl]);
 
   useEffect(() => {
     const reducedMotion =
@@ -68,7 +90,134 @@ export function VideoPlayer({
     return () => window.clearInterval(interval);
   }, []);
 
-  if (!playerUrl) {
+  const refreshManifest = useCallback(async () => {
+    if (
+      refreshingRef.current ||
+      refreshAttemptsRef.current >= MAX_REFRESH_ATTEMPTS
+    ) {
+      if (refreshAttemptsRef.current >= MAX_REFRESH_ATTEMPTS) {
+        setPlaybackError(
+          "The recording could not be resumed. Reload the page to try again."
+        );
+      }
+      return;
+    }
+
+    refreshingRef.current = true;
+    refreshAttemptsRef.current += 1;
+    setRefreshing(true);
+    setPlaybackError("");
+
+    const video = videoRef.current;
+    resumeRef.current = {
+      time: video?.currentTime ?? 0,
+      playing: Boolean(video && !video.paused),
+    };
+
+    try {
+      const freshUrl = safeManifestUrl(await refreshManifestRef.current());
+      if (!freshUrl) throw new Error("Invalid refreshed video URL");
+      setSourceUrl(freshUrl);
+      setSourceVersion((version) => version + 1);
+    } catch {
+      setPlaybackError(
+        "Your playback link could not be refreshed. Check your connection and try again."
+      );
+    } finally {
+      refreshingRef.current = false;
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !sourceUrl) return;
+
+    let disposed = false;
+    const restorePlayback = () => {
+      const resume = resumeRef.current;
+      if (!resume || disposed) return;
+      resumeRef.current = null;
+      if (resume.time > 0 && Number.isFinite(video.duration)) {
+        video.currentTime = Math.min(resume.time, video.duration);
+      }
+      if (resume.playing) void video.play().catch(() => {});
+    };
+    const handleCanPlay = () => {
+      networkRecoveryRef.current = 0;
+      mediaRecoveryRef.current = 0;
+      setPlaybackError("");
+      restorePlayback();
+    };
+
+    video.addEventListener("canplay", handleCanPlay);
+
+    if (Hls.isSupported()) {
+      const hls = new Hls({
+        enableWorker: true,
+        xhrSetup(xhr, url) {
+          const requestUrl = new URL(url, window.location.href);
+          xhr.withCredentials = requestUrl.origin === window.location.origin;
+        },
+      });
+      hlsRef.current = hls;
+      hls.on(Events.MEDIA_ATTACHED, () => hls.loadSource(sourceUrl));
+      hls.on(Events.MANIFEST_PARSED, restorePlayback);
+      hls.on(Events.ERROR, (_event, data) => {
+        if (!data.fatal || disposed) return;
+
+        if (
+          data.type === ErrorTypes.NETWORK_ERROR &&
+          networkRecoveryRef.current < MAX_HLS_RECOVERY_ATTEMPTS
+        ) {
+          networkRecoveryRef.current += 1;
+          if (networkRecoveryRef.current === 1) {
+            hls.startLoad();
+          } else {
+            void refreshManifest();
+          }
+          return;
+        }
+
+        if (
+          data.type === ErrorTypes.MEDIA_ERROR &&
+          mediaRecoveryRef.current < MAX_HLS_RECOVERY_ATTEMPTS
+        ) {
+          mediaRecoveryRef.current += 1;
+          if (mediaRecoveryRef.current === 1) {
+            hls.recoverMediaError();
+          } else {
+            void refreshManifest();
+          }
+          return;
+        }
+
+        setPlaybackError(
+          "The recording could not be played. Reload the page to try again."
+        );
+      });
+      hls.attachMedia(video);
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = sourceUrl;
+      video.load();
+    } else {
+      setPlaybackError("This browser does not support protected HLS playback.");
+    }
+
+    return () => {
+      disposed = true;
+      video.removeEventListener("canplay", handleCanPlay);
+      const hls = hlsRef.current;
+      if (hls) {
+        hls.destroy();
+        if (hlsRef.current === hls) hlsRef.current = null;
+      }
+      video.removeAttribute("src");
+      video.load();
+    };
+  }, [refreshManifest, sourceUrl, sourceVersion]);
+
+  if (!sourceUrl) {
     return (
       <div className="hairline-border p-6 type-infill" role="alert">
         This recording is temporarily unavailable.
@@ -83,45 +232,43 @@ export function VideoPlayer({
       </p>
 
       <div
+        ref={playerRef}
         className="relative aspect-video w-full overflow-hidden bg-charcoal select-none"
         draggable={false}
         onContextMenu={(event) => event.preventDefault()}
         onDragStart={(event) => event.preventDefault()}
+        onDoubleClick={(event) => {
+          event.preventDefault();
+          void playerRef.current?.requestFullscreen?.();
+        }}
         role="group"
         aria-label={`${title} protected video player`}
       >
-        {activated ? (
-          <>
-            <iframe
-              src={playerUrl}
-              title={`${title} video`}
-              className="absolute inset-0 h-full w-full border-0 bg-charcoal"
-              loading="lazy"
-              draggable={false}
-              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
+        <video
+          ref={videoRef}
+          controls
+          controlsList="nodownload nofullscreen"
+          preload="metadata"
+          className="absolute inset-0 h-full w-full bg-charcoal"
+          aria-label={`${title} video`}
+          draggable={false}
+          onContextMenu={(event) => event.preventDefault()}
+          onDragStart={(event) => event.preventDefault()}
+          onError={() => {
+            if (!Hls.isSupported()) void refreshManifest();
+          }}
+        >
+          Your browser cannot play this video.
+        </video>
 
-            <div
-              className="absolute inset-x-0 top-0 bottom-16 z-10"
-              onContextMenu={(event) => event.preventDefault()}
-              onDragStart={(event) => event.preventDefault()}
-              draggable={false}
-              aria-hidden="true"
-            />
-          </>
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
-            <button
-              type="button"
-              className="action-primary min-h-11"
-              onClick={() => setActivated(true)}
-            >
-              Load lesson recording
-            </button>
-          </div>
-        )}
+        <button
+          type="button"
+          className="absolute right-3 top-3 z-30 bg-charcoal/70 px-3 py-2 label-caps !text-concrete"
+          aria-label="Enter video fullscreen"
+          onClick={() => void playerRef.current?.requestFullscreen?.()}
+        >
+          Fullscreen
+        </button>
 
         <span
           className={`pointer-events-none absolute z-20 max-w-[70%] truncate font-sans text-xs text-concrete opacity-20 mix-blend-difference transition-[top,left,right] duration-1000 ${WATERMARK_POSITIONS[watermarkPosition]}`}
@@ -129,7 +276,22 @@ export function VideoPlayer({
         >
           {watermarkText}
         </span>
+
+        {refreshing && (
+          <div
+            className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-charcoal/60"
+            role="status"
+            aria-live="polite"
+          >
+            <span className="label-caps !text-concrete">Refreshing playback…</span>
+          </div>
+        )}
       </div>
+      {playbackError && (
+        <p className="type-infill mt-3 text-clay" role="alert">
+          {playbackError}
+        </p>
+      )}
     </section>
   );
 }

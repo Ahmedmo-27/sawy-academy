@@ -1,5 +1,6 @@
 # dependencies
 /node_modules
+**/node_modules/
 /.pnp
 .cursor
 .pnp.*
@@ -31,6 +32,7 @@ yarn-error.log*
 
 # env files
 .env*
+!.env.example
 
 # typescript
 *.tsbuildinfo
