@@ -26,7 +26,7 @@ export function ProjectCard({
   return (
     <Link
       href={href}
-      className="group block h-full bg-concrete focus-visible:outline-offset-4"
+      className="group block h-full min-w-0 max-w-full overflow-hidden bg-concrete focus-visible:outline-offset-4"
     >
       <div className="overflow-hidden bg-concrete-dark">
         <ImageFrame
@@ -44,14 +44,14 @@ export function ProjectCard({
         </ImageFrame>
       </div>
 
-      <div className="grid grid-cols-[auto_1fr_auto] items-start gap-4 border-t border-hairline py-4">
+      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 border-t border-hairline py-4 sm:gap-4">
         <span className="dim-label pt-1">
           {typeof index === "number"
             ? String(index + 1).padStart(2, "0")
             : sheetRef}
         </span>
         <div className="min-w-0">
-          <h2 className="font-serif text-lg leading-tight text-charcoal transition-colors group-hover:text-clay sm:text-xl">
+          <h2 className="break-words font-serif text-lg leading-tight text-charcoal transition-colors group-hover:text-clay sm:text-xl">
             {title}
           </h2>
           <p className="label-caps mt-2">

@@ -121,10 +121,10 @@ export function PortfolioStudio() {
         </PageContainer>
       )}
 
-      <section className="sticky top-[var(--nav-height)] z-20 border-y border-hairline bg-concrete/95 nav-blur">
+      <section className="z-20 border-y border-hairline bg-concrete/95 nav-blur lg:sticky lg:top-[var(--nav-height)]">
         <PageContainer>
-          <div className="flex min-h-12 items-center justify-between gap-4 py-2">
-            <p className="label-caps truncate">
+          <div className="flex min-h-[44px] min-w-0 items-center justify-between gap-3 py-2 sm:gap-4 sm:py-0">
+            <p className="label-caps min-w-0 truncate">
               {active === "All" ? "All projects" : active}
               {query.trim() ? ` · “${query.trim()}”` : ""}
             </p>
@@ -133,7 +133,7 @@ export function PortfolioStudio() {
               onClick={() => setFiltersOpen((open) => !open)}
               aria-expanded={filtersOpen}
               aria-controls="portfolio-filters"
-              className="flex shrink-0 items-center gap-3 border-l border-hairline pl-4 text-charcoal transition-colors hover:text-clay"
+              className="flex min-h-8 shrink-0 items-center gap-3 border-l border-hairline pl-3 text-charcoal transition-colors hover:text-clay sm:pl-4"
             >
               <span
                 className="eyebrow text-current"
@@ -154,10 +154,10 @@ export function PortfolioStudio() {
           {filtersOpen && (
             <div
               id="portfolio-filters"
-              className="grid grid-cols-1 gap-4 border-t border-hairline py-4 lg:grid-cols-[1fr_18rem] lg:items-end lg:gap-8"
+              className="grid grid-cols-1 gap-3 border-t border-hairline py-3 lg:grid-cols-[1fr_18rem] lg:items-end lg:gap-8"
             >
               <nav
-                className="flex gap-5 overflow-x-auto sm:gap-7"
+                className="flex min-w-0 gap-5 overflow-x-auto overscroll-x-contain sm:gap-7"
                 aria-label="Filter projects"
               >
                 {portfolioFilters.map((filter) => (
@@ -232,14 +232,14 @@ export function PortfolioStudio() {
             <>
               <GsapStagger
                 key={filtered.map((p) => p.id).join("-")}
-                className="grid grid-cols-12 gap-x-5 gap-y-12 lg:gap-x-10 lg:gap-y-16"
+                className="grid min-w-0 max-w-full grid-cols-12 gap-x-0 gap-y-10 sm:gap-x-5 sm:gap-y-12 lg:gap-x-10 lg:gap-y-16"
               >
                 {filtered.map((project) => {
                   const aspect = project.aspect ?? "square";
                   return (
                     <div
                       key={project.id}
-                      className={spanMap[aspect]}
+                      className={`min-w-0 max-w-full ${spanMap[aspect]}`}
                     >
                       <ProjectCard
                         title={project.title}

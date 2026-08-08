@@ -92,7 +92,7 @@ export function HorizontalPinGallery({
     <div ref={sectionRef} className={`horiz-pin ${className}`}>
       <div
         ref={pinRef}
-        className={`horiz-pin__viewport relative flex h-[min(calc(70svh-var(--nav-height)),560px)] w-full items-center overflow-x-auto overscroll-x-contain sm:h-[min(calc(85svh-var(--nav-height)),720px)] lg:h-[min(calc(100svh-var(--nav-height)),820px)] ${
+        className={`horiz-pin__viewport relative flex h-[min(calc(70svh-var(--nav-height)),560px)] w-full items-center overscroll-x-contain sm:h-[min(calc(85svh-var(--nav-height)),720px)] lg:h-[min(calc(100svh-var(--nav-height)),820px)] ${
           reduced ? "overflow-x-auto" : "overflow-hidden"
         }`}
       >
