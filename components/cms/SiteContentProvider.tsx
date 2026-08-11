@@ -10,7 +10,11 @@ import {
 } from "react";
 import { getSiteSettings } from "@/lib/api/settings";
 import type { PageHeaderContent, SiteSettings } from "@/lib/api/types";
-import { DEFAULT_SITE_SETTINGS } from "@/lib/branding";
+import {
+  DEFAULT_SITE_SETTINGS,
+  withFaqFooterLink,
+  withoutFaqNavLink,
+} from "@/lib/branding";
 
 interface SiteContentContextValue {
   settings: SiteSettings;
@@ -39,8 +43,16 @@ export function SiteContentProvider({
         ...next,
         branding: { ...DEFAULT_SITE_SETTINGS.branding, ...next.branding },
         seo: { ...DEFAULT_SITE_SETTINGS.seo, ...next.seo },
-        navigation: next.navigation ?? DEFAULT_SITE_SETTINGS.navigation,
-        footer: next.footer ?? DEFAULT_SITE_SETTINGS.footer,
+        navigation: {
+          items: withoutFaqNavLink(
+            next.navigation?.items ?? DEFAULT_SITE_SETTINGS.navigation.items
+          ),
+        },
+        footer: {
+          links: withFaqFooterLink(
+            next.footer?.links ?? DEFAULT_SITE_SETTINGS.footer.links
+          ),
+        },
         pageHeaders: {
           ...DEFAULT_SITE_SETTINGS.pageHeaders,
           ...(next.pageHeaders ?? {}),

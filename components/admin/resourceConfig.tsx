@@ -17,6 +17,15 @@ import {
   updateCourse,
 } from "@/lib/api/courses";
 import {
+  createFaq,
+  deleteFaq,
+  getFaq,
+  listFaqs,
+  reorderFaqs,
+  updateFaq,
+  type FaqInput,
+} from "@/lib/api/faqs";
+import {
   createProduct,
   deleteProduct,
   getProduct,
@@ -58,6 +67,7 @@ export type ResourceKind =
   | "products"
   | "portfolio"
   | "research"
+  | "faqs"
   | "users";
 
 export type ResourceRecord = Record<string, unknown>;
@@ -72,6 +82,8 @@ export interface ResourceField {
   /** Load select options dynamically before rendering the form */
   optionsLoader?: () => Promise<Array<{ label: string; value: string }>>;
   hint?: string;
+  /** Public R2 website-assets page folder for upload/gallery fields. */
+  uploadPage?: string;
 }
 
 export interface ResourceConfig {
@@ -153,6 +165,16 @@ function commaList(record: ResourceRecord, key: string) {
 function dateInputValue(record: ResourceRecord, key: string) {
   const value = text(record, key);
   return value ? value.slice(0, 10) : "";
+}
+
+function faqPayload(form: ResourceForm): FaqInput {
+  return {
+    id: form.id || undefined,
+    question: form.question,
+    answer: form.answer,
+    category: form.category || undefined,
+    published: form.published !== "false",
+  };
 }
 
 function productPayload(form: ResourceForm): ProductInput {
@@ -340,6 +362,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         name: "image",
         label: "Cover image",
         type: "upload",
+        uploadPage: "courses",
         hint: "Optional programme/course still for catalogue cards.",
       },
       {
@@ -450,6 +473,7 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         name: "image",
         label: "Cover image",
         type: "upload",
+        uploadPage: "courses",
         hint: "Optional programme cover for public catalogue.",
       },
       {
@@ -560,11 +584,12 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         hint: "Include currency, e.g. EGP 42,000",
       },
       { name: "category", label: "Category", required: true },
-      { name: "image", label: "Cover image", type: "upload", required: true },
+      { name: "image", label: "Cover image", type: "upload", uploadPage: "products", required: true },
       {
         name: "gallery",
         label: "Gallery",
         type: "gallery",
+        uploadPage: "products",
         hint: "Optional additional product images for the product page.",
       },
     ],
@@ -645,23 +670,26 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         ),
       },
       { name: "year", label: "Year", required: true },
-      { name: "image", label: "Cover image", type: "upload", required: true },
+      { name: "image", label: "Cover image", type: "upload", uploadPage: "portfolio", required: true },
       {
         name: "gallery",
         label: "Additional images",
         type: "gallery",
+        uploadPage: "portfolio",
         hint: "Additional images shown on the project page.",
       },
       {
         name: "beforeImage",
         label: "Before image",
         type: "upload",
+        uploadPage: "portfolio",
         hint: "Optional renovation / competition compare.",
       },
       {
         name: "afterImage",
         label: "After image",
         type: "upload",
+        uploadPage: "portfolio",
       },
       {
         name: "aspect",
@@ -729,6 +757,104 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         header: "Year",
         value: (record) => text(record, "year"),
         sortValue: (record) => text(record, "year"),
+      },
+    ],
+  },
+  faqs: {
+    kind: "faqs",
+    title: "FAQs",
+    eyebrow: "Questions",
+    description:
+      "Answers shown on the public FAQs page. Drag the grip handle to change display order. Hidden items stay off the public page.",
+    listLabel: "FAQs",
+    basePath: "/admin/faqs",
+    idParam: "id",
+    emptyForm: {
+      id: "",
+      question: "",
+      answer: "",
+      category: "",
+      published: "true",
+    },
+    fields: [
+      {
+        name: "id",
+        label: "FAQ id",
+        hint: "Optional short unique name. Leave blank to generate one from the question.",
+      },
+      { name: "question", label: "Question", required: true },
+      {
+        name: "answer",
+        label: "Answer",
+        type: "textarea",
+        required: true,
+      },
+      {
+        name: "category",
+        label: "Category",
+        hint: "Optional group label, e.g. Enrolment, Courses, Payments, Studio.",
+      },
+      {
+        name: "published",
+        label: "Visibility",
+        type: "select",
+        required: true,
+        options: [
+          { label: "Published", value: "true" },
+          { label: "Hidden", value: "false" },
+        ],
+      },
+    ],
+    list: async () => {
+      const faqs = await listFaqs({ includeHidden: true });
+      return faqs.map((faq, index) =>
+        asRecord({
+          ...faq,
+          order: faq.order && faq.order > 0 ? faq.order : index + 1,
+        })
+      );
+    },
+    get: async (key) => asRecord(await getFaq(key)),
+    create: async (form) => asRecord(await createFaq(faqPayload(form))),
+    update: async (key, form) => asRecord(await updateFaq(key, faqPayload(form))),
+    remove: async (key) => asRecord(await deleteFaq(key)),
+    reorder: async (orderedKeys) => {
+      await reorderFaqs(orderedKeys);
+    },
+    getKey: (record) => text(record, "id"),
+    getEditHref: (record) => `/admin/faqs/${text(record, "id")}/edit`,
+    toForm: (record) => ({
+      id: text(record, "id"),
+      question: text(record, "question"),
+      answer: text(record, "answer"),
+      category: text(record, "category"),
+      published: record.published === false ? "false" : "true",
+    }),
+    listColumns: [
+      {
+        key: "order",
+        header: "Order",
+        className: "w-16",
+        value: (record) => String(Number(record.order) || 0).padStart(2, "0"),
+        sortValue: (record) => Number(record.order) || 0,
+      },
+      {
+        key: "question",
+        header: "Question",
+        value: (record) => text(record, "question"),
+        sortValue: (record) => text(record, "question"),
+      },
+      {
+        key: "category",
+        header: "Category",
+        value: (record) => text(record, "category") || "—",
+        sortValue: (record) => text(record, "category"),
+      },
+      {
+        key: "published",
+        header: "Visibility",
+        value: (record) => (record.published === false ? "Hidden" : "Published"),
+        sortValue: (record) => (record.published === false ? 1 : 0),
       },
     ],
   },
@@ -810,12 +936,14 @@ export const resourceConfigs: Record<ResourceKind, ResourceConfig> = {
         name: "image",
         label: "Cover image",
         type: "upload",
+        uploadPage: "researches",
         hint: "Optional cover, poster, or main image.",
       },
       {
         name: "figures",
         label: "Additional images",
         type: "gallery",
+        uploadPage: "researches",
         hint: "Optional diagrams and images for the publication page.",
       },
     ],

@@ -14,6 +14,9 @@ interface ImageUploadFieldProps {
   description?: string;
   error?: string;
   required?: boolean;
+  /** Public R2 website-assets page folder (default shared). */
+  page?: string;
+  entityId?: string;
 }
 
 export function ImageUploadField({
@@ -23,6 +26,8 @@ export function ImageUploadField({
   description,
   error: externalError,
   required = false,
+  page = "shared",
+  entityId,
 }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const inputId = useId();
@@ -45,6 +50,9 @@ export function ImageUploadField({
     try {
       const response = await uploadImage(file, {
         onProgress: setUploadProgress,
+        purpose: "website-asset",
+        page,
+        entityId,
       });
       onChange(response.url);
     } catch (err) {

@@ -13,6 +13,7 @@ const pageTones: Record<string, PageHeaderTone> = {
   services: "warm",
   courses: "warm",
   researches: "warm",
+  faqs: "warm",
 };
 
 interface CmsPageHeaderProps {

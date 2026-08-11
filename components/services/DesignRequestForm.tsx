@@ -63,7 +63,17 @@ export function DesignRequestForm({ onSuccess }: DesignRequestFormProps) {
     key: K,
     value: (typeof initialState)[K]
   ) {
-    setForm((current) => ({ ...current, [key]: value }));
+    setForm((current) => {
+      const next = { ...current, [key]: value };
+      if (
+        key === "name" &&
+        current.referenceImageUrls.length > 0 &&
+        String(value).trim() !== current.name.trim()
+      ) {
+        next.referenceImageUrls = [];
+      }
+      return next;
+    });
     setErrors((current) => ({ ...current, [key]: undefined, form: undefined }));
   }
 
@@ -226,6 +236,7 @@ export function DesignRequestForm({ onSuccess }: DesignRequestFormProps) {
       <div className="md:col-span-2">
         <ReferenceImagesField
           value={form.referenceImageUrls}
+          guestName={form.name}
           onChange={(value) => updateField("referenceImageUrls", value)}
         />
       </div>

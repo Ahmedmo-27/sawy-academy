@@ -9,6 +9,7 @@ const adminDeviceRoutes = require("./routes/adminDeviceRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const portfolioRoutes = require("./routes/portfolioRoutes");
 const productRoutes = require("./routes/productRoutes");
+const faqRoutes = require("./routes/faqRoutes");
 const researchRoutes = require("./routes/researchRoutes");
 const siteSettingsRoutes = require("./routes/siteSettingsRoutes");
 const homePageRoutes = require("./routes/homePageRoutes");
@@ -19,6 +20,7 @@ const serviceRoutes = require("./routes/serviceRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const lessonRoutes = require("./routes/lessonRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const protectedVideoController = require("./controllers/protectedVideoController");
 const errorHandler = require("./middleware/errorHandler");
 const requestLogger = require("./middleware/requestLogger");
 const requireCsrf = require("./middleware/csrfMiddleware");
@@ -51,6 +53,7 @@ app.use(
       "Authorization",
       "X-Device-Id",
       "X-CSRF-Token",
+      "X-Sawy-Upload-Grant",
     ],
   })
 );
@@ -68,6 +71,7 @@ app.use("/api/admin", adminDeviceRoutes);
 app.use("/api/research", researchRoutes);
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/faqs", faqRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/settings", siteSettingsRoutes);
 app.use("/api/homepage", homePageRoutes);
@@ -77,6 +81,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api/lessons", lessonRoutes);
+app.get("/api/media", protectedVideoController.getMedia);
+app.head("/api/media", protectedVideoController.getMedia);
 app.use("/api/cart", cartRoutes);
 
 app.use(errorHandler);
@@ -91,12 +97,23 @@ async function startServer() {
     throw new Error("MONGODB_URI is required to start the backend server");
   }
 
-  await mongoose.connect(mongoUri);
+  await mongoose.connect(mongoUri, {
+    // Windows often tries IPv6 first for Atlas SRV hosts, then waits to
+    // fall back. That shows up as multi-second queries and proxy resets.
+    family: 4,
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 10_000,
+  });
 
   const port = process.env.PORT || 5000;
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     logger.info("Sawy Academy API listening", { port });
   });
+
+  // Next.js rewrites reuse keep-alive sockets. Node's 5s default closes the
+  // idle socket while the proxy still holds it → ECONNRESET / socket hang up.
+  server.keepAliveTimeout = 65_000;
+  server.headersTimeout = 66_000;
 }
 
 if (require.main === module) {

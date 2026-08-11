@@ -39,6 +39,8 @@ export interface Lesson extends TimestampedRecord {
   /** Legacy YouTube location retained only until an explicit migration. */
   videoUrl?: string;
   previewImage?: string;
+  /** Safe availability flag; the private R2 docs/ key is never returned. */
+  documentAvailable?: boolean;
 }
 
 export interface Course extends TimestampedRecord {
@@ -81,6 +83,15 @@ export interface Product extends TimestampedRecord {
   category: string;
   image: string;
   gallery?: string[];
+}
+
+export interface Faq extends TimestampedRecord {
+  id: string;
+  question: string;
+  answer: string;
+  category?: string;
+  published?: boolean;
+  order?: number;
 }
 
 export type ProjectCategory =
@@ -173,6 +184,8 @@ export interface ServiceRequest extends TimestampedRecord {
   message?: string;
   details?: string;
   notes?: string;
+  /** Display URLs (proxy for private R2 keys, or legacy /uploads paths). */
+  referenceImageUrls?: string[];
 }
 
 export interface DesignServicePayload {
@@ -280,11 +293,15 @@ export interface BrandingSettings {
   officeHours?: string;
   established?: string;
   footerBlurb?: string;
+  logoUrl?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
 }
 
 export interface SeoSettings {
   title: string;
   description: string;
+  ogImageUrl?: string;
 }
 
 export interface NavLinkItem {
@@ -307,7 +324,8 @@ export interface SiteSettings extends TimestampedRecord {
   navigation: { items: NavLinkItem[] };
   footer: { links: NavLinkItem[] };
   pageHeaders: Record<string, PageHeaderContent>;
-  contactPage: { intro: string };
+  contactPage: { intro: string; imageUrl?: string };
+  sharedAssetUrls?: string[];
   servicesPage?: {
     designImageUrl?: string;
     researchImageUrl?: string;

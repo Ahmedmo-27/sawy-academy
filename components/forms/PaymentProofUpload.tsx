@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
 import { uploadImage } from "@/lib/api/upload";
 
@@ -13,6 +13,7 @@ export function PaymentProofUpload({
   error,
   disabled = false,
 }: {
+  /** Stored payment proof key (`payments/...`) or local `/uploads/...` URL. */
   value: string;
   onChange: (value: string) => void;
   error?: string;
@@ -25,7 +26,16 @@ export function PaymentProofUpload({
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadError, setUploadError] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
   const displayedError = uploadError || error;
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   async function upload(file?: File) {
     if (!file) return;
@@ -42,8 +52,16 @@ export function PaymentProofUpload({
     setUploading(true);
     setProgress(0);
     try {
-      const result = await uploadImage(file, { onProgress: setProgress });
-      onChange(result.url);
+      const localPreview = URL.createObjectURL(file);
+      const result = await uploadImage(file, {
+        onProgress: setProgress,
+        purpose: "payment",
+      });
+      setPreviewUrl((previous) => {
+        if (previous.startsWith("blob:")) URL.revokeObjectURL(previous);
+        return result.storage === "local" ? result.url : localPreview;
+      });
+      onChange(result.objectKey || result.url);
     } catch (uploadFailure) {
       setUploadError(
         uploadFailure instanceof Error ? uploadFailure.message : "Upload failed."
@@ -53,6 +71,10 @@ export function PaymentProofUpload({
       if (inputRef.current) inputRef.current.value = "";
     }
   }
+
+  const displaySrc =
+    previewUrl ||
+    (value.startsWith("/uploads/") || value.startsWith("http") ? value : "");
 
   return (
     <div>
@@ -71,10 +93,10 @@ export function PaymentProofUpload({
         disabled={disabled || uploading}
         aria-describedby={`${descriptionId}${displayedError ? ` ${errorId}` : ""}`}
       >
-        {value ? (
+        {displaySrc ? (
           <span className="relative block aspect-[4/3]">
             <Image
-              src={value}
+              src={displaySrc}
               alt="Uploaded payment confirmation"
               fill
               unoptimized
@@ -85,7 +107,11 @@ export function PaymentProofUpload({
         ) : (
           <span className="block py-8 text-center">
             <span className="eyebrow block text-clay">
-              {uploading ? "Uploading…" : "Choose payment proof"}
+              {uploading
+                ? "Uploading…"
+                : value
+                  ? "Payment proof uploaded"
+                  : "Choose payment proof"}
             </span>
             <span className="type-infill mt-3 block">Tap or click to select an image</span>
           </span>

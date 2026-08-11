@@ -1,4 +1,36 @@
-import type { BrandingSettings, SiteSettings } from "@/lib/api/types";
+import type { BrandingSettings, NavLinkItem, SiteSettings } from "@/lib/api/types";
+
+export const FAQ_FOOTER_LINK: NavLinkItem = {
+  id: "faqs",
+  label: "FAQs",
+  href: "/faqs",
+};
+
+function isFaqLink(link: NavLinkItem) {
+  return link.href === "/faqs" || link.id === "faqs";
+}
+
+/** Keep FAQs out of the public navbar even if stored menus still include it. */
+export function withoutFaqNavLink(items: NavLinkItem[] = []): NavLinkItem[] {
+  return items.filter((item) => !isFaqLink(item));
+}
+
+/** Keep FAQs visible in the public footer even if stored menus predate the page. */
+export function withFaqFooterLink(links: NavLinkItem[] = []): NavLinkItem[] {
+  if (links.some(isFaqLink)) {
+    return links;
+  }
+
+  const contactIndex = links.findIndex(
+    (link) => link.href === "/contact" || link.id === "contact"
+  );
+  if (contactIndex === -1) return [...links, FAQ_FOOTER_LINK];
+  return [
+    ...links.slice(0, contactIndex),
+    FAQ_FOOTER_LINK,
+    ...links.slice(contactIndex),
+  ];
+}
 
 /** Static fallback when the CMS API is unreachable. */
 export const DEFAULT_BRAND: BrandingSettings = {
@@ -25,6 +57,9 @@ export const DEFAULT_BRAND: BrandingSettings = {
   officeHours: "Sun – Thu, 10:00 – 17:00\nBy appointment only",
   established: "Est. 2012",
   footerBlurb: "Architecture & Spatial Design",
+  logoUrl: "",
+  facebookUrl: "#facebook",
+  instagramUrl: "#instagram",
 };
 
 /** @deprecated Prefer useSiteSettings().branding — kept for static/SSR fallbacks */
@@ -37,6 +72,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
     title: "Sawy Academy — Mohamed El Sawy",
     description:
       "Architecture portfolio, academic courses, and studio resources by Prof. Mohamed El Sawy, Cairo.",
+    ogImageUrl: "",
   },
   navigation: {
     items: [
@@ -61,7 +97,9 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
       { id: "researches", label: "Researches", href: "/researches" },
       { id: "courses", label: "Courses", href: "/courses" },
       { id: "products", label: "Products", href: "/products" },
+      { id: "faqs", label: "FAQs", href: "/faqs" },
       { id: "contact", label: "Contact", href: "/contact" },
+      { id: "privacy", label: "Privacy Policy", href: "/privacy" },
     ],
   },
   pageHeaders: {
@@ -95,6 +133,12 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
       description:
         "Commission design work or propose research collaboration — each request opens as a new project sheet.",
     },
+    faqs: {
+      eyebrow: "Guidance",
+      title: "FAQs",
+      description:
+        "Practical answers on enrolment, payments, course access, and visiting the Cairo studio.",
+    },
     contact: {
       eyebrow: "Inquiry",
       title: "Contact",
@@ -125,11 +169,19 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
       description:
         "Create a student account to enroll, order materials, and follow studio work.",
     },
+    privacy: {
+      eyebrow: "Studio Notice",
+      title: "Privacy Policy",
+      description:
+        "How Sawy Academy collects, uses, and protects the information you share with the studio.",
+    },
   },
   contactPage: {
     intro:
       "Whether you are seeking design consultation, research partnership, or wish to discuss enrollment at Sawy Academy — I welcome thoughtful correspondence.",
+    imageUrl: "",
   },
+  sharedAssetUrls: [],
   servicesPage: {
     designImageUrl: "",
     researchImageUrl: "",

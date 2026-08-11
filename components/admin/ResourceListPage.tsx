@@ -26,8 +26,10 @@ interface ResourceListPageProps {
 function recordLabel(record: ResourceRecord) {
   const title = record.title;
   const name = record.name;
+  const question = record.question;
   if (typeof title === "string" && title.trim()) return title;
   if (typeof name === "string" && name.trim()) return name;
+  if (typeof question === "string" && question.trim()) return question;
   return "this item";
 }
 

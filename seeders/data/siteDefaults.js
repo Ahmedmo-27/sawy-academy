@@ -24,12 +24,16 @@ const branding = {
   officeHours: "Sun – Thu, 10:00 – 17:00\nBy appointment only",
   established: "Est. 2012",
   footerBlurb: "Architecture & Spatial Design",
+  logoUrl: "",
+  facebookUrl: "#facebook",
+  instagramUrl: "#instagram",
 };
 
 const seo = {
   title: "Sawy Academy — Mohamed El Sawy",
   description:
     "Architecture portfolio, academic courses, and studio resources by Prof. Mohamed El Sawy, Cairo.",
+  ogImageUrl: "",
 };
 
 const navigation = {
@@ -56,7 +60,9 @@ const footer = {
     { id: "researches", label: "Researches", href: "/researches" },
     { id: "courses", label: "Courses", href: "/courses" },
     { id: "products", label: "Products", href: "/products" },
+    { id: "faqs", label: "FAQs", href: "/faqs" },
     { id: "contact", label: "Contact", href: "/contact" },
+    { id: "privacy", label: "Privacy Policy", href: "/privacy" },
   ],
 };
 
@@ -91,6 +97,12 @@ const pageHeaders = {
     description:
       "Commission design work or propose research collaboration — each request opens as a new project sheet.",
   },
+  faqs: {
+    eyebrow: "Guidance",
+    title: "FAQs",
+    description:
+      "Practical answers on enrolment, payments, course access, and visiting the Cairo studio.",
+  },
   contact: {
     eyebrow: "Inquiry",
     title: "Contact",
@@ -120,12 +132,21 @@ const pageHeaders = {
     description:
       "Create a student account to enroll, order materials, and follow studio work.",
   },
+  privacy: {
+    eyebrow: "Studio Notice",
+    title: "Privacy Policy",
+    description:
+      "How Sawy Academy collects, uses, and protects the information you share with the studio.",
+  },
 };
 
 const contactPage = {
   intro:
     "Whether you are seeking design consultation, research partnership, or wish to discuss enrollment at Sawy Academy — I welcome thoughtful correspondence.",
+  imageUrl: "",
 };
+
+const sharedAssetUrls = [];
 
 const servicesPage = {
   designImageUrl: "",
@@ -262,6 +283,7 @@ module.exports = {
   footer,
   pageHeaders,
   contactPage,
+  sharedAssetUrls,
   servicesPage,
   homeSections,
 };

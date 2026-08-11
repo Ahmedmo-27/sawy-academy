@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { clientIpFromRequest, contactRateLimit } from "@/lib/rateLimitNext";
 
 interface ContactBody {
   name?: unknown;
@@ -12,6 +13,25 @@ function isNonEmptyString(value: unknown): value is string {
 }
 
 export async function POST(request: Request) {
+  const limit = contactRateLimit.consume(clientIpFromRequest(request));
+  if (limit.limited) {
+    return NextResponse.json(
+      {
+        error: "Too many messages. Please wait before trying again.",
+        code: "RATE_LIMITED",
+      },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(limit.retryAfterSec),
+          "RateLimit-Limit": String(limit.limit),
+          "RateLimit-Remaining": String(limit.remaining),
+          "RateLimit-Reset": String(Math.ceil(limit.resetAt / 1000)),
+        },
+      }
+    );
+  }
+
   let body: ContactBody;
 
   try {

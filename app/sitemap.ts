@@ -9,7 +9,9 @@ const publicRoutes = [
   { path: "/researches", changeFrequency: "monthly", priority: 0.8 },
   { path: "/products", changeFrequency: "weekly", priority: 0.8 },
   { path: "/services", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/faqs", changeFrequency: "monthly", priority: 0.6 },
   { path: "/contact", changeFrequency: "yearly", priority: 0.5 },
+  { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
 ] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

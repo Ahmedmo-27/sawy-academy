@@ -135,6 +135,25 @@ export function ServiceDetailPage({ id }: ServiceDetailPageProps) {
                 {data.details ?? data.message ?? "No details submitted."}
               </p>
             </div>
+            {data.referenceImageUrls && data.referenceImageUrls.length > 0 && (
+              <div>
+                <p className="label-caps mb-2">Reference images</p>
+                <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {data.referenceImageUrls.map((url, index) => (
+                    <li key={`${url}-${index}`}>
+                      <div className="relative aspect-[4/3] hairline-border bg-concrete-dark">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`Reference image ${index + 1}`}
+                          className="absolute inset-0 h-full w-full object-contain"
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {data.type === "device access" && (
               <div className="hairline-t pt-6">
                 <p className="type-infill mb-4">
