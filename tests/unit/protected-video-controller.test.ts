@@ -144,6 +144,27 @@ describe("protected manifest helpers", () => {
     expect(rewritten).not.toContain("r2.dev");
   });
 
+  it("uses same-origin /api/media when VIDEO_MEDIA_BASE_URL is unset outside production", () => {
+    delete process.env.VIDEO_MEDIA_BASE_URL;
+    process.env.VIDEO_MEDIA_GRANT_SECRET =
+      "test-secret-that-is-at-least-thirty-two-bytes-long";
+    const previousNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "test";
+    const { request, course, lesson, asset } = context();
+    const rewritten = rewriteVariant(
+      "#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,URI=\"internal.key\"\nsegment-000001.ts\n",
+      request,
+      course,
+      lesson,
+      asset,
+      "720p/index.m3u8"
+    );
+    process.env.NODE_ENV = previousNodeEnv;
+
+    expect(rewritten).toContain("/api/media?grant=");
+    expect(rewritten).not.toContain("https://media.example.com");
+  });
+
   it("rejects unencrypted variants and non-canonical asset locations", () => {
     process.env.VIDEO_MEDIA_BASE_URL = "https://media.example.com";
     process.env.VIDEO_MEDIA_GRANT_SECRET =

@@ -63,10 +63,14 @@ const siteSettingsSchema = new mongoose.Schema(
       officeHours: { type: String, default: "", trim: true },
       established: { type: String, default: "", trim: true },
       footerBlurb: { type: String, default: "", trim: true },
+      logoUrl: { type: String, default: "", trim: true },
+      facebookUrl: { type: String, default: "#facebook", trim: true },
+      instagramUrl: { type: String, default: "#instagram", trim: true },
     },
     seo: {
       title: { type: String, default: "", trim: true },
       description: { type: String, default: "", trim: true },
+      ogImageUrl: { type: String, default: "", trim: true },
     },
     navigation: {
       items: { type: [navItemSchema], default: [] },
@@ -81,7 +85,9 @@ const siteSettingsSchema = new mongoose.Schema(
     },
     contactPage: {
       intro: { type: String, default: "", trim: true },
+      imageUrl: { type: String, default: "", trim: true },
     },
+    sharedAssetUrls: { type: [String], default: [] },
     servicesPage: {
       designImageUrl: { type: String, default: "", trim: true },
       researchImageUrl: { type: String, default: "", trim: true },

@@ -17,6 +17,7 @@ const navItems = [
   { href: "/admin/settings", label: "Site settings", description: "Brand, navigation and pages", shortLabel: "Site", group: "Website" },
   { href: "/admin/portfolio", label: "Portfolio", description: "Published project work", shortLabel: "Work", group: "Website" },
   { href: "/admin/research", label: "Research", description: "Articles and publications", shortLabel: "Read", group: "Website" },
+  { href: "/admin/faqs", label: "FAQs", description: "Public questions and answers", shortLabel: "FAQ", group: "Website" },
   { href: "/admin/course-groups", label: "Course groups", description: "Organize related courses", shortLabel: "Groups", group: "Courses & shop" },
   { href: "/admin/courses", label: "Courses", description: "Course details and lessons", shortLabel: "Learn", group: "Courses & shop" },
   { href: "/admin/products", label: "Products", description: "Shop products and pricing", shortLabel: "Shop", group: "Courses & shop" },

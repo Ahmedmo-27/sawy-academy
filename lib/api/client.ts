@@ -10,10 +10,14 @@ interface RequestOptions {
   onProgress?: (progress: number) => void;
 }
 
+export type UploadProgressPhase = "sending" | "storing";
+
 interface UploadProgressOptions {
-  onProgress?: (progress: number) => void;
+  onProgress?: (progress: number, phase?: UploadProgressPhase) => void;
   auth?: boolean;
   device?: boolean;
+  bearerToken?: string;
+  uploadGrant?: boolean;
 }
 
 export class ApiClientError extends Error {
@@ -353,17 +357,23 @@ export function apiUploadWithProgress<T>(
   clearLegacyAuthToken();
 
   return (async () => {
-    const csrfToken = await ensureCsrfToken();
+    const csrfToken = options.uploadGrant ? null : await ensureCsrfToken();
 
     return new Promise<T>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", withQuery(path));
-      xhr.withCredentials = true;
+      xhr.withCredentials = options.uploadGrant ? false : true;
 
       const useDevice = options.device !== false;
 
       if (useDevice) {
         xhr.setRequestHeader("X-Device-Id", getOrCreateDeviceId());
+      }
+      if (options.bearerToken) {
+        xhr.setRequestHeader("Authorization", `Bearer ${options.bearerToken}`);
+      }
+      if (options.uploadGrant) {
+        xhr.setRequestHeader("X-Sawy-Upload-Grant", "1");
       }
       if (csrfToken) {
         xhr.setRequestHeader(CSRF_HEADER_NAME, csrfToken);
@@ -371,7 +381,13 @@ export function apiUploadWithProgress<T>(
 
       xhr.upload.addEventListener("progress", (event) => {
         if (!event.lengthComputable || !options.onProgress) return;
-        options.onProgress(Math.round((event.loaded / event.total) * 100));
+        options.onProgress(
+          Math.round((event.loaded / event.total) * 100),
+          "sending"
+        );
+      });
+      xhr.upload.addEventListener("load", () => {
+        options.onProgress?.(100, "storing");
       });
 
       xhr.addEventListener("load", () => {

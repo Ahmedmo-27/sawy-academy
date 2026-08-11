@@ -16,6 +16,7 @@ import {
 import {
   pollLessonVideoProcessing,
   retryLessonVideoProcessing,
+  uploadLessonDocument,
   uploadLessonVideo,
   type LessonVideoProcessing,
 } from "@/lib/api/lessons";
@@ -78,12 +79,28 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
   const [isReordering, setIsReordering] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUploadProgress, setVideoUploadProgress] = useState(0);
+  const [videoUploadPhase, setVideoUploadPhase] = useState<
+    "sending" | "storing"
+  >("sending");
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [documentUploadProgress, setDocumentUploadProgress] = useState(0);
   const [videoStatuses, setVideoStatuses] = useState<
     Record<string, LessonVideoProcessing>
   >({});
   const pollingControllers = useRef(new Map<string, AbortController>());
   const formRef = useRef<HTMLFormElement>(null);
   const startVideoPollingRef = useRef<(lessonKey: string) => void>(() => {});
+  const uploadInFlight = isSaving && Boolean(videoFile || documentFile);
+
+  useEffect(() => {
+    if (!uploadInFlight) return;
+    function onBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [uploadInFlight]);
 
   useEffect(() => {
     const controllers = pollingControllers.current;
@@ -186,6 +203,8 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
     setEditingKey(getLessonKey(lesson));
     setVideoFile(null);
     setVideoUploadProgress(0);
+    setDocumentFile(null);
+    setDocumentUploadProgress(0);
     const nextForm = {
       id: lesson.id,
       sheetRef: lesson.sheetRef,
@@ -204,6 +223,8 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
     setEditingKey(null);
     setVideoFile(null);
     setVideoUploadProgress(0);
+    setDocumentFile(null);
+    setDocumentUploadProgress(0);
     setForm(nextForm);
     setFormSnapshot(JSON.stringify(nextForm));
     setFormOpen(true);
@@ -213,6 +234,8 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
     setEditingKey(null);
     setVideoFile(null);
     setVideoUploadProgress(0);
+    setDocumentFile(null);
+    setDocumentUploadProgress(0);
     setForm({ ...emptyLesson, order: String(items.length + 1) });
     setFormOpen(false);
   }
@@ -256,7 +279,10 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
           courseSlug,
           lessonKey,
           videoFile,
-          setVideoUploadProgress
+          (progress, phase) => {
+            setVideoUploadProgress(progress);
+            if (phase) setVideoUploadPhase(phase);
+          }
         );
         const uploadedLesson = {
           ...savedLesson,
@@ -288,12 +314,35 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
         startVideoPolling(lessonKey);
       }
 
+      if (documentFile) {
+        if (!savedLesson) throw new Error("Lesson could not be resolved");
+        const lessonKey = getLessonKey(savedLesson);
+        await uploadLessonDocument(
+          courseSlug,
+          lessonKey,
+          documentFile,
+          setDocumentUploadProgress
+        );
+        const withDoc = {
+          ...savedLesson,
+          documentAvailable: true,
+        };
+        savedLesson = withDoc;
+        setItems((current) =>
+          current.map((lesson) =>
+            getLessonKey(lesson) === lessonKey ? withDoc : lesson
+          )
+        );
+      }
+
       success(
         videoFile
           ? "Lesson saved. The video is now being prepared for students."
-          : editingKey
-            ? "Changes saved"
-            : "Created successfully"
+          : documentFile
+            ? "Lesson saved with PDF document."
+            : editingKey
+              ? "Changes saved"
+              : "Created successfully"
       );
       resetForm();
     } catch (caughtError) {
@@ -301,13 +350,11 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
         setEditingKey(getLessonKey(savedLesson));
       }
       const message = metadataSaved
-        ? "The lesson was saved, but the video upload failed. Edit the lesson to try the upload again."
+        ? "The lesson was saved, but a media upload failed. Edit the lesson to try the upload again."
         : "We couldn't save this lesson. Please try again.";
       setError(message);
       toastError(
-        caughtError instanceof Error && !metadataSaved
-          ? caughtError.message
-          : message
+        caughtError instanceof Error ? caughtError.message : message
       );
     } finally {
       setIsSaving(false);
@@ -479,14 +526,20 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
         open={formOpen}
         title={editingKey ? "Edit lesson" : "Add lesson"}
         context={`Course: ${courseSlug}`}
-        description="Lesson details and video are saved together. Closing this window cancels the draft."
+        description="Lesson details, video, and PDF are saved together. Closing this window cancels the draft."
         saveLabel={editingKey ? "Save lesson" : "Add lesson"}
         isSaving={isSaving}
-        isDirty={JSON.stringify(form) !== formSnapshot || Boolean(videoFile)}
+        isDirty={
+          JSON.stringify(form) !== formSnapshot ||
+          Boolean(videoFile) ||
+          Boolean(documentFile)
+        }
         size="lg"
         onCancel={() => {
           if (
-            (JSON.stringify(form) === formSnapshot && !videoFile) ||
+            (JSON.stringify(form) === formSnapshot &&
+              !videoFile &&
+              !documentFile) ||
             window.confirm("Discard the changes to this lesson?")
           ) {
             resetForm();
@@ -542,6 +595,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
               label="Preview image"
               value={form.previewImage}
               description="Optional image shown beside this lesson."
+              page="courses"
               onChange={(value) => updateForm("previewImage", value)}
             />
           </div>
@@ -567,6 +621,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
               onChange={(event) => {
                 setVideoFile(event.target.files?.[0] ?? null);
                 setVideoUploadProgress(0);
+                setVideoUploadPhase("sending");
               }}
             />
             {editingKey &&
@@ -576,12 +631,60 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
                   A protected video is currently stored for this lesson.
                 </p>
               )}
-            {isSaving && videoFile && videoUploadProgress > 0 && (
+            {isSaving && videoFile && (
               <ProcessProgressBar
                 className="mt-3"
                 compact
-                stepLabel="Uploading private lesson video"
-                progress={videoUploadProgress}
+                stepLabel={
+                  videoUploadPhase === "storing"
+                    ? "File received — writing to private R2. Stay on this page."
+                    : "Sending file to the API"
+                }
+                progress={
+                  videoUploadPhase === "storing"
+                    ? undefined
+                    : videoUploadProgress
+                }
+              />
+            )}
+          </div>
+          <div className="md:col-span-2">
+            <label
+              htmlFor="lesson-document"
+              className="label-caps mb-2 block"
+            >
+              Lesson PDF
+            </label>
+            <p className="type-infill mb-4 text-charcoal-muted">
+              Optional private PDF for enrolled students (stored under docs/ in
+              R2).
+              {editingKey &&
+                " Leave empty to keep the currently uploaded document."}
+            </p>
+            <input
+              id="lesson-document"
+              type="file"
+              accept="application/pdf"
+              className="block w-full hairline-border bg-concrete px-4 py-3 type-infill file:mr-4 file:border-0 file:bg-charcoal file:px-4 file:py-2 file:text-concrete"
+              disabled={isSaving}
+              onChange={(event) => {
+                setDocumentFile(event.target.files?.[0] ?? null);
+                setDocumentUploadProgress(0);
+              }}
+            />
+            {editingKey &&
+              items.find((lesson) => getLessonKey(lesson) === editingKey)
+                ?.documentAvailable && (
+                <p className="type-infill mt-3 text-charcoal-muted">
+                  A private PDF is currently stored for this lesson.
+                </p>
+              )}
+            {isSaving && documentFile && documentUploadProgress > 0 && (
+              <ProcessProgressBar
+                className="mt-3"
+                compact
+                stepLabel="Uploading private lesson PDF"
+                progress={documentUploadProgress}
               />
             )}
           </div>

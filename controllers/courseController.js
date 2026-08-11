@@ -68,7 +68,8 @@ async function getAll(req, res, next) {
     const courses = await populateCourse(Course.find({}))
       .sort({ createdAt: 1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     return sendSuccess(res, courses);
   } catch (err) {
@@ -84,9 +85,10 @@ async function getGroups(req, res, next) {
         path: "courses",
         populate: [
           { path: "relatedProductIds" },
-          { path: "lessons", select: "-videoUrl" },
+          { path: "lessons", select: "title slug duration order" },
         ],
-      });
+      })
+      .lean();
 
     return sendSuccess(res, groups);
   } catch (err) {

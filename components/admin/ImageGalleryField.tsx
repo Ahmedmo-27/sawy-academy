@@ -14,6 +14,8 @@ interface ImageGalleryFieldProps {
   description?: string;
   error?: string;
   maxItems?: number;
+  page?: string;
+  entityId?: string;
 }
 
 function parseGallery(value: string): string[] {
@@ -38,6 +40,8 @@ export function ImageGalleryField({
   description,
   error: externalError,
   maxItems = 12,
+  page = "shared",
+  entityId,
 }: ImageGalleryFieldProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const inputId = useId();
@@ -62,6 +66,9 @@ export function ImageGalleryField({
     try {
       const response = await uploadImage(file, {
         onProgress: setUploadProgress,
+        purpose: "website-asset",
+        page,
+        entityId,
       });
       onChange(serializeGallery([...items, response.url]));
     } catch (err) {

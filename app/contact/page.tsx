@@ -6,6 +6,7 @@ import { Reveal } from "@/components/Reveal";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
+import { SocialLinks } from "@/components/SocialLinks";
 
 function ArrowUpRight() {
   return (
@@ -95,6 +96,7 @@ export default function ContactPage() {
                     <span>{branding.phone}</span>
                     <ArrowUpRight />
                   </a>
+                  <SocialLinks branding={branding} tone="on-dark" className="pt-2" />
                 </div>
               </div>
               <div className="border-t border-concrete/20 p-6 sm:p-8 lg:p-10">
@@ -184,6 +186,7 @@ export default function ContactPage() {
                     <span className="min-w-0 truncate">{branding.email}</span>
                     <ArrowUpRight />
                   </a>
+                  <SocialLinks branding={branding} variant="rows" />
                 </div>
               </div>
             </Reveal>

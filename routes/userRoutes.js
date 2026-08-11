@@ -5,6 +5,7 @@ const {
   requireAdmin,
   requireDevice,
 } = require("../middleware/authMiddleware");
+const { passwordChangeRateLimit } = require("../lib/rateLimiters");
 
 const router = express.Router();
 const studentAuth = [authenticate, requireDevice];
@@ -12,7 +13,12 @@ const adminAuth = [authenticate, requireDevice, requireAdmin];
 
 router.get("/me", ...studentAuth, userController.getMe);
 router.put("/me", ...studentAuth, userController.updateMe);
-router.put("/me/password", ...studentAuth, userController.changePassword);
+router.put(
+  "/me/password",
+  ...studentAuth,
+  passwordChangeRateLimit,
+  userController.changePassword
+);
 
 router.use(...adminAuth);
 

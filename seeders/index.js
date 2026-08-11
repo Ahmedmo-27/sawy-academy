@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const seedResearches = require("./seedResearches");
 const seedProjects = require("./seedProjects");
 const seedProducts = require("./seedProducts");
+const seedFaqs = require("./seedFaqs");
 const seedCourses = require("./seedCourses");
 const seedAdmin = require("./seedAdmin");
 const seedSiteContent = require("./seedSiteContent");
@@ -23,6 +24,7 @@ async function seed() {
   await seedResearches();
   await seedProjects();
   await seedProducts();
+  await seedFaqs();
   await seedCourses();
   await seedAdmin();
   await seedSiteContent();

@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/tmp/r2-smoke-manifest.json
+
+# local FFmpeg (not committed)
+/tools/ffmpeg/
 
 # next.js
 /.next/

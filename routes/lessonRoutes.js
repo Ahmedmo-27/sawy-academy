@@ -1,6 +1,7 @@
 const express = require("express");
 const lessonController = require("../controllers/lessonController");
 const protectedVideoController = require("../controllers/protectedVideoController");
+const lessonDocumentController = require("../controllers/lessonDocumentController");
 const {
   authenticate,
   requireDevice,
@@ -35,6 +36,14 @@ router.get(
   requireDevice,
   videoAccessRateLimit,
   protectedVideoController.getHlsKey
+);
+
+router.get(
+  "/:lessonId/document",
+  authenticate,
+  requireDevice,
+  videoAccessRateLimit,
+  lessonDocumentController.downloadDocument
 );
 
 module.exports = router;

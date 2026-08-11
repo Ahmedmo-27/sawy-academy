@@ -147,14 +147,39 @@ function rewriteMaster(manifest, lesson, asset) {
     .join("\n");
 }
 
-function rewriteVariant(manifest, req, course, lesson, asset, variant) {
-  const baseClaims = grantClaims(req, course, lesson, asset);
+function resolveMediaBaseUrl() {
   const mediaBaseUrl = String(process.env.VIDEO_MEDIA_BASE_URL || "")
     .trim()
     .replace(/\/+$/, "");
-  if (!/^https:\/\/[A-Za-z0-9.-]+(?::\d+)?$/.test(mediaBaseUrl)) {
-    throw createHttpError(500, "VIDEO_MEDIA_BASE_URL must be an HTTPS origin");
+  if (!mediaBaseUrl) {
+    if (process.env.NODE_ENV === "production") {
+      throw createHttpError(500, "VIDEO_MEDIA_BASE_URL must be an HTTPS origin");
+    }
+    return "";
   }
+  const httpsOrigin = /^https:\/\/[A-Za-z0-9.-]+(?::\d+)?$/.test(mediaBaseUrl);
+  const localHttpOrigin =
+    process.env.NODE_ENV !== "production" &&
+    /^http:\/\/(localhost|127\.0\.0\.1)(?::\d+)?$/.test(mediaBaseUrl);
+  if (!httpsOrigin && !localHttpOrigin) {
+    throw createHttpError(
+      500,
+      "VIDEO_MEDIA_BASE_URL must be an HTTPS origin (http://localhost is allowed in development)"
+    );
+  }
+  return mediaBaseUrl;
+}
+
+function mediaSegmentUrl(grant) {
+  const mediaBaseUrl = resolveMediaBaseUrl();
+  const query = `grant=${encodeURIComponent(grant)}`;
+  return mediaBaseUrl
+    ? `${mediaBaseUrl}/media?${query}`
+    : `/api/media?${query}`;
+}
+
+function rewriteVariant(manifest, req, course, lesson, asset, variant) {
+  const baseClaims = grantClaims(req, course, lesson, asset);
   const keyGrant = signMediaGrant({ ...baseClaims, scope: "key" });
   const keyUri = `/api/lessons/${encodeURIComponent(
     String(lesson._id)
@@ -168,7 +193,7 @@ function rewriteVariant(manifest, req, course, lesson, asset, variant) {
       scope: "media",
       path: mediaPath,
     });
-    return `${mediaBaseUrl}/media?grant=${encodeURIComponent(grant)}`;
+    return mediaSegmentUrl(grant);
   };
 
   return manifest
@@ -272,6 +297,75 @@ async function getManifest(req, res, next) {
   }
 }
 
+function contentTypeForMediaPath(mediaPath) {
+  return (
+    {
+      ".ts": "video/mp2t",
+      ".m4s": "video/iso.segment",
+      ".mp4": "video/mp4",
+      ".aac": "audio/aac",
+    }[path.extname(String(mediaPath || "")).toLowerCase()] ||
+    "application/octet-stream"
+  );
+}
+
+async function getMedia(req, res, next) {
+  try {
+    assertAllowedSource(req);
+    const claims = verifyMediaGrant(String(req.query.grant || ""));
+    if (claims.scope !== "media") {
+      throw createHttpError(403, "Forbidden", { code: "VIDEO_GRANT_DENIED" });
+    }
+
+    const objectKey = `video-assets/${claims.cid}/${claims.lid}/${claims.aid}/hls/${claims.path}`;
+    const range = req.headers.range;
+    const object = await getR2Client().send(
+      new GetObjectCommand({
+        Bucket: getR2Config().bucketName,
+        Key: objectKey,
+        ...(range ? { Range: range } : {}),
+      })
+    );
+
+    const maxAge = Math.max(0, claims.exp - Math.floor(Date.now() / 1000));
+    res.status(object.ContentRange ? 206 : 200);
+    res.set({
+      "Accept-Ranges": "bytes",
+      "Cache-Control": `private, max-age=${maxAge}, must-revalidate`,
+      "Content-Type": contentTypeForMediaPath(claims.path),
+      Vary: "Origin",
+    });
+    if (object.ContentLength != null) {
+      res.set("Content-Length", String(object.ContentLength));
+    }
+    if (object.ContentRange) {
+      res.set("Content-Range", object.ContentRange);
+    }
+    if (object.ETag) {
+      res.set("ETag", object.ETag);
+    }
+    if (req.method === "HEAD" || !object.Body) {
+      return res.end();
+    }
+    return object.Body.pipe(res);
+  } catch (error) {
+    if (
+      error.name === "NoSuchKey" ||
+      error.$metadata?.httpStatusCode === 404
+    ) {
+      return next(createHttpError(404, "Media not found"));
+    }
+    if (
+      /media grant|Expired media grant|Invalid media path/i.test(
+        String(error.message || "")
+      )
+    ) {
+      return next(createHttpError(403, "Forbidden", { code: "VIDEO_GRANT_DENIED" }));
+    }
+    return next(error);
+  }
+}
+
 async function getHlsKey(req, res, next) {
   let failureReason = "policy_denied";
   try {
@@ -356,8 +450,10 @@ module.exports = {
   configuredAllowedOrigins,
   getHlsKey,
   getManifest,
+  getMedia,
   grantMatchesExpected,
   requestSourceOrigin,
+  resolveMediaBaseUrl,
   resolveRelativePath,
   rewriteMaster,
   rewriteVariant,

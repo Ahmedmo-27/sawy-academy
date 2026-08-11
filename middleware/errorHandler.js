@@ -1,12 +1,22 @@
 const logger = require("../utils/logger");
 const { clearSessionCookie } = require("../lib/auth/sessionCookie");
 
+function isClientAbort(err) {
+  return (
+    err?.message === "Request aborted" ||
+    err?.code === "ECONNABORTED" ||
+    err?.code === "ECONNRESET"
+  );
+}
+
 function errorHandler(err, req, res, next) {
   void next; // Express identifies error middleware by its four-argument signature.
-  const statusCode = err.statusCode || err.status || 500;
+  const statusCode = err.statusCode || err.status || (isClientAbort(err) ? 499 : 500);
 
   const errorBody = {
-    message: err.message || "Internal server error",
+    message: isClientAbort(err)
+      ? "Upload was cancelled or the connection closed before the file finished sending."
+      : err.message || "Internal server error",
     statusCode,
   };
 

@@ -5,6 +5,36 @@ const {
   sendSuccess,
   validateRequired,
 } = require("./controllerUtils");
+const {
+  buildGuestServiceReferenceOwner,
+  isServiceReferenceObjectKey,
+} = require("../lib/r2ObjectKeys");
+const { getPrivateObject } = require("../lib/privateR2Storage");
+const { isPrivateR2Configured } = require("../lib/r2Config");
+
+function rawReferenceImageUrls(doc) {
+  const payload = doc.payload;
+  if (!payload || typeof payload !== "object") return [];
+  if (!Array.isArray(payload.referenceImageUrls)) return [];
+  return payload.referenceImageUrls
+    .map((url) => String(url || "").trim())
+    .filter(Boolean);
+}
+
+function publicReferenceImageUrls(doc) {
+  const requestId = doc._id.toString();
+  return rawReferenceImageUrls(doc).map((url, index) => {
+    if (
+      isServiceReferenceObjectKey(url) ||
+      String(url).startsWith("service-references/")
+    ) {
+      return `/api/services/${encodeURIComponent(
+        requestId
+      )}/reference-images/${index}`;
+    }
+    return url;
+  });
+}
 
 function publicService(doc) {
   return {
@@ -17,6 +47,7 @@ function publicService(doc) {
     message: doc.message,
     details: doc.details,
     notes: doc.notes,
+    referenceImageUrls: publicReferenceImageUrls(doc),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -38,7 +69,9 @@ function formatDesignDetails(payload) {
   appendLine(lines, "Budget range", payload.budgetRange);
   appendLine(lines, "Desired timeline", payload.desiredTimeline);
   if (Array.isArray(payload.referenceImageUrls) && payload.referenceImageUrls.length) {
-    lines.push(`Reference images: ${payload.referenceImageUrls.join(", ")}`);
+    lines.push(
+      `Reference images: ${payload.referenceImageUrls.length} attached`
+    );
   }
   appendLine(lines, "Additional notes", payload.additionalNotes);
   return lines.join("\n");
@@ -157,6 +190,24 @@ async function create(req, res, next) {
 
     const details = formatSubmissionDetails(payload);
 
+    if (Array.isArray(payload.referenceImageUrls)) {
+      const ownerSegment = buildGuestServiceReferenceOwner(name);
+      payload.referenceImageUrls = payload.referenceImageUrls
+        .map((url) => String(url || "").trim())
+        .filter(Boolean);
+
+      for (const url of payload.referenceImageUrls) {
+        const isLocal = url.startsWith("/uploads/");
+        const isPrivateRef = isServiceReferenceObjectKey(url, ownerSegment);
+        if (!isLocal && !isPrivateRef) {
+          throw createHttpError(
+            400,
+            "Reference images must be uploaded under the same name entered on this form"
+          );
+        }
+      }
+    }
+
     const request = await ServiceRequest.create({
       name,
       email,
@@ -249,4 +300,64 @@ async function updateStatus(req, res, next) {
   }
 }
 
-module.exports = { create, getAll, getById, updateStatus };
+async function getReferenceImage(req, res, next) {
+  try {
+    if (!req.auth) {
+      throw createHttpError(401, "Authentication required");
+    }
+
+    const request = await ServiceRequest.findById(req.params.id);
+    if (!request) {
+      throw createHttpError(404, "Service request not found");
+    }
+
+    const isOwner =
+      (request.userId &&
+        request.userId.toString() === req.auth.userId.toString()) ||
+      request.email === req.auth.user.email;
+
+    if (req.auth.user.role !== "admin" && !isOwner) {
+      throw createHttpError(403, "Forbidden");
+    }
+
+    const index = Number(req.params.index);
+    const urls = rawReferenceImageUrls(request);
+    if (!Number.isInteger(index) || index < 0 || index >= urls.length) {
+      throw createHttpError(404, "Reference image not found");
+    }
+
+    const objectKey = urls[index];
+    if (!isServiceReferenceObjectKey(objectKey)) {
+      throw createHttpError(404, "Reference image is not stored in private R2");
+    }
+
+    if (!isPrivateR2Configured()) {
+      throw createHttpError(503, "Private R2 is not configured");
+    }
+
+    const object = await getPrivateObject(objectKey);
+    if (!object.Body) {
+      throw createHttpError(404, "Reference image not found");
+    }
+
+    res.set("Cache-Control", "private, no-store");
+    res.set("Vary", "Cookie, Authorization, X-Device-Id");
+    res.set("Content-Type", object.ContentType || "image/jpeg");
+    res.set("Content-Disposition", "inline");
+    if (object.ContentLength) {
+      res.set("Content-Length", String(object.ContentLength));
+    }
+
+    object.Body.pipe(res);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = {
+  create,
+  getAll,
+  getById,
+  getReferenceImage,
+  updateStatus,
+};

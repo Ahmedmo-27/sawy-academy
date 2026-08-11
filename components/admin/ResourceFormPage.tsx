@@ -39,13 +39,17 @@ interface ResourceFormPageProps {
 function recordLabelFromForm(form: ResourceForm, record: ResourceRecord | null) {
   const formTitle = form.title?.trim();
   const formName = form.name?.trim();
+  const formQuestion = form.question?.trim();
   if (formTitle) return formTitle;
   if (formName) return formName;
+  if (formQuestion) return formQuestion;
   if (record) {
     const title = record.title;
     const name = record.name;
+    const question = record.question;
     if (typeof title === "string" && title.trim()) return title;
     if (typeof name === "string" && name.trim()) return name;
+    if (typeof question === "string" && question.trim()) return question;
   }
   return "this item";
 }
@@ -336,6 +340,7 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
                       value={form[field.name] ?? ""}
                       required={field.required}
                       error={errors[field.name]}
+                      page={field.uploadPage ?? "shared"}
                       onChange={(value) => updateForm(field.name, value)}
                     />
                     {field.hint && !errors[field.name] && (
@@ -355,6 +360,7 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
                       value={form[field.name] ?? "[]"}
                       error={errors[field.name]}
                       description={field.hint}
+                      page={field.uploadPage ?? "shared"}
                       onChange={(value) => updateForm(field.name, value)}
                     />
                   </div>

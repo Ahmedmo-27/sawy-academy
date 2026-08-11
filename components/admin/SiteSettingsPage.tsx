@@ -7,6 +7,7 @@ import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { FormField } from "@/components/admin/FormField";
+import { ImageGalleryField } from "@/components/admin/ImageGalleryField";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { useAdminResource } from "@/hooks/useAdminResource";
@@ -27,11 +28,13 @@ const PAGE_KEYS = [
   "products",
   "researches",
   "services",
+  "faqs",
   "contact",
   "cart",
   "checkout",
   "login",
   "signup",
+  "privacy",
 ] as const;
 
 const NAV_PAGE_OPTIONS = getMainPageDestinations();
@@ -42,6 +45,8 @@ function newId(prefix: string) {
 
 function pageName(key: string) {
   if (key === "researches") return "Research";
+  if (key === "faqs") return "FAQs";
+  if (key === "privacy") return "Privacy Policy";
   return key.charAt(0).toUpperCase() + key.slice(1);
 }
 
@@ -372,7 +377,13 @@ export function SiteSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "branding" | "seo" | "navigation" | "pages" | "contact" | "services"
+    | "branding"
+    | "seo"
+    | "navigation"
+    | "pages"
+    | "contact"
+    | "services"
+    | "shared"
   >("branding");
   const [pageHeaderEditor, setPageHeaderEditor] = useState<{
     key: (typeof PAGE_KEYS)[number];
@@ -485,6 +496,7 @@ export function SiteSettingsPage() {
     { id: "pages" as const, label: "Page introductions" },
     { id: "contact" as const, label: "Contact page" },
     { id: "services" as const, label: "Service images" },
+    { id: "shared" as const, label: "Shared assets" },
   ];
 
   return (
@@ -549,6 +561,8 @@ export function SiteSettingsPage() {
               ["mobile", "Mobile"],
               ["established", "Year established"],
               ["footerBlurb", "Footer description"],
+              ["facebookUrl", "Facebook URL"],
+              ["instagramUrl", "Instagram URL"],
             ] as const
           ).map(([key, label]) => (
             <FormField
@@ -609,6 +623,17 @@ export function SiteSettingsPage() {
               }
             />
           ))}
+          <div className="lg:col-span-2">
+            <ImageUploadField
+              label="Logo image"
+              description="Public website-assets/branding logo."
+              value={branding.logoUrl ?? ""}
+              page="branding"
+              onChange={(value) =>
+                patch({ branding: { ...branding, logoUrl: value } })
+              }
+            />
+          </div>
         </div>
       )}
 
@@ -632,6 +657,15 @@ export function SiteSettingsPage() {
             value={settings.seo.description}
             onChange={(value) =>
               patch({ seo: { ...settings.seo, description: value } })
+            }
+          />
+          <ImageUploadField
+            label="Open Graph image"
+            description="Default social share image (website-assets/branding)."
+            value={settings.seo.ogImageUrl ?? ""}
+            page="branding"
+            onChange={(value) =>
+              patch({ seo: { ...settings.seo, ogImageUrl: value } })
             }
           />
         </div>
@@ -694,7 +728,7 @@ export function SiteSettingsPage() {
       )}
 
       {activeTab === "contact" && (
-        <div className="max-w-3xl">
+        <div className="max-w-3xl space-y-8">
           <FormField
             id="contact-intro"
             name="intro"
@@ -704,6 +738,17 @@ export function SiteSettingsPage() {
             value={settings.contactPage.intro}
             onChange={(value) =>
               patch({ contactPage: { ...settings.contactPage, intro: value } })
+            }
+          />
+          <ImageUploadField
+            label="Contact page image"
+            description="Stored under website-assets/contact/."
+            value={settings.contactPage.imageUrl ?? ""}
+            page="contact"
+            onChange={(value) =>
+              patch({
+                contactPage: { ...settings.contactPage, imageUrl: value },
+              })
             }
           />
         </div>
@@ -728,6 +773,7 @@ export function SiteSettingsPage() {
               key={key}
               label={label}
               value={settings.servicesPage?.[key] ?? ""}
+              page="services"
               onChange={(value) =>
                 patch({
                   servicesPage: {
@@ -738,6 +784,35 @@ export function SiteSettingsPage() {
               }
             />
           ))}
+        </div>
+      )}
+
+      {activeTab === "shared" && (
+        <div className="max-w-3xl space-y-4">
+          <p className="type-infill text-charcoal-muted">
+            Cross-page decorative assets under website-assets/shared/. Store
+            URLs here for reuse across the CMS.
+          </p>
+          <ImageGalleryField
+            label="Shared images"
+            value={JSON.stringify(settings.sharedAssetUrls ?? [])}
+            page="shared"
+            onChange={(value) => {
+              try {
+                const parsed = JSON.parse(value) as unknown;
+                patch({
+                  sharedAssetUrls: Array.isArray(parsed)
+                    ? parsed.filter(
+                        (item): item is string =>
+                          typeof item === "string" && item.trim().length > 0
+                      )
+                    : [],
+                });
+              } catch {
+                patch({ sharedAssetUrls: [] });
+              }
+            }}
+          />
         </div>
       )}
 

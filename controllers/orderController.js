@@ -10,6 +10,11 @@ const {
   sendSuccess,
   validateRequired,
 } = require("./controllerUtils");
+const {
+  isPaymentProofObjectKey,
+} = require("../lib/r2ObjectKeys");
+const { getPrivateObject } = require("../lib/privateR2Storage");
+const { isPrivateR2Configured } = require("../lib/r2Config");
 
 function parsePrice(price) {
   if (typeof price !== "string") return 0;
@@ -26,6 +31,10 @@ function generateOrderId() {
 
 function serializeOrder(doc) {
   const order = doc.toObject ? doc.toObject() : doc;
+  const rawScreenshot = order.paymentScreenshotUrl || "";
+  const paymentScreenshotUrl = isPaymentProofObjectKey(rawScreenshot)
+    ? `/api/orders/${encodeURIComponent(order.id)}/payment-screenshot`
+    : rawScreenshot;
 
   return {
     _id: order._id.toString(),
@@ -34,8 +43,8 @@ function serializeOrder(doc) {
     userEmail: order.userEmail,
     amount: order.amount,
     status: order.status,
-    paymentScreenshotUrl: order.paymentScreenshotUrl,
-    instaPayScreenshot: order.paymentScreenshotUrl,
+    paymentScreenshotUrl,
+    instaPayScreenshot: paymentScreenshotUrl,
     submittedAt: order.submittedAt
       ? new Date(order.submittedAt).toISOString()
       : undefined,
@@ -178,6 +187,14 @@ async function create(req, res, next) {
       throw createHttpError(400, "Order total must be greater than zero");
     }
 
+    const screenshotUrl = String(req.body.screenshotUrl).trim();
+    const userId = req.auth.userId.toString();
+    const isLocalUpload = screenshotUrl.startsWith("/uploads/");
+    const isPrivateProof = isPaymentProofObjectKey(screenshotUrl, userId);
+    if (!isLocalUpload && !isPrivateProof) {
+      throw createHttpError(400, "Invalid payment proof upload");
+    }
+
     const order = await Order.create({
       id: generateOrderId(),
       userId: req.auth.userId,
@@ -185,7 +202,7 @@ async function create(req, res, next) {
       userEmail: req.auth.user.email,
       amount,
       status: "pending",
-      paymentScreenshotUrl: String(req.body.screenshotUrl).trim(),
+      paymentScreenshotUrl: screenshotUrl,
       items,
       submittedAt: new Date(),
     });
@@ -291,10 +308,57 @@ async function reject(req, res, next) {
   }
 }
 
+async function getPaymentScreenshot(req, res, next) {
+  try {
+    if (!req.auth) {
+      throw createHttpError(401, "Authentication required");
+    }
+
+    const order = await Order.findOne({
+      $or: [{ id: req.params.id }, { _id: req.params.id }],
+    });
+
+    if (!order) {
+      throw createHttpError(404, "Order not found");
+    }
+
+    if (!canAccessOrder(order, req.auth)) {
+      throw createHttpError(403, "You do not have access to this order");
+    }
+
+    const objectKey = String(order.paymentScreenshotUrl || "").trim();
+    if (!isPaymentProofObjectKey(objectKey)) {
+      throw createHttpError(404, "Payment proof is not stored in private R2");
+    }
+
+    if (!isPrivateR2Configured()) {
+      throw createHttpError(503, "Private R2 is not configured");
+    }
+
+    const object = await getPrivateObject(objectKey);
+    if (!object.Body) {
+      throw createHttpError(404, "Payment proof not found");
+    }
+
+    res.set("Cache-Control", "private, no-store");
+    res.set("Vary", "Cookie, Authorization, X-Device-Id");
+    res.set("Content-Type", object.ContentType || "image/jpeg");
+    res.set("Content-Disposition", "inline");
+    if (object.ContentLength) {
+      res.set("Content-Length", String(object.ContentLength));
+    }
+
+    object.Body.pipe(res);
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   approve,
   create,
   getAll,
   getById,
+  getPaymentScreenshot,
   reject,
 };

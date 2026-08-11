@@ -319,6 +319,7 @@ function SectionFields({
             label="Hero image"
             description="Upload a photo from your computer. Leave empty to keep the default portrait."
             value={text(c, "heroImageUrl")}
+            page="home"
             onChange={(value) => set("heroImageUrl", value)}
           />
           {text(c, "heroImageUrl") && (
@@ -379,6 +380,7 @@ function SectionFields({
             label="Philosophy image"
             description="Optional diagram or photo shown beside this section."
             value={text(c, "philosophyImageUrl")}
+            page="home"
             onChange={(value) => set("philosophyImageUrl", value)}
           />
         </div>
@@ -496,6 +498,7 @@ function SectionFields({
               label="Contact studio image"
               description="Optional photo beside the contact panel."
               value={text(c, "contactImageUrl")}
+              page="contact"
               onChange={(value) => set("contactImageUrl", value)}
             />
           </div>
@@ -506,6 +509,7 @@ function SectionFields({
               label="Custom section image"
             description="Optional full-width image shown below the text."
               value={text(c, "customImageUrl")}
+              page="home"
               onChange={(value) => set("customImageUrl", value)}
             />
           </div>

@@ -23,7 +23,9 @@ const FALLBACK_PAGES: PageDestination[] = [
   { label: "Products", value: "/products" },
   { label: "Researches", value: "/researches" },
   { label: "Services", value: "/services" },
+  { label: "FAQs", value: "/faqs" },
   { label: "Contact", value: "/contact" },
+  { label: "Privacy Policy", value: "/privacy" },
 ];
 
 function flattenNavItems(

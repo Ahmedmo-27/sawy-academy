@@ -1,5 +1,6 @@
 import { listCourseGroups } from "@/lib/api/courseGroups";
 import { listCourses } from "@/lib/api/courses";
+import { listFaqs } from "@/lib/api/faqs";
 import { listProducts } from "@/lib/api/products";
 import { runParallelStagedLoad, type StagedLoadCallback } from "@/lib/load/stagedLoad";
 import type { DashboardMetric } from "@/lib/api/types";
@@ -7,11 +8,12 @@ import type { DashboardMetric } from "@/lib/api/types";
 export async function getDashboardMetrics(
   onProgress?: StagedLoadCallback
 ): Promise<DashboardMetric[]> {
-  const [groupList, courseList, productList] = await runParallelStagedLoad(
+  const [groupList, courseList, productList, faqList] = await runParallelStagedLoad(
     [
       { label: "Course groups", run: listCourseGroups },
       { label: "Courses", run: listCourses },
       { label: "Products", run: listProducts },
+      { label: "FAQs", run: () => listFaqs({ includeHidden: true }) },
     ],
     onProgress
   );
@@ -58,6 +60,13 @@ export async function getDashboardMetrics(
       value: new Set(productList.map((product) => product.category).filter(Boolean)).size,
       href: "/admin/products",
       sheetRef: "CAT",
+    },
+    {
+      id: "faqs",
+      label: "Published FAQs",
+      value: faqList.filter((faq) => faq.published !== false).length,
+      href: "/admin/faqs",
+      sheetRef: "FAQ",
     },
   ];
 }

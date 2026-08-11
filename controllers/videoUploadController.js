@@ -19,7 +19,12 @@ const {
   getR2Client,
   getR2Config,
 } = require("../lib/videoAccess");
-const { generateWrappedContentKey } = require("../lib/videoEncryption");
+const {
+  generateWrappedContentKey,
+  getVideoKeyKek,
+} = require("../lib/videoEncryption");
+const { createLessonUploadIntent } = require("../lib/lessonUploadGrant");
+const logger = require("../utils/logger");
 const { enqueueJob } = require("../lib/videoProcessingQueue");
 
 const DEFAULT_MAX_VIDEO_BYTES = 2 * 1024 * 1024 * 1024;
@@ -107,7 +112,13 @@ async function create(req, res, next) {
       videoProcessingUpdatedAt: lesson.videoProcessingUpdatedAt,
     };
 
-    // Fail before accepting a large upload if key wrapping is not configured.
+    logger.info("Lesson video received, uploading source to private R2", {
+      slug: req.params.slug,
+      lessonId: req.params.lessonId,
+      bytes: req.file.size,
+      filename: req.file.originalname,
+    });
+
     const generatedKey = generateWrappedContentKey();
     const encryption = generatedKey.encryption;
     generatedKey.contentKey.fill(0);
@@ -352,10 +363,31 @@ async function retry(req, res, next) {
   }
 }
 
+function createIntent(req, res, next) {
+  try {
+    return sendSuccess(res, createLessonUploadIntent(req, "video"));
+  } catch (err) {
+    return next(err);
+  }
+}
+
+function requireVideoKek(_req, _res, next) {
+  try {
+    getVideoKeyKek();
+    return next();
+  } catch (error) {
+    return next(
+      createHttpError(503, error.message, { code: "VIDEO_KEY_KEK_INVALID" })
+    );
+  }
+}
+
 module.exports = {
   create,
+  createIntent,
   deleteR2Object,
   publicRenditions,
+  requireVideoKek,
   retry,
   status,
   uploadMiddleware: upload.single("video"),

@@ -12,7 +12,7 @@ import type {
 const DEFAULT_API_ORIGIN =
   process.env.NODE_ENV === "production"
     ? "https://sawy-academy.onrender.com"
-    : "http://localhost:5000";
+    : "http://127.0.0.1:5000";
 
 export class ServerResearchError extends Error {
   constructor(

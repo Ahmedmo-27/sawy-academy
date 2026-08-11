@@ -30,6 +30,16 @@ const lessonSchema = new mongoose.Schema(
     // Legacy YouTube field retained temporarily for an explicit migration pass.
     videoUrl: { type: String, trim: true },
     previewImage: { type: String, trim: true },
+    // Private lesson PDF (R2 docs/ prefix). Object key never selected by default.
+    documentObjectKey: { type: String, trim: true, select: false },
+    documentAvailable: { type: Boolean, default: false },
+    documentOriginalFilename: { type: String, trim: true, select: false },
+    documentAssetId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "DocumentAsset",
+      index: true,
+    },
+    documentGeneration: { type: Number, default: 0, min: 0, select: false },
   },
   {
     timestamps: true,

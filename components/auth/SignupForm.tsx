@@ -215,6 +215,14 @@ export function SignupForm() {
             {fieldErrors.confirmPassword && <p id="signup-confirm-error" className="type-infill mt-2 text-clay" role="alert">{fieldErrors.confirmPassword}</p>}
           </div>
 
+          <p className="type-infill">
+            By creating an account you agree to our{" "}
+            <Link href="/privacy" className="action-secondary">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+
           <button
             type="submit"
             className="cta-entrance w-full justify-center"
