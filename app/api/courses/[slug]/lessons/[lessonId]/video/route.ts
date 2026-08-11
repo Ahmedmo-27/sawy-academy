@@ -2,7 +2,8 @@ import { proxyApiUpload } from "@/lib/server/proxyApiUpload";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 1800;
+// Hobby max is 300s; Pro/Enterprise can raise this for large uploads.
+export const maxDuration = 300;
 
 export async function POST(
   request: Request,
