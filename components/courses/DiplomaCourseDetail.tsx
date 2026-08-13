@@ -70,7 +70,7 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
                 name={group.title}
                 price={group.bundlePrice}
                 kind="diploma"
-                label="Enroll in diploma"
+                label="Add diploma to cart"
                 className="cta-entrance"
               />
             )}
@@ -155,7 +155,7 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
             name={group.title}
             price={group.bundlePrice}
             kind="diploma"
-            label={`Enroll · ${group.bundlePrice}`}
+            label={`Add to cart · ${group.bundlePrice}`}
             className="cta-entrance"
           />
         </div>

@@ -171,8 +171,65 @@ export function ResearchStudio({
     setSort("newest");
   }
 
+  const featured =
+    !query.trim() &&
+    active === "All" &&
+    sort === "newest" &&
+    researchPage.page === 1 &&
+    researchPage.items[0]
+      ? researchPage.items[0]
+      : null;
+  const listItems = featured
+    ? researchPage.items.slice(1)
+    : researchPage.items;
+
   return (
     <>
+      {featured && !loadError && (
+        <Section rhythm="standard" contained={false}>
+          <PageContainer>
+            <p className="label-caps mb-6 text-clay">Selected research</p>
+            <article className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-end lg:gap-10">
+              <div className="lg:col-span-7">
+                <MediaBay
+                  src={featured.image}
+                  alt={featured.title}
+                  className="aspect-[16/10] w-full lg:aspect-[21/12]"
+                  fallback="research"
+                  morph
+                  priority
+                  sizes="(min-width: 1024px) 60vw, 100vw"
+                />
+              </div>
+              <div className="lg:col-span-5">
+                <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2">
+                  <span className="label-caps">{featured.category}</span>
+                  <span className="label-caps">{featured.year}</span>
+                </div>
+                <h2 className="type-heading mb-4 leading-snug">
+                  <Link
+                    href={`/researches/${featured.slug}`}
+                    className="transition-colors duration-200 hover:text-clay"
+                  >
+                    {featured.title}
+                  </Link>
+                </h2>
+                <p className="label-caps mb-4">{featured.venue}</p>
+                <p className="type-infill mb-6 max-w-md leading-relaxed">
+                  {excerpt(featured.abstract, 220)}
+                </p>
+                <Link
+                  href={`/researches/${featured.slug}`}
+                  className="action-primary inline-flex min-h-11 items-center"
+                >
+                  Read research
+                </Link>
+              </div>
+            </article>
+          </PageContainer>
+        </Section>
+      )}
+
       <Section rhythm="compressed" contained={false} className="hairline-b">
         <PageContainer>
           <div className="grid gap-5 pt-5 md:grid-cols-[minmax(0,1fr)_14rem] md:items-end">
@@ -252,16 +309,16 @@ export function ResearchStudio({
           {!loadError && researchPage.items.length > 0 && (
             <>
               <GsapStagger
-                key={researchPage.items.map((item) => item.id).join("-")}
+                key={listItems.map((item) => item.id).join("-")}
                 className="space-y-0"
               >
-                {researchPage.items.map((item, i) => (
+                {listItems.map((item, i) => (
                   <article
                     key={item.id}
-                    className={`relative py-10 ${i > 0 ? "hairline-t" : ""}`}
+                    className={`relative py-10 ${i > 0 || featured ? "hairline-t" : ""}`}
                   >
                     <span className="label-caps absolute right-0 top-10 hidden text-clay lg:block">
-                      {String(i + 1).padStart(2, "0")}
+                      {String(featured ? i + 2 : i + 1).padStart(2, "0")}
                     </span>
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
                       <div className="lg:col-span-3">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, registerGsap, SplitText } from "@/lib/gsap/config";
+import { createHorizontalScrollId } from "@/lib/gsap/horizontalSections";
 import { scheduleScrollRefresh } from "@/lib/gsap/refresh";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import type { Project } from "@/lib/api/types";
@@ -251,10 +252,12 @@ export function FeaturedProjectStory({
         };
 
         gsap.set(track, { x: 0, force3D: true });
+        const horizontalId = createHorizontalScrollId("featured-mobile");
         const horizontalTween = gsap.to(track, {
           x: () => -getDistance(),
           ease: "none",
           scrollTrigger: {
+            id: horizontalId,
             trigger: pin,
             start: () => `top ${getNavOffsetPx()}`,
             end: () =>
@@ -391,6 +394,7 @@ export function FeaturedProjectStory({
 
       <div
         data-story-mobile-pin
+        data-scroll-axis="x"
         className={reduced ? "lg:block" : "lg:hidden"}
       >
         <div

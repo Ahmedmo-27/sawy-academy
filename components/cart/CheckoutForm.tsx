@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/cart/CartProvider";
+import { InstaPayTransferDetails } from "@/components/cart/InstaPayTransferDetails";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { AsyncState } from "@/components/feedback/AsyncState";
 import { Skeleton } from "@/components/feedback/Skeleton";
@@ -81,8 +82,8 @@ export function CheckoutForm() {
       <AsyncState
         title="Nothing to settle"
         message="Add line items before uploading payment proof."
-        actionLabel="View products"
-        actionHref="/products"
+        actionLabel="Browse courses"
+        actionHref="/courses"
       />
     );
   }
@@ -110,13 +111,18 @@ export function CheckoutForm() {
       <form onSubmit={handleSubmit}>
         <FormErrorSummary errors={error ? [error] : []} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 hairline-b py-6 mb-6">
-          <div>
-            <p className="label-caps mb-2">Payment</p>
-            <p className="type-infill leading-relaxed max-w-md">
-              Transfer the order total via InstaPay, then upload a clear
-              screenshot of the confirmation. Studio staff will verify the
-              amount manually — no card gateway on this sheet.
-            </p>
+          <div className="space-y-6">
+            <div>
+              <p className="label-caps mb-2">Payment</p>
+              <p className="type-infill leading-relaxed max-w-md">
+                Transfer the order total via InstaPay, then upload a clear
+                screenshot of the confirmation. Studio staff will verify the
+                amount manually — no card gateway on this sheet.
+              </p>
+            </div>
+            <div className="hairline-border bg-concrete p-4 sm:p-5">
+              <InstaPayTransferDetails />
+            </div>
           </div>
           <PaymentProofUpload
             value={screenshotUrl}

@@ -53,6 +53,7 @@ export function MediaBay({
           priority={priority}
           revealOnLoad={revealOnLoad}
           objectPosition={objectPosition}
+          onError={() => setFailed(true)}
         />
       ) : hasSrc && !failed ? (
         <Image

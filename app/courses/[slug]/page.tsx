@@ -16,6 +16,7 @@ import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
+import { SITE_GUTTER_LEFT, SITE_GUTTER_RIGHT } from "@/lib/grid";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { SectionLoader } from "@/components/feedback/SectionLoader";
 import { ApiClientError } from "@/lib/api/client";
@@ -108,7 +109,7 @@ function GroupCourseDetail({ group }: { group: CourseGroup }) {
             parallax={240}
             parallaxX={36}
             parallaxRotate={10}
-            className="fixed right-[max(0.5rem,calc((100vw-72rem)/2-2rem))] top-[20%] z-0 hidden md:block"
+            className={`fixed ${SITE_GUTTER_RIGHT} top-[20%] z-0 hidden md:block`}
           />
           <BioGeometryShape
             kind="coil"
@@ -120,7 +121,7 @@ function GroupCourseDetail({ group }: { group: CourseGroup }) {
             parallax={160}
             parallaxX={-44}
             parallaxRotate={-8}
-            className="fixed left-[max(0.5rem,calc((100vw-72rem)/2-1.5rem))] bottom-[16%] z-0 hidden md:block"
+            className={`fixed ${SITE_GUTTER_LEFT} bottom-[16%] z-0 hidden md:block`}
           />
           <div className="relative z-[1]">
             {group.type === "diploma" ? (
@@ -198,7 +199,7 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
             parallax={220}
             parallaxX={40}
             parallaxRotate={12}
-            className="fixed right-[max(0.5rem,calc((100vw-72rem)/2-2rem))] top-[20%] z-0 hidden md:block"
+            className={`fixed ${SITE_GUTTER_RIGHT} top-[20%] z-0 hidden md:block`}
           />
           <BioGeometryShape
             kind="c7"
@@ -210,7 +211,7 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
             parallax={150}
             parallaxX={-48}
             parallaxRotate={-7}
-            className="fixed left-[max(0.5rem,calc((100vw-72rem)/2-1.5rem))] bottom-[16%] z-0 hidden md:block"
+            className={`fixed ${SITE_GUTTER_LEFT} bottom-[16%] z-0 hidden md:block`}
           />
 
           <div className="relative z-[1] flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
@@ -227,7 +228,7 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
               name={course.title}
               price={course.price}
               category={course.level}
-              label="Enroll in course"
+              label="Add course to cart"
             />
           </div>
 

@@ -6,13 +6,12 @@ import { GsapReveal, GsapStagger } from "@/components/animation/GsapReveal";
 import { SplitTextReveal } from "@/components/animation/SplitTextReveal";
 import { GridColumns } from "@/components/decorative/GridColumns";
 import { MediaBay } from "@/components/decorative/MediaBay";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { SectionLoader } from "@/components/feedback/SectionLoader";
-import { MediaGallery } from "@/components/media/MediaGallery";
+import { ProjectGalleryStory } from "@/components/portfolio/ProjectGalleryStory";
 import { AsyncState } from "@/components/feedback/AsyncState";
 import { ApiClientError, apiGet } from "@/lib/api/client";
 import type { Project } from "@/lib/api/types";
@@ -123,55 +122,19 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
       <ThresholdDoorway label={project.sheetRef || project.slug} />
 
-      <Section rhythm="standard" contained={false}>
+      <Section rhythm="compressed" contained={false} className="overflow-hidden">
         <PageContainer>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-            <div className="lg:col-span-4">
-              <div className="hairline-border p-6 lg:p-8">
-                <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
-                <div className="space-y-6">
-                  <div>
-                    <p className="label-caps mb-2">Sheet</p>
-                    <p className="dim-label !text-base">{project.sheetRef}</p>
-                  </div>
-                  <div className="hairline-t pt-6">
-                    <p className="label-caps mb-2">Project</p>
-                    <p className="type-title text-xl">{project.title}</p>
-                  </div>
-                  <div className="hairline-t pt-6 grid grid-cols-2 gap-6">
-                    <div>
-                      <p className="label-caps mb-2">Category</p>
-                      <p className="type-infill">{project.category}</p>
-                    </div>
-                    <div>
-                      <p className="label-caps mb-2">Year</p>
-                      <p className="type-infill">{project.year}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-7 lg:col-start-6">
-              <GsapReveal type="text">
-                <p className="type-lead max-w-xl">
-                  {project.category} project from the {project.year} drawing set.
-                  Sheet {project.sheetRef} documents the built work within the
-                  academy portfolio index.
-                </p>
-              </GsapReveal>
-            </div>
-          </div>
+          <p className="label-caps text-charcoal-infill">Drawing set</p>
         </PageContainer>
-      </Section>
-
-      <Section rhythm="standard" contained={false}>
-        <PageContainer>
-          <ThresholdFrame label="Drawing set">
-            <div className="pt-6">
-              <MediaGallery images={gallery} title={project.title} fallback="plan" />
-            </div>
-          </ThresholdFrame>
-        </PageContainer>
+        <div className="mt-4">
+          <ProjectGalleryStory
+            images={gallery}
+            title={project.title}
+            category={project.category}
+            year={project.year}
+            sheetRef={project.sheetRef}
+          />
+        </div>
       </Section>
 
       {showBeforeAfter && (

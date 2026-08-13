@@ -90,7 +90,7 @@ export default async function ResearchDetailPage({
         <GridColumns />
         <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-8 lg:pb-12">
           <GsapReveal type="text" immediate>
-            <p className="eyebrow mb-3">
+            <p className="eyebrow mb-3 max-w-full break-words whitespace-normal">
               Research · {research.category} · {research.year}
             </p>
           </GsapReveal>
@@ -150,7 +150,7 @@ export default async function ResearchDetailPage({
         </PageContainer>
       </header>
 
-      <ThresholdDoorway label={research.slug} />
+      <ThresholdDoorway label="PAPER" />
 
       <Section rhythm="standard" contained={false}>
         <PageContainer>

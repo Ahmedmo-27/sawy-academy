@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { AdminEditModal } from "@/components/admin/AdminEditModal";
 import { FormField } from "@/components/admin/FormField";
@@ -64,6 +65,8 @@ function toLessonInput(form: LessonForm) {
 }
 
 export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { success, error: toastError, neutral } = useToast();
   const [items, setItems] = useState<Lesson[]>(lessons);
   const [form, setForm] = useState<LessonForm>({
@@ -90,6 +93,7 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
   const pollingControllers = useRef(new Map<string, AbortController>());
   const formRef = useRef<HTMLFormElement>(null);
   const startVideoPollingRef = useRef<(lessonKey: string) => void>(() => {});
+  const deepLinkHandled = useRef(false);
   const uploadInFlight = isSaving && Boolean(videoFile || documentFile);
 
   useEffect(() => {
@@ -217,6 +221,44 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
     setFormSnapshot(JSON.stringify(nextForm));
     setFormOpen(true);
   }
+
+  useEffect(() => {
+    deepLinkHandled.current = false;
+  }, [courseSlug]);
+
+  useEffect(() => {
+    if (deepLinkHandled.current) return;
+    const lessonParam = searchParams.get("lesson")?.trim();
+    if (!lessonParam || items.length === 0) return;
+
+    const match = items.find((lesson) => {
+      const key = getLessonKey(lesson);
+      return (
+        key === lessonParam ||
+        lesson.id === lessonParam ||
+        lesson._id === lessonParam ||
+        lesson.slug === lessonParam
+      );
+    });
+    if (!match) return;
+
+    deepLinkHandled.current = true;
+    startEdit(match);
+    requestAnimationFrame(() => {
+      document.getElementById("admin-lessons")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    const next = new URLSearchParams(searchParams.toString());
+    next.delete("lesson");
+    const query = next.toString();
+    router.replace(
+      `/admin/courses/${courseSlug}/edit${query ? `?${query}` : ""}#lessons`,
+      { scroll: false }
+    );
+  }, [courseSlug, items, router, searchParams]);
 
   function startAdd() {
     const nextForm = { ...emptyLesson, order: String(items.length + 1) };

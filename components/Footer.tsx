@@ -33,8 +33,8 @@ export function Footer() {
               </p>
             </div>
 
-            <nav aria-label="Footer" className="min-w-0 lg:pt-1">
-              <ul className="flex flex-nowrap items-center justify-start gap-x-4 overflow-x-auto sm:gap-x-5 lg:justify-end lg:gap-x-6">
+            <nav aria-label="Footer" className="min-w-0 w-full max-w-full lg:max-w-[min(100%,42rem)] lg:pt-1 lg:w-auto">
+              <ul className="flex max-w-full flex-wrap items-center justify-start gap-x-4 gap-y-3 sm:gap-x-5 lg:justify-end lg:gap-x-6">
                 {footerLinks.map((link) => (
                   <li key={link.id || link.href} className="shrink-0">
                     <Link href={link.href} className="action-secondary whitespace-nowrap">

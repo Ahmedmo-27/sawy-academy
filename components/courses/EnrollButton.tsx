@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCart } from "@/components/cart/CartProvider";
 import { useToast } from "@/components/feedback/ToastProvider";
 
@@ -22,11 +23,11 @@ export function EnrollButton({
   category,
   image,
   className = "action-primary",
-  label = "Enroll",
+  label = "Add to cart",
 }: EnrollButtonProps) {
   const { addItem, hasItem } = useCart();
   const { success } = useToast();
-  const enrolled = hasItem(id);
+  const inCart = hasItem(id);
 
   function handleAdd() {
     addItem({
@@ -40,14 +41,17 @@ export function EnrollButton({
     success("Added to cart");
   }
 
+  if (inCart) {
+    return (
+      <Link href="/checkout" className={className}>
+        Proceed to checkout
+      </Link>
+    );
+  }
+
   return (
-    <button
-      type="button"
-      className={className}
-      disabled={enrolled}
-      onClick={handleAdd}
-    >
-      {enrolled ? "Added to cart" : label}
+    <button type="button" className={className} onClick={handleAdd}>
+      {label}
     </button>
   );
 }

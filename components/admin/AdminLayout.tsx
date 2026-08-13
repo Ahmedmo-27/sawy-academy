@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { AdminCommandPalette } from "@/components/admin/AdminCommandPalette";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
@@ -14,7 +15,7 @@ import { easeOut, navTransition } from "@/lib/motion";
 const navItems = [
   { href: "/admin", label: "Dashboard", description: "Overview and common tasks", shortLabel: "Home", group: "Start here" },
   { href: "/admin/homepage", label: "Homepage", description: "Arrange homepage sections", shortLabel: "Page", group: "Website" },
-  { href: "/admin/settings", label: "Site settings", description: "Brand, navigation and pages", shortLabel: "Site", group: "Website" },
+  { href: "/admin/settings", label: "Site settings", description: "Brand, InstaPay, navigation and pages", shortLabel: "Site", group: "Website" },
   { href: "/admin/portfolio", label: "Portfolio", description: "Published project work", shortLabel: "Work", group: "Website" },
   { href: "/admin/research", label: "Research", description: "Articles and publications", shortLabel: "Read", group: "Website" },
   { href: "/admin/faqs", label: "FAQs", description: "Public questions and answers", shortLabel: "FAQ", group: "Website" },
@@ -119,27 +120,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
-  const [commandQuery, setCommandQuery] = useState("");
-  const [commandIndex, setCommandIndex] = useState(0);
   const prefersReducedMotion = useReducedMotion();
   const mobileDrawerRef = useRef<HTMLDivElement>(null);
   const mobileCloseRef = useRef<HTMLButtonElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const commandRef = useRef<HTMLDivElement>(null);
-  const commandInputRef = useRef<HTMLInputElement>(null);
 
   useFocusTrap(mobileNavOpen, mobileDrawerRef, {
     initialFocusRef: mobileCloseRef,
     restoreFocus: false,
   });
-  useFocusTrap(commandOpen, commandRef, {
-    initialFocusRef: commandInputRef,
-    restoreFocus: true,
-  });
 
-  const commandResults = navItems.filter((item) =>
-    item.label.toLocaleLowerCase().includes(commandQuery.trim().toLocaleLowerCase())
-  );
   const currentNavItem =
     navItems.find((item) => isActive(pathname, item.href)) ?? navItems[0];
   const pathTail = pathname.slice(currentNavItem.href.length).split("/").filter(Boolean);
@@ -171,17 +161,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     window.addEventListener("keydown", onShortcut);
     return () => window.removeEventListener("keydown", onShortcut);
   }, []);
-
-  useEffect(() => {
-    if (!commandOpen) return;
-    setCommandQuery("");
-    setCommandIndex(0);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [commandOpen]);
 
   useEffect(() => {
     if (!mobileNavOpen) return;
@@ -327,78 +306,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {commandOpen && (
-          <>
-            <motion.button
-              type="button"
-              className="fixed inset-0 z-[70] bg-charcoal/55"
-              aria-label="Close page search"
-              onClick={() => setCommandOpen(false)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-            <motion.div
-              ref={commandRef}
-              role="dialog"
-              aria-modal="true"
-              aria-label="Admin page search"
-              className="fixed left-1/2 top-[12vh] z-[71] w-[min(38rem,92vw)] -translate-x-1/2 hairline-border bg-concrete p-3 shadow-2xl"
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              onKeyDown={(event) => {
-                if (event.key === "Escape") setCommandOpen(false);
-                if (event.key === "ArrowDown") {
-                  event.preventDefault();
-                  setCommandIndex((index) => Math.min(commandResults.length - 1, index + 1));
-                }
-                if (event.key === "ArrowUp") {
-                  event.preventDefault();
-                  setCommandIndex((index) => Math.max(0, index - 1));
-                }
-                if (event.key === "Enter" && commandResults[commandIndex]) {
-                  router.push(commandResults[commandIndex].href);
-                }
-              }}
-            >
-              <label htmlFor="admin-command-search" className="sr-only">Go to an admin page</label>
-              <input
-                ref={commandInputRef}
-                id="admin-command-search"
-                value={commandQuery}
-                onChange={(event) => {
-                  setCommandQuery(event.target.value);
-                  setCommandIndex(0);
-                }}
-                placeholder="Go to a page…"
-                className="w-full border border-hairline bg-concrete-dark/30 px-4 py-3 type-body"
-                role="combobox"
-                aria-expanded="true"
-                aria-controls="admin-command-results"
-                aria-activedescendant={commandResults[commandIndex] ? `command-${commandIndex}` : undefined}
-              />
-              <ul id="admin-command-results" role="listbox" className="mt-2 max-h-[55vh] overflow-y-auto">
-                {commandResults.map((item, index) => (
-                  <li key={item.href} id={`command-${index}`} role="option" aria-selected={index === commandIndex}>
-                    <button
-                      type="button"
-                      className={`flex w-full items-center justify-between px-4 py-3 text-left ${index === commandIndex ? "bg-concrete-dark" : ""}`}
-                      onMouseEnter={() => setCommandIndex(index)}
-                      onClick={() => router.push(item.href)}
-                    >
-                      <span>{item.label}</span><span className="type-infill text-charcoal-muted">{item.description}</span>
-                    </button>
-                  </li>
-                ))}
-                {commandResults.length === 0 && <li className="p-4 type-infill">No matching pages.</li>}
-              </ul>
-              <p className="dim-label border-t border-hairline px-4 pt-3">↑↓ navigate · Enter open · Esc close</p>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <AdminCommandPalette
+        open={commandOpen}
+        onClose={() => setCommandOpen(false)}
+        navItems={navItems}
+      />
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex lg:min-h-screen lg:w-full lg:flex-col lg:border-r lg:border-hairline bg-concrete-dark/70">

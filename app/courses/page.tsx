@@ -182,8 +182,12 @@ export default function CoursesPage() {
 
       <ThresholdDoorway label="CURRICULUM" />
 
-      <Section rhythm="standard" contained={false}>
-        <PageContainer className="relative space-y-14 lg:space-y-20">
+      <Section
+        rhythm="atrium"
+        contained={false}
+        className={!loading && !loadError && courseGroups.length > 0 ? "pb-4" : undefined}
+      >
+        <PageContainer className="relative space-y-20 lg:space-y-28">
           {/* Drafting accents stay local to the curriculum instead of following reading. */}
           <BioGeometryShape
             kind="coil"
@@ -259,46 +263,51 @@ export default function CoursesPage() {
                   )}
 
                   <GsapReveal type="heading">
-                    <div className="relative z-[1] mb-8 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end">
-                      <div className="lg:col-span-8">
-                        <p className="eyebrow mb-2">{group.subtitle}</p>
-                        <SplitTextReveal type="lines">
-                          <h2 className="type-heading">{group.title}</h2>
-                        </SplitTextReveal>
-                        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
-                          <span className="label-caps text-charcoal">
-                            {courses.length}{" "}
-                            {courses.length === 1 ? "course" : "courses"}
-                          </span>
-                          <span className="label-caps">
-                            {group.type === "diploma"
-                              ? "Diploma programme"
-                              : "Level progression"}
-                          </span>
-                          <span className="type-infill text-charcoal">
-                            {group.bundlePrice
-                              ? group.bundlePrice
-                              : courses[0]?.price
-                                ? `From ${courses[0].price}`
-                                : "Pricing on request"}
-                          </span>
+                    <div className="relative z-[1] mb-10 space-y-8">
+                      <MediaBay
+                        src={group.image}
+                        alt={group.title}
+                        className={`w-full ${
+                          groupIndex === 0
+                            ? "aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9]"
+                            : "aspect-[16/10] lg:aspect-[21/9]"
+                        }`}
+                        fallback="course"
+                        morph
+                        priority={groupIndex === 0}
+                        sizes="100vw"
+                      />
+                      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end">
+                        <div className="lg:col-span-8">
+                          <p className="eyebrow mb-2">{group.subtitle}</p>
+                          <SplitTextReveal type="lines">
+                            <h2 className="type-heading">{group.title}</h2>
+                          </SplitTextReveal>
+                          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+                            <span className="label-caps text-charcoal">
+                              {courses.length}{" "}
+                              {courses.length === 1 ? "course" : "courses"}
+                            </span>
+                            <span className="label-caps">
+                              {group.type === "diploma"
+                                ? "Diploma programme"
+                                : "Level progression"}
+                            </span>
+                            <span className="type-infill text-charcoal">
+                              {group.bundlePrice
+                                ? group.bundlePrice
+                                : courses[0]?.price
+                                  ? `From ${courses[0].price}`
+                                  : "Pricing on request"}
+                            </span>
+                          </div>
+                          <Link
+                            href={`/courses/${slug}`}
+                            className="action-primary mt-5 inline-flex min-h-11 items-center"
+                          >
+                            Explore programme
+                          </Link>
                         </div>
-                        <Link
-                          href={`/courses/${slug}`}
-                          className="action-primary mt-5 inline-flex min-h-11 items-center"
-                        >
-                          Explore programme
-                        </Link>
-                      </div>
-                      <div className="lg:col-span-4">
-                        <MediaBay
-                          src={group.image}
-                          alt={group.title}
-                          className="aspect-[16/10]"
-                          fallback="course"
-                          morph
-                          sizes="(min-width: 1024px) 24rem, 100vw"
-                        />
                       </div>
                     </div>
                   </GsapReveal>
@@ -337,7 +346,7 @@ export default function CoursesPage() {
                               name={group.title}
                               price={group.bundlePrice}
                               kind="diploma"
-                              label="Enroll in Diploma"
+                              label="Add diploma to cart"
                               className="action-primary inline-flex min-h-11 items-center lg:mt-2 disabled:text-clay-muted disabled:cursor-not-allowed"
                             />
                           </div>

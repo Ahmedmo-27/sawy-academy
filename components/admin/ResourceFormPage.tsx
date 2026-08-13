@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { AdminErrorState } from "@/components/admin/AdminErrorState";
 import { AdminLoader } from "@/components/admin/AdminLoader";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -438,16 +438,18 @@ export function ResourceFormPage({ kind, lookupKey }: ResourceFormPageProps) {
 
       {kind === "courses" && isEdit && lookupKey && record && (
         <ThresholdFrame label="LESSONS">
-          <div className="hairline-border bg-concrete p-6 lg:p-8">
+          <div id="admin-lessons" className="hairline-border bg-concrete p-6 lg:p-8 scroll-mt-24">
             {typeof record.groupTitle === "string" && record.groupTitle && (
               <p className="label-caps mb-6 text-clay">
                 Group — {record.groupTitle}
               </p>
             )}
-            <LessonsManager
-              courseSlug={lookupKey}
-              lessons={(record as unknown as Course).lessons ?? []}
-            />
+            <Suspense fallback={null}>
+              <LessonsManager
+                courseSlug={lookupKey}
+                lessons={(record as unknown as Course).lessons ?? []}
+              />
+            </Suspense>
           </div>
         </ThresholdFrame>
       )}

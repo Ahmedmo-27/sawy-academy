@@ -296,6 +296,15 @@ export interface BrandingSettings {
   logoUrl?: string;
   facebookUrl?: string;
   instagramUrl?: string;
+  /** InstaPay transfer destination — phone or bank */
+  instapayDestinationType?: "phone" | "bank";
+  instapayAccountName?: string;
+  instapayPhoneNumber?: string;
+  instapayBankName?: string;
+  instapayBankAccountNumber?: string;
+  /** Optional; falls back to instapayAccountName when empty */
+  instapayBankAccountName?: string;
+  instapayInstructions?: string;
 }
 
 export interface SeoSettings {

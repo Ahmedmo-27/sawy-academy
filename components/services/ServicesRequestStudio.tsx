@@ -18,6 +18,7 @@ import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { listProjects } from "@/lib/api/portfolio";
 import type { Project } from "@/lib/api/types";
+import { PIN_CARD } from "@/lib/grid";
 
 type RequestType = "design" | "research";
 
@@ -302,7 +303,7 @@ export function ServicesRequestStudio() {
                       {examples.map((project) => (
                         <div
                           key={project.id}
-                          className="w-[min(88vw,24rem)] shrink-0 bg-concrete sm:w-[min(42vw,26rem)]"
+                          className={`${PIN_CARD} bg-concrete`}
                         >
                           <ProjectCard
                             title={project.title}

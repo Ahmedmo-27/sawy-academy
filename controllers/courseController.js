@@ -65,7 +65,10 @@ async function resolveRelatedProductIds(relatedProductIds) {
 async function getAll(req, res, next) {
   try {
     const { limit, skip } = getPagination(req.query);
-    const courses = await populateCourse(Course.find({}))
+    const includeLessons =
+      req.query.includeLessons === "1" ||
+      req.query.includeLessons === "true";
+    const courses = await populateCourse(Course.find({}), includeLessons)
       .sort({ createdAt: 1 })
       .skip(skip)
       .limit(limit)
