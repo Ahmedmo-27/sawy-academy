@@ -58,8 +58,16 @@ export const DEFAULT_BRAND: BrandingSettings = {
   established: "Est. 2012",
   footerBlurb: "Architecture & Spatial Design",
   logoUrl: "",
-  facebookUrl: "#facebook",
-  instagramUrl: "#instagram",
+  facebookUrl: "",
+  instagramUrl: "",
+  instapayDestinationType: "phone",
+  instapayAccountName: "Mohamed El Sawy",
+  instapayPhoneNumber: "01X XXXX XXXX",
+  instapayBankName: "",
+  instapayBankAccountNumber: "",
+  instapayBankAccountName: "",
+  instapayInstructions:
+    "Include your order total and student email in the transfer note.",
 };
 
 /** @deprecated Prefer useSiteSettings().branding — kept for static/SSR fallbacks */

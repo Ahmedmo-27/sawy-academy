@@ -5,6 +5,7 @@ import { gsap, ScrollTrigger, registerGsap } from "@/lib/gsap/config";
 import { scheduleScrollRefresh } from "@/lib/gsap/refresh";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { scrollToY } from "@/lib/smoothScroll";
+import { SITE_GUTTER_RAIL } from "@/lib/grid";
 
 const TICKS = 20;
 
@@ -177,7 +178,7 @@ export function ScrollProgressScale() {
 
   return (
     <div
-      className="pointer-events-none fixed left-3 top-24 bottom-8 z-40 hidden lg:flex flex-col items-center w-6"
+      className={`pointer-events-none fixed ${SITE_GUTTER_RAIL} top-24 bottom-8 z-40 hidden lg:flex flex-col items-center w-6`}
       aria-hidden="true"
     >
       <span className="label-caps text-charcoal/30 text-[0.5rem] mb-2 -rotate-90 origin-center whitespace-nowrap">

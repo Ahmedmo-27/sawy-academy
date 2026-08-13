@@ -67,9 +67,15 @@ export function formatCourseDuration(course: Course): string {
 }
 
 export function listCourses(options?: {
+  includeLessons?: boolean;
   onProgress?: (progress: number) => void;
 }) {
-  return apiGet<Course[]>("/api/courses", undefined, options);
+  const { includeLessons, onProgress } = options ?? {};
+  return apiGet<Course[]>(
+    "/api/courses",
+    includeLessons ? { includeLessons: true } : undefined,
+    { onProgress }
+  );
 }
 
 export function getCourse(

@@ -38,21 +38,22 @@ export function SectionCutDivider({
           }}
         />
 
-        <div className="mx-3 flex shrink-0 items-center sm:mx-4">
+        <div className="mx-3 flex min-w-0 shrink items-center sm:mx-4">
           <HatchMarks
             count={5}
-            className="sm:hidden"
+            className="hidden sm:flex sm:shrink-0"
             prefersReducedMotion={!!prefersReducedMotion}
           />
           <HatchMarks
-            count={9}
-            className="hidden sm:flex"
+            count={3}
+            className="shrink-0 sm:hidden"
             prefersReducedMotion={!!prefersReducedMotion}
           />
 
           {label ? (
             <motion.span
-              className="label-caps mx-3 whitespace-nowrap text-charcoal/25 sm:mx-4"
+              className="label-caps mx-2 max-w-[min(12rem,42vw)] truncate whitespace-nowrap text-charcoal/25 sm:mx-4 sm:max-w-[min(20rem,50vw)]"
+              title={label}
               variants={{
                 hidden: { opacity: 0 },
                 visible: { opacity: 1 },
@@ -68,13 +69,13 @@ export function SectionCutDivider({
           ) : null}
 
           <HatchMarks
-            count={5}
-            className="sm:hidden"
+            count={3}
+            className="shrink-0 sm:hidden"
             prefersReducedMotion={!!prefersReducedMotion}
           />
           <HatchMarks
-            count={9}
-            className="hidden sm:flex"
+            count={5}
+            className="hidden sm:flex sm:shrink-0"
             prefersReducedMotion={!!prefersReducedMotion}
           />
         </div>

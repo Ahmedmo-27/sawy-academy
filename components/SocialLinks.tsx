@@ -3,11 +3,6 @@ import type { BrandingSettings } from "@/lib/api/types";
 type SocialTone = "on-light" | "on-dark";
 type SocialVariant = "icons" | "rows";
 
-const PLACEHOLDER = {
-  facebook: "#facebook",
-  instagram: "#instagram",
-} as const;
-
 function FacebookIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -49,21 +44,30 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
-function socialItems(branding: Pick<BrandingSettings, "facebookUrl" | "instagramUrl">) {
+function isRealSocialUrl(href?: string) {
+  const value = String(href || "").trim();
+  if (!value) return false;
+  if (value.startsWith("#")) return false;
+  return /^https?:\/\//i.test(value);
+}
+
+function socialItems(
+  branding: Pick<BrandingSettings, "facebookUrl" | "instagramUrl">
+) {
   return [
     {
       id: "facebook",
       label: "Facebook",
-      href: branding.facebookUrl || PLACEHOLDER.facebook,
+      href: branding.facebookUrl?.trim() || "",
       Icon: FacebookIcon,
     },
     {
       id: "instagram",
       label: "Instagram",
-      href: branding.instagramUrl || PLACEHOLDER.instagram,
+      href: branding.instagramUrl?.trim() || "",
       Icon: InstagramIcon,
     },
-  ];
+  ].filter((item) => isRealSocialUrl(item.href));
 }
 
 export function SocialLinks({
@@ -79,6 +83,8 @@ export function SocialLinks({
 }) {
   const items = socialItems(branding);
   const isDark = tone === "on-dark";
+
+  if (items.length === 0) return null;
 
   if (variant === "rows") {
     return (

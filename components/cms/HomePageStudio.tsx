@@ -410,8 +410,8 @@ function StudioPulseSection({
   ];
 
   return (
-    <Section id="studio-pulse" rhythm="intimate" contained={false}>
-      <PageContainer>
+    <Section id="studio-pulse" rhythm="intimate" contained={false} className="overflow-x-clip">
+      <PageContainer className="overflow-x-clip">
         <div className="mb-8 flex items-start gap-6">
           <span className="dim-label pt-1">01.5</span>
           <div>

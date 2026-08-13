@@ -198,10 +198,10 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
     );
     mm.add("(min-width: 768px)", () =>
       setup({
-        rotate: 22,
-        enterOffset: 110,
-        exitOffset: 110,
-        depth: 140,
+        rotate: 18,
+        enterOffset: 78,
+        exitOffset: 78,
+        depth: 120,
         vhPerCard: 1.15,
         vhSettle: 0.5,
       })
@@ -216,14 +216,13 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
   if (!items.length) return null;
 
   return (
-    <div ref={pinRef} className={`pin-scrub-stats ${className}`}>
-      <div className="relative h-svh overflow-hidden">
+    <div ref={pinRef} className={`pin-scrub-stats overflow-x-clip ${className}`}>
+      <div className="relative flex h-svh flex-col overflow-x-clip overflow-y-hidden">
         <div
           ref={cardsRef}
-          className="absolute inset-x-0 mx-auto min-h-0 w-full max-w-6xl px-4 sm:px-6 lg:px-8"
+          className="relative mx-auto min-h-0 w-full max-w-6xl flex-1 overflow-x-clip px-4 sm:px-6 lg:px-8"
           style={{
-            top: "calc(var(--nav-height) + 0.75rem + env(safe-area-inset-top, 0px))",
-            bottom: "max(2.5rem, env(safe-area-inset-bottom, 0px))",
+            marginTop: "calc(var(--nav-height) + 0.75rem + env(safe-area-inset-top, 0px))",
             perspective: "1600px",
           }}
         >
@@ -231,7 +230,7 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
             <article
               key={`${item.label}-${i}`}
               data-scrub-card
-              className="absolute flex h-[98%] w-[min(55rem,100%)] flex-col overflow-hidden border border-hairline bg-concrete will-change-transform"
+              className="absolute flex h-[98%] w-[min(55rem,100%)] max-w-full flex-col overflow-hidden border border-hairline bg-concrete will-change-transform"
             >
               {item.image ? (
                 <div className="relative min-h-0 w-full flex-[1.15] overflow-hidden border-b border-hairline bg-concrete-dark">
@@ -242,6 +241,9 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
                     sizes="(max-width: 768px) 100vw, min(52rem, 100vw)"
                     className="object-cover"
                     priority={i === 0}
+                    onError={(event) => {
+                      event.currentTarget.style.visibility = "hidden";
+                    }}
                   />
                   <div
                     className="pointer-events-none absolute inset-0 bg-gradient-to-t from-concrete via-transparent to-transparent opacity-80"
@@ -281,12 +283,12 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
           ))}
         </div>
 
-        {/* Progress rail — shows scroll is advancing during the pin */}
+        {/* Progress rail — reserved below the cards so it never covers copy */}
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex justify-center px-6 sm:bottom-4"
+          className="pointer-events-none flex shrink-0 justify-center pb-3 pt-4 sm:pb-4 sm:pt-5"
           aria-hidden="true"
         >
-          <div className="h-px w-full max-w-xs overflow-hidden bg-hairline sm:max-w-sm">
+          <div className="h-px w-16 overflow-hidden bg-hairline sm:w-20">
             <div
               ref={progressRef}
               className="h-full w-full origin-left bg-clay/60"

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { CourseImagePlaceholder } from "@/components/cart/CourseImagePlaceholder";
+import { InstaPayTransferDetails } from "@/components/cart/InstaPayTransferDetails";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { useCart } from "@/components/cart/CartProvider";
@@ -38,11 +39,12 @@ function OrderSummary({
         <p className="type-infill tabular-nums">{subtotalLabel}</p>
       </div>
 
-      <div className="hairline-b flex items-baseline justify-between gap-4 py-3">
-        <p className="label-caps shrink-0">Payment</p>
-        <p className="type-infill text-right leading-snug max-w-[11rem]">
+      <div className="hairline-b py-3">
+        <p className="label-caps mb-2">Payment</p>
+        <p className="type-infill mb-3 leading-snug">
           Verified manually via InstaPay
         </p>
+        <InstaPayTransferDetails compact />
       </div>
 
       <div className="border-t-2 border-charcoal/25" aria-hidden="true" />

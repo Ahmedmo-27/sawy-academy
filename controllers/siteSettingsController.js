@@ -9,6 +9,7 @@ const {
   sharedAssetUrls,
   servicesPage,
 } = require("../seeders/data/siteDefaults");
+const { restorePracticeNavItems } = require("../lib/nav/promotePracticeNavItems");
 const { createHttpError, sendSuccess } = require("./controllerUtils");
 
 function defaults() {
@@ -25,6 +26,32 @@ function defaults() {
   };
 }
 
+const INSTAPAY_STRING_FIELDS = [
+  "instapayAccountName",
+  "instapayPhoneNumber",
+  "instapayBankName",
+  "instapayBankAccountNumber",
+  "instapayBankAccountName",
+  "instapayInstructions",
+];
+
+function normalizeInstapayBranding(input = {}) {
+  const next = { ...input };
+
+  if ("instapayDestinationType" in next) {
+    next.instapayDestinationType =
+      next.instapayDestinationType === "bank" ? "bank" : "phone";
+  }
+
+  for (const key of INSTAPAY_STRING_FIELDS) {
+    if (key in next && next[key] != null) {
+      next[key] = String(next[key]).trim();
+    }
+  }
+
+  return next;
+}
+
 function serializeSettings(doc) {
   if (!doc) return defaults();
 
@@ -38,6 +65,25 @@ function serializeSettings(doc) {
   } else {
     plain.pageHeaders = { ...pageHeaders, ...headers };
   }
+
+  plain.branding = { ...branding, ...(plain.branding || {}) };
+  // Drop legacy hash placeholders so public SocialLinks stay hidden until real URLs exist.
+  if (
+    plain.branding.facebookUrl === "#facebook" ||
+    plain.branding.facebookUrl === "#"
+  ) {
+    plain.branding.facebookUrl = "";
+  }
+  if (
+    plain.branding.instagramUrl === "#instagram" ||
+    plain.branding.instagramUrl === "#"
+  ) {
+    plain.branding.instagramUrl = "";
+  }
+  plain.navigation = {
+    ...(plain.navigation || {}),
+    items: restorePracticeNavItems(plain.navigation?.items ?? navigation.items),
+  };
 
   return plain;
 }
@@ -143,13 +189,21 @@ async function update(req, res, next) {
     const settings = await ensureSettings();
 
     if (payload.branding) {
-      settings.branding = { ...settings.branding?.toObject?.() ?? settings.branding, ...payload.branding };
-      if (payload.branding.address) {
+      const brandingPayload = normalizeInstapayBranding(payload.branding);
+      settings.branding = {
+        ...(settings.branding?.toObject?.() ?? settings.branding),
+        ...brandingPayload,
+      };
+      if (brandingPayload.address) {
         settings.branding.address = {
-          ...(settings.branding.address?.toObject?.() ?? settings.branding.address ?? {}),
-          ...payload.branding.address,
+          ...(settings.branding.address?.toObject?.() ??
+            settings.branding.address ??
+            {}),
+          ...brandingPayload.address,
         };
       }
+      // Ensure nested InstaPay / branding fields persist on existing documents.
+      settings.markModified("branding");
     }
     if (payload.seo) {
       settings.seo = { ...settings.seo?.toObject?.() ?? settings.seo, ...payload.seo };
@@ -198,4 +252,12 @@ async function reset(req, res, next) {
   }
 }
 
-module.exports = { get, update, reset, ensureSettings, serializeSettings, defaults };
+module.exports = {
+  get,
+  update,
+  reset,
+  ensureSettings,
+  serializeSettings,
+  defaults,
+  normalizeInstapayBranding,
+};

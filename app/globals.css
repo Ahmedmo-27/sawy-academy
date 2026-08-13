@@ -57,6 +57,9 @@
    * Avoid dvh/vh for full-bleed layout — those resize with the chrome.
    */
   --app-height: 100svh;
+
+  /* Mirrors SITE_MAX in lib/grid.ts — use for gutter-aligned fixed accents */
+  --site-max: 100%;
 }
 
 @layer base {
@@ -93,6 +96,34 @@
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
     min-height: var(--app-height);
+  }
+
+  /* Keep in sync with SITE_MAX (lib/grid.ts) */
+  @media (min-width: 640px) {
+    :root {
+      --site-max: 36rem;
+    }
+  }
+  @media (min-width: 768px) {
+    :root {
+      --site-max: 48rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    :root {
+      --site-max: 64rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    :root {
+      --site-max: 80rem;
+      --nav-height: 4.25rem;
+    }
+  }
+  @media (min-width: 1536px) {
+    :root {
+      --site-max: 96rem;
+    }
   }
 
   ::selection {
@@ -388,7 +419,11 @@
   }
 
   .site-container {
-    @apply mx-auto w-full min-w-0 max-w-full px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8 sm:max-w-[36rem] md:max-w-[48rem] lg:max-w-[64rem] xl:max-w-[72rem] 2xl:max-w-[80rem];
+    @apply mx-auto w-full min-w-0 max-w-full px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8 2xl:px-10 sm:max-w-[36rem] md:max-w-[48rem] lg:max-w-[64rem] xl:max-w-[80rem] 2xl:max-w-[96rem];
+  }
+
+  .nav-container {
+    @apply mx-auto w-full min-w-0 max-w-full px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8 2xl:px-10 xl:max-w-[90rem] 2xl:max-w-[112rem];
   }
 
   .bay-grid {
@@ -799,6 +834,24 @@
 
 .horiz-pin__track > * {
   flex-shrink: 0;
+}
+
+/* Global scroll scale — horizontal pin awareness */
+.scroll-progress-scale[data-mode="horizontal"] .scroll-progress-scale__marker {
+  border-color: var(--color-clay);
+  background: color-mix(in srgb, var(--color-clay) 18%, var(--color-concrete));
+}
+
+.scroll-progress-scale[data-mode="horizontal"] .scroll-progress-scale__tick {
+  background: color-mix(in srgb, var(--color-clay) 35%, transparent);
+}
+
+.scroll-progress-scale[data-mode="horizontal"] .scroll-progress-scale__bay {
+  opacity: 1;
+}
+
+.scroll-progress-scale[data-mode="vertical"] .scroll-progress-scale__bay {
+  opacity: 0;
 }
 
 .magnetic {

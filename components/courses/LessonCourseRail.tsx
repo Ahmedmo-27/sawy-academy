@@ -19,8 +19,7 @@ export function LessonCourseRail({
     (lesson) => lesson.id === currentLessonId
   );
   const position = currentIndex >= 0 ? currentIndex + 1 : 1;
-  const positionPercent =
-    lessons.length > 0 ? Math.round((position / lessons.length) * 100) : 0;
+  const total = lessons.length;
 
   return (
     <aside
@@ -38,23 +37,10 @@ export function LessonCourseRail({
           {courseTitle}
         </h2>
 
-        <div className="mt-[1.5rem] flex items-center justify-between gap-[1rem]">
-          <p className="label-caps !text-concrete/60">Course position</p>
-          <p className="dim-label !text-clay-muted">{positionPercent}%</p>
-        </div>
-        <div
-          className="mt-2 h-1 overflow-hidden bg-concrete/10"
-          role="progressbar"
-          aria-label="Current position in course"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={positionPercent}
-        >
-          <div
-            className="h-full bg-clay-muted transition-[width] duration-500"
-            style={{ width: `${positionPercent}%` }}
-          />
-        </div>
+        <p className="mt-[1.5rem] label-caps !text-concrete/60">
+          Sheet {String(position).padStart(2, "0")} of{" "}
+          {String(total).padStart(2, "0")}
+        </p>
       </div>
 
       <ol className="mt-[1.25rem] space-y-[0.75rem]">

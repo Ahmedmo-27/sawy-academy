@@ -108,7 +108,12 @@ export function SignupForm() {
       </div>
 
       <div className="p-6 sm:p-8 lg:p-10">
-        {blockedDevices && <DeviceLimitPanel devices={blockedDevices} />}
+        {blockedDevices && (
+          <DeviceLimitPanel
+            devices={blockedDevices}
+            email={email}
+          />
+        )}
 
         {errorMessage && (
           <p id={formErrorId} className="type-body text-clay mb-6" role="alert">

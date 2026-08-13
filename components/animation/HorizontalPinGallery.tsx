@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap, registerGsap } from "@/lib/gsap/config";
 import { scheduleScrollRefresh } from "@/lib/gsap/refresh";
+import { createHorizontalScrollId } from "@/lib/gsap/horizontalSections";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface HorizontalPinGalleryProps {
@@ -52,19 +53,25 @@ export function HorizontalPinGallery({
       const progress = progressRef.current;
       if (!pin || !track) return;
 
+      const viewport = track.parentElement;
+      if (!viewport) return;
+
       const getScroll = () =>
-        Math.max(0, track.scrollWidth - pin.clientWidth) * distanceFactor;
+        Math.max(0, track.scrollWidth - viewport.clientWidth) * distanceFactor;
 
       gsap.set(track, { x: 0, force3D: true });
+
+      const horizontalId = createHorizontalScrollId("gallery");
 
       const tween = gsap.to(track, {
         x: () => -getScroll(),
         ease: "none",
         scrollTrigger: {
+          id: horizontalId,
           trigger: pin,
           start: () => `top ${getNavOffsetPx()}`,
           end: () =>
-            `+=${Math.max(getScroll() * 1.05, pin.clientWidth * 0.55)}`,
+            `+=${Math.max(getScroll() * 1.05, viewport.clientWidth * 0.55)}`,
           pin: true,
           scrub: 0.2,
           invalidateOnRefresh: true,
@@ -92,22 +99,27 @@ export function HorizontalPinGallery({
     <div ref={sectionRef} className={`horiz-pin ${className}`}>
       <div
         ref={pinRef}
-        className={`horiz-pin__viewport relative flex h-[min(calc(70svh-var(--nav-height)),560px)] w-full items-center overscroll-x-contain sm:h-[min(calc(85svh-var(--nav-height)),720px)] lg:h-[min(calc(100svh-var(--nav-height)),820px)] ${
-          reduced ? "overflow-x-auto" : "overflow-hidden"
-        }`}
+        data-scroll-axis="x"
+        className="flex h-[min(calc(70svh-var(--nav-height)),560px)] w-full flex-col overscroll-x-contain sm:h-[min(calc(85svh-var(--nav-height)),720px)] lg:h-[min(calc(100svh-var(--nav-height)),820px)]"
       >
         <div
-          ref={trackRef}
-          className="horiz-pin__track flex w-max flex-row gap-5 will-change-transform sm:gap-6"
+          className={`horiz-pin__viewport relative flex min-h-0 flex-1 items-center ${
+            reduced ? "overflow-x-auto" : "overflow-hidden"
+          }`}
         >
-          {children}
+          <div
+            ref={trackRef}
+            className="horiz-pin__track flex w-max flex-row gap-5 will-change-transform sm:gap-6"
+          >
+            {children}
+          </div>
         </div>
 
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center px-6 sm:bottom-2"
+          className="pointer-events-none flex shrink-0 justify-center pb-1 pt-4 sm:pb-2 sm:pt-5"
           aria-hidden="true"
         >
-          <div className="h-px w-full max-w-xs overflow-hidden bg-hairline sm:max-w-sm">
+          <div className="h-px w-16 overflow-hidden bg-hairline sm:w-20">
             <div
               ref={progressRef}
               className="h-full w-full origin-left bg-clay/60"

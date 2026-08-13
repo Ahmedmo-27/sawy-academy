@@ -13,6 +13,7 @@ import { SectionLoader } from "@/components/feedback/SectionLoader";
 import { AsyncState } from "@/components/feedback/AsyncState";
 import { apiGet } from "@/lib/api/client";
 import type { Product } from "@/lib/api/types";
+import { PIN_CARD } from "@/lib/grid";
 
 type SortOption = "featured" | "name" | "price-asc" | "price-desc";
 const PRODUCTS_PER_PAGE = 8;
@@ -121,15 +122,15 @@ export default function ProductsPage() {
       <ThresholdDoorway label="CATALOGUE" />
 
       {!loading && featured.length >= 3 && (
-        <Section rhythm="intimate" contained={false}>
+        <Section rhythm="standard" contained={false}>
           <PageContainer>
             <ThresholdFrame label="Bay 05 — Featured tools">
-              <div className="pt-6">
+              <div className="pt-8 pb-2">
                 <HorizontalPinGallery>
                   {featured.map((product) => (
                     <div
                       key={product.id}
-                      className="w-[min(88vw,22rem)] shrink-0 bg-concrete sm:w-[min(42vw,24rem)]"
+                      className={`${PIN_CARD} bg-concrete`}
                     >
                       <ProductCard
                         id={product.id}
@@ -148,7 +149,7 @@ export default function ProductsPage() {
         </Section>
       )}
 
-      <Section rhythm="atrium" contained={false}>
+      <Section rhythm="standard" contained={false}>
         <PageContainer>
           <ThresholdFrame label="Bay 05 — Product Grid">
             {loading ? (

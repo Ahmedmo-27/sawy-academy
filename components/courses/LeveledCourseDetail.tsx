@@ -10,14 +10,13 @@ import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCourseDuration } from "@/lib/api/courses";
-import { asCourses, courseGroupSlug } from "@/lib/api/courseGroups";
+import { asCourses } from "@/lib/api/courseGroups";
 import type { Course, CourseGroup } from "@/lib/api/types";
 import {
-  indexProgressByOrder,
   isLevelCompleted,
   resolveLevelAccess,
-  stubTrackProgress,
   type LevelAccessState,
+  type LevelProgressRecord,
 } from "@/lib/courseProgress";
 import { formatSheetRef } from "@/lib/sheet";
 
@@ -74,7 +73,7 @@ function LevelAction({
       name={course.title}
       price={course.price}
       category={course.level}
-      label="Enroll"
+      label="Add to cart"
       className="action-primary"
     />
   );
@@ -99,7 +98,6 @@ function LevelRowView({
 
   return (
     <li className="relative flex min-w-0 gap-3 sm:gap-6">
-      {/* Progression rail — ScaleBar language as a vertical sequence */}
       <div className="flex flex-col items-center w-4 shrink-0 pt-1" aria-hidden="true">
         <span
           className={`w-2 h-2 border ${
@@ -142,18 +140,18 @@ function LevelRowView({
             {row.course.description}
           </p>
           {(state === "unlocked_in_progress" ||
-            state === "unlocked_completed") && (
-            <LevelProgressLine
-              progress={progress}
-              className="mt-4 max-w-[140px]"
-            />
-          )}
+            state === "unlocked_completed") &&
+            progress > 0 && (
+              <LevelProgressLine
+                progress={progress}
+                className="mt-4 max-w-[140px]"
+              />
+            )}
         </div>
 
         <div className="flex min-w-0 flex-col gap-3 sm:col-span-5 sm:items-end">
           <span className="label-caps">{row.course.level}</span>
           <span className="label-caps text-charcoal-infill">{duration}</span>
-          {/* Per-level price — mock data prices levels individually */}
           <span className="type-body text-charcoal">{row.course.price}</span>
           {completed && (
             <span className="inline-flex items-center gap-2 label-caps text-clay">
@@ -180,7 +178,6 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
   const { isAuthenticated } = useAuth();
   const courses = useMemo(() => asCourses(group), [group]);
   const instructor = courses[0]?.instructor ?? "";
-  const slug = courseGroupSlug(group);
 
   const levels: LevelRow[] = useMemo(
     () =>
@@ -192,20 +189,11 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
     [courses]
   );
 
+  // Live completion tracking is not wired yet — do not invent progress UI.
   const progressByOrder = useMemo(() => {
-    const records = stubTrackProgress(
-      slug,
-      courses.map((c) => c.id)
-    );
-    return indexProgressByOrder(
-      levels.map((l) => ({
-        order: l.order,
-        courseId: l.course.id,
-        courseSlug: l.course.slug,
-      })),
-      records
-    );
-  }, [slug, courses, levels]);
+    const empty = new Map<number, LevelProgressRecord>();
+    return empty;
+  }, []);
 
   return (
     <div className="min-w-0 space-y-10 sm:space-y-16 lg:space-y-20">
@@ -228,15 +216,9 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
           {instructor}. Each level unlocks only after the previous level is
           completed.
         </p>
-        <div className="flex gap-2 mt-6 max-w-xs">
-          {levels.map((level) => (
-            <LevelProgressLine
-              key={level.course.id}
-              progress={level.order / levels.length}
-              className="flex-1"
-            />
-          ))}
-        </div>
+        <p className="label-caps mt-6 text-charcoal-infill">
+          Sequence — {String(levels.length).padStart(2, "0")} levels
+        </p>
       </div>
 
       <ThresholdFrame

@@ -64,7 +64,7 @@ function LockedVideoState({
             name={course.title}
             price={course.price}
             category={course.level}
-            label="Enroll"
+            label="Add to cart"
             className="action-primary"
           />
         ) : (
@@ -170,11 +170,22 @@ export default function LessonPage({ params }: LessonPageProps) {
           error instanceof ApiClientError &&
           (error.status === 401 || error.status === 403)
         ) {
+          const code =
+            error.code ||
+            (error.status === 401 ? "AUTH_REQUIRED" : "ENROLLMENT_REQUIRED");
+          // Never ask an authenticated user to sign in again for a lock.
+          const resolvedCode =
+            isAuthenticated && code === "AUTH_REQUIRED"
+              ? "ENROLLMENT_REQUIRED"
+              : code;
           setVideoStatus("locked");
-          setVideoError(error.message);
-          setVideoErrorCode(
-            error.status === 401 ? "AUTH_REQUIRED" : error.code
+          setVideoError(
+            resolvedCode === "ENROLLMENT_REQUIRED"
+              ? "Enroll in this course to watch the recording."
+              : error.message ||
+                  "Sign in and enroll in this course to watch the recording."
           );
+          setVideoErrorCode(resolvedCode);
           return;
         }
 

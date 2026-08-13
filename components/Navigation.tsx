@@ -421,13 +421,13 @@ export function Navigation() {
       transition={prefersReducedMotion ? { duration: 0 } : navTransition}
     >
       <nav
-        className="site-container flex h-[var(--nav-height)] items-center justify-between gap-6 lg:gap-10"
+        className="nav-container flex h-[var(--nav-height)] items-center justify-between gap-4 lg:gap-8"
         aria-label="Primary"
       >
         <Wordmark />
 
-        <div className="hidden xl:flex items-center gap-6 shrink-0">
-          <ul className="flex items-center gap-5 xl:gap-6">
+        <div className="hidden xl:flex items-center gap-5 shrink-0">
+          <ul className="flex items-center gap-4 xl:gap-5 2xl:gap-6">
             {navItems.map((item) => (
               <li key={item.id}>
                 {item.children && item.children.length > 0 ? (

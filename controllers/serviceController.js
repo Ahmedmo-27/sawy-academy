@@ -163,7 +163,7 @@ async function create(req, res, next) {
       if (!req.auth?.userId) {
         throw createHttpError(
           401,
-          "Sign in on a registered device to request a device change."
+          "Sign in on a registered device to request a device change from your profile."
         );
       }
 

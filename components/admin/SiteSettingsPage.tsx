@@ -18,7 +18,12 @@ import {
   resetSiteSettings,
   updateSiteSettings,
 } from "@/lib/api/settings";
-import type { NavLinkItem, PageHeaderContent, SiteSettings } from "@/lib/api/types";
+import type {
+  BrandingSettings,
+  NavLinkItem,
+  PageHeaderContent,
+  SiteSettings,
+} from "@/lib/api/types";
 import { DEFAULT_SITE_SETTINGS } from "@/lib/branding";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
@@ -48,6 +53,185 @@ function pageName(key: string) {
   if (key === "faqs") return "FAQs";
   if (key === "privacy") return "Privacy Policy";
   return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+function InstaPaySettingsPanel({
+  branding,
+  onChange,
+}: {
+  branding: BrandingSettings;
+  onChange: (next: BrandingSettings) => void;
+}) {
+  const destinationType =
+    branding.instapayDestinationType === "bank" ? "bank" : "phone";
+  const recipientName =
+    branding.instapayAccountName?.trim() || branding.professor || "—";
+  const bankAccountName =
+    branding.instapayBankAccountName?.trim() || recipientName;
+  const phoneReady = Boolean(branding.instapayPhoneNumber?.trim());
+  const bankReady = Boolean(
+    branding.instapayBankName?.trim() ||
+      branding.instapayBankAccountNumber?.trim()
+  );
+  const configured =
+    (destinationType === "phone" && phoneReady) ||
+    (destinationType === "bank" && bankReady);
+
+  function patchBranding(partial: Partial<BrandingSettings>) {
+    onChange({ ...branding, ...partial });
+  }
+
+  return (
+    <div className="max-w-5xl grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)] gap-8">
+      <div className="space-y-6">
+        <div>
+          <p className="label-caps mb-2 text-charcoal-infill">
+            Checkout transfer details
+          </p>
+          <p className="type-infill text-charcoal-muted leading-relaxed max-w-2xl">
+            Students see this destination on cart and checkout when paying by
+            InstaPay. Choose phone or bank, then save settings to publish.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <FormField
+            id="instapay-destination-type"
+            name="instapayDestinationType"
+            label="Transfer type"
+            type="select"
+            value={destinationType}
+            options={[
+              { label: "Phone number", value: "phone" },
+              { label: "Bank account", value: "bank" },
+            ]}
+            onChange={(value) =>
+              patchBranding({
+                instapayDestinationType: value === "bank" ? "bank" : "phone",
+              })
+            }
+          />
+          <FormField
+            id="instapay-account-name"
+            name="instapayAccountName"
+            label="Recipient name"
+            value={String(branding.instapayAccountName ?? "")}
+            hint="Shown next to the transfer destination on checkout."
+            onChange={(value) => patchBranding({ instapayAccountName: value })}
+          />
+          {destinationType === "phone" ? (
+            <FormField
+              id="instapay-phone-number"
+              name="instapayPhoneNumber"
+              label="InstaPay phone number"
+              value={String(branding.instapayPhoneNumber ?? "")}
+              placeholder="01X XXXX XXXX"
+              hint="Use the number registered for InstaPay transfers."
+              onChange={(value) =>
+                patchBranding({ instapayPhoneNumber: value })
+              }
+            />
+          ) : (
+            <>
+              <FormField
+                id="instapay-bank-name"
+                name="instapayBankName"
+                label="Bank name"
+                value={String(branding.instapayBankName ?? "")}
+                onChange={(value) => patchBranding({ instapayBankName: value })}
+              />
+              <FormField
+                id="instapay-bank-account-name"
+                name="instapayBankAccountName"
+                label="Bank account name (optional)"
+                value={String(branding.instapayBankAccountName ?? "")}
+                hint="Defaults to the recipient name when left blank."
+                onChange={(value) =>
+                  patchBranding({ instapayBankAccountName: value })
+                }
+              />
+              <FormField
+                id="instapay-bank-account-number"
+                name="instapayBankAccountNumber"
+                label="Account number / IBAN"
+                value={String(branding.instapayBankAccountNumber ?? "")}
+                onChange={(value) =>
+                  patchBranding({ instapayBankAccountNumber: value })
+                }
+              />
+            </>
+          )}
+          <div className="lg:col-span-2">
+            <FormField
+              id="instapay-instructions"
+              name="instapayInstructions"
+              label="Transfer instructions"
+              type="textarea"
+              rows={4}
+              value={String(branding.instapayInstructions ?? "")}
+              hint="Shown under the destination on the checkout payment sheet."
+              onChange={(value) =>
+                patchBranding({ instapayInstructions: value })
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+      <aside className="border border-hairline bg-concrete p-4 h-fit space-y-3">
+        <p className="label-caps text-clay">Student preview</p>
+        <p className="label-caps">Transfer to</p>
+        {!configured ? (
+          <p className="type-infill text-charcoal-muted leading-relaxed">
+            Destination is incomplete. Add a phone number or bank details before
+            students check out.
+          </p>
+        ) : destinationType === "phone" ? (
+          <div className="space-y-1 type-infill leading-relaxed">
+            <p>
+              <span className="text-charcoal-muted">Transfer to phone number: </span>
+              <span className="tabular-nums text-charcoal select-all">
+                {branding.instapayPhoneNumber}
+              </span>
+            </p>
+            <p>
+              <span className="text-charcoal-muted">Name: </span>
+              <span className="text-charcoal select-all">{recipientName}</span>
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-1 type-infill leading-relaxed">
+            <p className="text-charcoal">Transfer to bank account</p>
+            {branding.instapayBankName?.trim() ? (
+              <p>
+                <span className="text-charcoal-muted">Bank: </span>
+                <span className="text-charcoal select-all">
+                  {branding.instapayBankName}
+                </span>
+              </p>
+            ) : null}
+            <p>
+              <span className="text-charcoal-muted">Account name: </span>
+              <span className="text-charcoal select-all">{bankAccountName}</span>
+            </p>
+            {branding.instapayBankAccountNumber?.trim() ? (
+              <p>
+                <span className="text-charcoal-muted">Account number / IBAN: </span>
+                <span className="tabular-nums text-charcoal select-all">
+                  {branding.instapayBankAccountNumber}
+                </span>
+              </p>
+            ) : null}
+          </div>
+        )}
+        {branding.instapayInstructions?.trim() ? (
+          <p className="type-infill text-charcoal-muted leading-relaxed hairline-t pt-3">
+            {branding.instapayInstructions}
+          </p>
+        ) : null}
+      </aside>
+    </div>
+  );
 }
 
 function PageField({
@@ -378,6 +562,7 @@ export function SiteSettingsPage() {
   const [resetOpen, setResetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
     | "branding"
+    | "instapay"
     | "seo"
     | "navigation"
     | "pages"
@@ -491,6 +676,7 @@ export function SiteSettingsPage() {
   const branding = settings.branding;
   const tabs = [
     { id: "branding" as const, label: "Branding" },
+    { id: "instapay" as const, label: "InstaPay" },
     { id: "seo" as const, label: "Search appearance" },
     { id: "navigation" as const, label: "Menus & footer" },
     { id: "pages" as const, label: "Page introductions" },
@@ -504,7 +690,7 @@ export function SiteSettingsPage() {
       <AdminPageHeader
         eyebrow="Website"
         title="Site settings"
-        description="Manage the academy name, menus, search appearance, page introductions, contact details, and images."
+        description="Manage branding, InstaPay checkout details, menus, search appearance, page introductions, contact details, and images."
         action={
           <div className="flex flex-wrap gap-2">
             <button
@@ -635,6 +821,13 @@ export function SiteSettingsPage() {
             />
           </div>
         </div>
+      )}
+
+      {activeTab === "instapay" && (
+        <InstaPaySettingsPanel
+          branding={branding}
+          onChange={(next) => patch({ branding: next })}
+        />
       )}
 
       {activeTab === "seo" && (

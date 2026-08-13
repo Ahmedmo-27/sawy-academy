@@ -64,8 +64,32 @@ const siteSettingsSchema = new mongoose.Schema(
       established: { type: String, default: "", trim: true },
       footerBlurb: { type: String, default: "", trim: true },
       logoUrl: { type: String, default: "", trim: true },
-      facebookUrl: { type: String, default: "#facebook", trim: true },
-      instagramUrl: { type: String, default: "#instagram", trim: true },
+      facebookUrl: { type: String, default: "", trim: true },
+      instagramUrl: { type: String, default: "", trim: true },
+      instapayDestinationType: {
+        type: String,
+        enum: ["phone", "bank"],
+        default: "phone",
+      },
+      instapayAccountName: {
+        type: String,
+        default: "Mohamed El Sawy",
+        trim: true,
+      },
+      instapayPhoneNumber: {
+        type: String,
+        default: "01X XXXX XXXX",
+        trim: true,
+      },
+      instapayBankName: { type: String, default: "", trim: true },
+      instapayBankAccountNumber: { type: String, default: "", trim: true },
+      instapayBankAccountName: { type: String, default: "", trim: true },
+      instapayInstructions: {
+        type: String,
+        default:
+          "Include your order total and student email in the transfer note.",
+        trim: true,
+      },
     },
     seo: {
       title: { type: String, default: "", trim: true },

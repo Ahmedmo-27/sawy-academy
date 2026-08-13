@@ -13,6 +13,7 @@ interface BlueprintMorphImageProps {
   priority?: boolean;
   objectPosition?: string;
   revealOnLoad?: boolean;
+  onError?: () => void;
 }
 
 function WireframeOverlay() {
@@ -47,6 +48,7 @@ export function BlueprintMorphImage({
   priority = false,
   objectPosition = "center",
   revealOnLoad = false,
+  onError,
 }: BlueprintMorphImageProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLDivElement>(null);
@@ -119,6 +121,7 @@ export function BlueprintMorphImage({
           style={{ objectPosition }}
           sizes={sizes}
           priority={priority}
+          onError={onError}
         />
       </div>
       {!reduced && (
