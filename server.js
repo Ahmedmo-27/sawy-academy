@@ -20,6 +20,7 @@ const serviceRoutes = require("./routes/serviceRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const lessonRoutes = require("./routes/lessonRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const contactRoutes = require("./routes/contactRoutes");
 const protectedVideoController = require("./controllers/protectedVideoController");
 const errorHandler = require("./middleware/errorHandler");
 const requestLogger = require("./middleware/requestLogger");
@@ -84,6 +85,7 @@ app.use("/api/lessons", lessonRoutes);
 app.get("/api/media", protectedVideoController.getMedia);
 app.head("/api/media", protectedVideoController.getMedia);
 app.use("/api/cart", cartRoutes);
+app.use("/api/contact", contactRoutes);
 
 app.use(errorHandler);
 

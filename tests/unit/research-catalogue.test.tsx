@@ -80,7 +80,7 @@ describe("ResearchStudio", () => {
       screen.getByRole("link", { name: "Courtyard Study" })
     ).toHaveAttribute("href", "/researches/courtyard-study");
     expect(screen.queryByText("A".repeat(320))).not.toBeInTheDocument();
-    expect(screen.getByText(`${"A".repeat(280)}…`)).toBeInTheDocument();
+    expect(screen.getByText(`${"A".repeat(220)}…`)).toBeInTheDocument();
   });
 
   it("requests filtered results and keeps the category in the URL", async () => {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSiteSettings } from "@/components/cms/SiteContentProvider";
+// import { useLocale } from "@/lib/i18n";
 
 interface WordmarkProps {
   linked?: boolean;
@@ -15,6 +16,12 @@ export function Wordmark({
   tone = "dark",
 }: WordmarkProps) {
   const { branding } = useSiteSettings();
+  // const { locale, t } = useLocale();
+  // const customSuffix = branding.wordmarkSuffix;
+  // const suffix =
+  //   locale === "ar" && (!customSuffix || customSuffix === "Academy")
+  //     ? t.wordmark.academy
+  //     : customSuffix || "Academy";
   const suffix = branding.wordmarkSuffix || "Academy";
   const primaryTone = tone === "light" ? "text-concrete" : "text-charcoal";
   const secondaryTone =

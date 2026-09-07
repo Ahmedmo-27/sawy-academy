@@ -73,26 +73,18 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
-    const localContactRewrite = {
-      source: "/api/contact",
-      destination: "/api/contact",
-    };
-
-    // Render should run the Express API (server.js), not Next.js. Proxying /api
-    // to the same Render host causes a 508 loop when Next.js is deployed there.
     if (process.env.RENDER) {
-      return [localContactRewrite];
+      return [];
     }
 
     if (isSameOriginProxy(apiProxyTarget)) {
       console.warn(
         "API_PROXY_TARGET points at this Vercel deployment; skipping API rewrites to avoid a proxy loop."
       );
-      return [localContactRewrite];
+      return [];
     }
 
     return [
-      localContactRewrite,
       {
         source: "/api/:path*",
         destination: `${apiProxyTarget}/api/:path*`,

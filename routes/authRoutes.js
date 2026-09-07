@@ -13,6 +13,9 @@ const {
   loginIpRateLimit,
   signupEmailRateLimit,
   signupIpRateLimit,
+  forgotPasswordIpRateLimit,
+  forgotPasswordEmailRateLimit,
+  resetPasswordIpRateLimit,
 } = require("../lib/rateLimiters");
 
 const router = express.Router();
@@ -28,6 +31,18 @@ router.post(
   signupIpRateLimit,
   signupEmailRateLimit,
   authController.signup
+);
+router.post(
+  "/forgot-password",
+  forgotPasswordIpRateLimit,
+  forgotPasswordEmailRateLimit,
+  authController.forgotPassword
+);
+router.get("/verify-reset-token/:token", authController.verifyResetToken);
+router.post(
+  "/reset-password",
+  resetPasswordIpRateLimit,
+  authController.resetPassword
 );
 router.get("/me", authenticate, requireDevice, authController.me);
 // Logout must clear the httpOnly cookie even when the session/device is already gone.

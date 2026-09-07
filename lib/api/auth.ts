@@ -85,3 +85,22 @@ export function getMeRequest() {
 export function logoutRequest() {
   return apiPost<{ ok: boolean }>("/api/auth/logout");
 }
+
+export function forgotPasswordRequest(email: string) {
+  return apiPost<{ message: string }>("/api/auth/forgot-password", { email }, { auth: false });
+}
+
+export function verifyResetTokenRequest(token: string) {
+  return apiGet<{ valid: boolean; email?: string }>(
+    `/api/auth/verify-reset-token/${encodeURIComponent(token)}`,
+    { auth: false }
+  );
+}
+
+export function resetPasswordRequest(password: string, token: string) {
+  return apiPost<{ message: string }>(
+    "/api/auth/reset-password",
+    { password, token },
+    { auth: false }
+  );
+}

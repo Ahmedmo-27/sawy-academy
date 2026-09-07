@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EnrollButton } from "@/components/courses/EnrollButton";
 import { CompleteMarker } from "@/components/decorative/CompleteMarker";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
@@ -11,8 +11,10 @@ import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCourseDuration } from "@/lib/api/courses";
 import { asCourses } from "@/lib/api/courseGroups";
-import type { Course, CourseGroup } from "@/lib/api/types";
+import { listMyEnrollments } from "@/lib/api/enrollments";
+import type { Course, CourseGroup, Enrollment } from "@/lib/api/types";
 import {
+  indexProgressByEnrollments,
   isLevelCompleted,
   resolveLevelAccess,
   type LevelAccessState,
@@ -189,11 +191,41 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
     [courses]
   );
 
-  // Live completion tracking is not wired yet — do not invent progress UI.
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setEnrollments([]);
+      return;
+    }
+
+    let active = true;
+    listMyEnrollments()
+      .then((data) => {
+        if (active && Array.isArray(data)) {
+          setEnrollments(data);
+        }
+      })
+      .catch(() => {
+        // silent fail fallback to unauthenticated state
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [isAuthenticated]);
+
   const progressByOrder = useMemo(() => {
-    const empty = new Map<number, LevelProgressRecord>();
-    return empty;
-  }, []);
+    if (!isAuthenticated || enrollments.length === 0) {
+      return new Map<number, LevelProgressRecord>();
+    }
+    const levelEntries = levels.map((l) => ({
+      order: l.order,
+      courseId: l.course.id,
+      courseSlug: l.course.slug,
+    }));
+    return indexProgressByEnrollments(levelEntries, enrollments);
+  }, [isAuthenticated, enrollments, levels]);
 
   return (
     <div className="min-w-0 space-y-10 sm:space-y-16 lg:space-y-20">

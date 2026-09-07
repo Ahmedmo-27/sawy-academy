@@ -163,6 +163,11 @@ export function LoginForm() {
               placeholder="••••••••"
             />
             {fieldErrors.password && <p id="login-password-error" className="type-infill mt-2 text-clay" role="alert">{fieldErrors.password}</p>}
+            <div className="mt-2 text-right">
+              <Link href="/forgot-password" className="action-secondary text-xs">
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           <button
@@ -180,6 +185,12 @@ export function LoginForm() {
             New here?{" "}
             <Link href="/signup" className="action-secondary">
               Create an account
+            </Link>
+          </p>
+          <p className="type-infill">
+            Trouble signing in?{" "}
+            <Link href="/forgot-password" className="action-secondary">
+              Reset your password
             </Link>
           </p>
         </div>

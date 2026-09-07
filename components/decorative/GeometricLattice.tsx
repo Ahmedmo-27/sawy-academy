@@ -6,11 +6,15 @@ import { useId } from "react";
 interface GeometricLatticeProps {
   className?: string;
   opacity?: number;
+  stroke?: string;
+  strokeWidth?: number | string;
 }
 
 export function GeometricLattice({
   className = "",
   opacity = 0.045,
+  stroke = "var(--color-construction-muted)",
+  strokeWidth = 0.4,
 }: GeometricLatticeProps) {
   const patternId = `girih-lattice-${useId().replace(/:/g, "")}`;
   const prefersReducedMotion = useReducedMotion();
@@ -42,8 +46,8 @@ export function GeometricLattice({
           >
             <g
               fill="none"
-              stroke="var(--color-construction-muted)"
-              strokeWidth="0.4"
+              stroke={stroke}
+              strokeWidth={strokeWidth}
               opacity={opacity * 2.5}
             >
               <polygon points="40,4 46,18 60,18 49,28 53,42 40,34 27,42 31,28 20,18 34,18" />

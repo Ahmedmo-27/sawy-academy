@@ -19,6 +19,14 @@ const lessons = [
     duration: "18 min",
     order: 2,
   },
+  {
+    id: "lesson-3",
+    slug: "third-lesson",
+    sheetRef: "L-03",
+    title: "Third lesson",
+    duration: "25 min",
+    order: 3,
+  },
 ];
 
 describe("LessonCourseRail", () => {
@@ -38,6 +46,29 @@ describe("LessonCourseRail", () => {
     );
     expect(
       screen.getByRole("progressbar", { name: "Current position in course" })
-    ).toHaveAttribute("aria-valuenow", "100");
+    ).toHaveAttribute("aria-valuenow", "67");
+    expect(screen.getByText(/Sheet 02 of 03/i)).toBeInTheDocument();
+  });
+
+  it("renders completion checkmarks and counter when completedLessonIds are provided", () => {
+    render(
+      <LessonCourseRail
+        courseSlug="drawing-foundations"
+        courseTitle="Drawing foundations"
+        lessons={lessons}
+        currentLessonId="lesson-2"
+        completedLessonIds={["lesson-1", "lesson-2"]}
+      />
+    );
+
+    // Progress counter
+    expect(screen.getByText(/Sheet 02 of 03 · 2\/3 Complete/i)).toBeInTheDocument();
+
+    // Completed markers
+    const checkmarks = screen.getAllByText("✓");
+    expect(checkmarks.length).toBe(2);
+
+    // Uncompleted third lesson shows numerical index
+    expect(screen.getByText("03")).toBeInTheDocument();
   });
 });

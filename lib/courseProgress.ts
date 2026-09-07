@@ -144,16 +144,53 @@ export function indexProgressByOrder(
   return map;
 }
 
+import type { Enrollment } from "@/lib/api/types";
+
 /**
- * Stub for GET /api/users/me/progress (or enrollments mapped to levels).
- * Returns no completions until a real endpoint is wired.
- *
- * TODO: Replace with fetch to /api/users/me/progress or listMyEnrollments()
- * filtered to this track's course ids, mapping Enrollment.completed → completed.
+ * Build an order → progress map directly from real student Enrollment records.
  */
-export function stubTrackProgress(
-  _trackSlug: string,
-  _courseIds: string[]
-): LevelProgressRecord[] {
+export function indexProgressByEnrollments(
+  levels: Array<{ order: number; courseId: string; courseSlug: string }>,
+  enrollments: Enrollment[]
+): Map<number, LevelProgressRecord> {
+  const byCourseId = new Map<string, Enrollment>();
+  const byCourseSlug = new Map<string, Enrollment>();
+
+  for (const enr of enrollments) {
+    if (enr.courseId) byCourseId.set(enr.courseId, enr);
+    if (enr.courseSlug) byCourseSlug.set(enr.courseSlug, enr);
+  }
+
+  const map = new Map<number, LevelProgressRecord>();
+
+  for (const level of levels) {
+    const enr =
+      byCourseId.get(level.courseId) ??
+      byCourseSlug.get(level.courseSlug) ??
+      null;
+
+    if (enr) {
+      const isComplete =
+        enr.completed === true ||
+        (enr.totalLessons > 0 && enr.completedLessons >= enr.totalLessons);
+      const fraction =
+        enr.totalLessons > 0 ? enr.completedLessons / enr.totalLessons : 0;
+
+      map.set(level.order, {
+        courseId: level.courseId,
+        courseSlug: level.courseSlug,
+        completed: isComplete,
+        progress: fraction,
+      });
+    }
+  }
+
+  return map;
+}
+
+/**
+ * Stub for track progress when unauthenticated or during initial load.
+ */
+export function stubTrackProgress(): LevelProgressRecord[] {
   return [];
 }

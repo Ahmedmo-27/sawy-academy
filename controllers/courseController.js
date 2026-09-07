@@ -1,8 +1,14 @@
 const Course = require("../models/Course");
 const CourseGroup = require("../models/CourseGroup");
 const Product = require("../models/Product");
-// Register Lesson so course.lessons can be populated.
-require("../models/Lesson");
+const Lesson = require("../models/Lesson");
+const VideoAsset = require("../models/VideoAsset");
+const VideoProcessingJob = require("../models/VideoProcessingJob");
+const DocumentAsset = require("../models/DocumentAsset");
+const videoR2Storage = require("../lib/videoR2Storage");
+const { getPublicR2Config, isPublicR2Configured } = require("../lib/r2Config");
+const accessPolicy = require("../lib/lessonVideoAccessPolicy");
+const logger = require("../utils/logger");
 const {
   createHttpError,
   getPagination,
@@ -24,6 +30,35 @@ const allowedFields = [
   "image",
   "relatedProductIds",
 ];
+
+async function checkCanAccessCourse(auth, course) {
+  if (!auth) return false;
+  if (auth.user?.role === "admin") return true;
+  try {
+    await accessPolicy.assertCourseAccess(auth, course);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function sanitizeCourseLessons(courseObj, canAccess) {
+  if (canAccess || !courseObj || !Array.isArray(courseObj.lessons)) {
+    return courseObj;
+  }
+
+  const plain =
+    typeof courseObj.toObject === "function" ? courseObj.toObject() : { ...courseObj };
+
+  plain.lessons = (plain.lessons || []).map((lesson) => {
+    const l = typeof lesson?.toObject === "function" ? lesson.toObject() : { ...lesson };
+    l.content = ""; // Gated: Strip full Markdown notes for unenrolled visitors
+    l.isGated = true;
+    return l;
+  });
+
+  return plain;
+}
 
 function populateCourse(query, includeLessons = false) {
   const populatedQuery = query.populate("relatedProductIds");
@@ -74,6 +109,16 @@ async function getAll(req, res, next) {
       .limit(limit)
       .lean();
 
+    if (includeLessons) {
+      const sanitized = await Promise.all(
+        courses.map(async (c) => {
+          const canAccess = await checkCanAccessCourse(req.auth, c);
+          return sanitizeCourseLessons(c, canAccess);
+        })
+      );
+      return sendSuccess(res, sanitized);
+    }
+
     return sendSuccess(res, courses);
   } catch (err) {
     return next(err);
@@ -101,14 +146,17 @@ async function getGroups(req, res, next) {
 
 async function getBySlug(req, res, next) {
   try {
-    const course = await populateCourse(
+    const courseDoc = await populateCourse(
       Course.findOne({ slug: req.params.slug }),
       true
     );
 
-    if (!course) {
+    if (!courseDoc) {
       throw createHttpError(404, "Course not found");
     }
+
+    const canAccess = await checkCanAccessCourse(req.auth, courseDoc);
+    const course = sanitizeCourseLessons(courseDoc, canAccess);
 
     return sendSuccess(res, course);
   } catch (err) {
@@ -163,11 +211,72 @@ async function update(req, res, next) {
 
 async function remove(req, res, next) {
   try {
-    const course = await Course.findOneAndDelete({ slug: req.params.slug });
+    const course = await Course.findOne({ slug: req.params.slug });
 
     if (!course) {
       throw createHttpError(404, "Course not found");
     }
+
+    const lessonIds = course.lessons || [];
+
+    // 1. Remove course from any CourseGroup records
+    await CourseGroup.updateMany(
+      { courses: course._id },
+      { $pull: { courses: course._id } }
+    ).catch((error) => {
+      logger.warn("Failed to remove deleted course from groups", {
+        courseId: course._id,
+        error,
+      });
+    });
+
+    // 2. Cascade delete MongoDB documents for lessons, videos, jobs, docs
+    if (lessonIds.length > 0) {
+      const videoAssets = await VideoAsset.find({
+        $or: [{ courseId: course._id }, { lessonId: { $in: lessonIds } }],
+      }).select("_id");
+      const videoAssetIds = videoAssets.map((asset) => asset._id);
+
+      await Promise.all([
+        VideoProcessingJob.deleteMany({
+          $or: [
+            { assetId: { $in: videoAssetIds } },
+            { lessonId: { $in: lessonIds } },
+          ],
+        }),
+        VideoAsset.deleteMany({
+          $or: [{ courseId: course._id }, { lessonId: { $in: lessonIds } }],
+        }),
+        DocumentAsset.deleteMany({
+          $or: [{ courseId: course._id }, { lessonId: { $in: lessonIds } }],
+        }),
+        Lesson.deleteMany({ _id: { $in: lessonIds } }),
+      ]);
+    }
+
+    // 3. Delete the course document itself
+    await Course.findByIdAndDelete(course._id);
+
+    // 4. Delete R2 storage prefixes for this course in background (private and public)
+    const publicBucketName = isPublicR2Configured()
+      ? getPublicR2Config().bucketName
+      : null;
+
+    Promise.all([
+      videoR2Storage.deletePrefix(`video-assets/${course._id}/`),
+      videoR2Storage.deletePrefix(`docs/${course._id}/`),
+      publicBucketName
+        ? videoR2Storage.deletePrefix(
+            `website-assets/courses/${course._id}/`,
+            publicBucketName
+          )
+        : Promise.resolve(),
+    ]).catch((error) => {
+      logger.warn("Failed to delete course R2 storage prefixes", {
+        courseId: course._id,
+        error,
+      });
+    });
 
     return sendSuccess(res, course);
   } catch (err) {

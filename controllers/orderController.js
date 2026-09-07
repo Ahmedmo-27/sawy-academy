@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Order = require("../models/Order");
 const Course = require("../models/Course");
 const CourseGroup = require("../models/CourseGroup");
+const Product = require("../models/Product");
 const Enrollment = require("../models/Enrollment");
 const { toSlug } = require("../utils/slug");
 const {
@@ -15,6 +16,12 @@ const {
 } = require("../lib/r2ObjectKeys");
 const { getPrivateObject } = require("../lib/privateR2Storage");
 const { isPrivateR2Configured } = require("../lib/r2Config");
+const {
+  sendOrderReceivedEmail,
+  sendAdminNewOrderAlert,
+  sendOrderApprovedEmail,
+  sendOrderRejectedEmail,
+} = require("../lib/email/mailer");
 
 function parsePrice(price) {
   if (typeof price !== "string") return 0;
@@ -63,45 +70,13 @@ function serializeOrder(doc) {
   };
 }
 
-function normalizeItems(rawItems) {
-  if (!Array.isArray(rawItems) || rawItems.length === 0) {
-    throw createHttpError(400, "Order must include at least one item");
+async function resolveProduct(itemId) {
+  const value = String(itemId).trim();
+  if (mongoose.Types.ObjectId.isValid(value)) {
+    const byObjectId = await Product.findById(value);
+    if (byObjectId) return byObjectId;
   }
-
-  return rawItems.map((item, index) => {
-    const itemId = item.id || item.itemId;
-    const title = item.name || item.title;
-
-    if (!itemId) {
-      throw createHttpError(400, `Item ${index + 1} is missing an id`);
-    }
-    if (!title) {
-      throw createHttpError(400, `Item ${index + 1} is missing a name`);
-    }
-
-    const quantity = Math.max(Number(item.quantity) || 1, 1);
-
-    return {
-      itemId: String(itemId).trim(),
-      title: String(title).trim(),
-      quantity,
-      price: item.price ? String(item.price).trim() : undefined,
-      kind: item.kind,
-    };
-  });
-}
-
-function computeAmount(items) {
-  return items.reduce(
-    (total, item) => total + parsePrice(item.price) * item.quantity,
-    0
-  );
-}
-
-function canAccessOrder(order, auth) {
-  if (!auth) return false;
-  if (auth.user.role === "admin") return true;
-  return order.userId.toString() === auth.userId.toString();
+  return await Product.findOne({ id: value });
 }
 
 async function resolveCourse(itemId) {
@@ -118,19 +93,119 @@ async function resolveCourse(itemId) {
   );
 }
 
-async function resolveDiplomaCourses(itemId) {
+async function resolveDiplomaGroup(itemId) {
   const value = String(itemId).trim();
+  if (mongoose.Types.ObjectId.isValid(value)) {
+    const byObjectId = await CourseGroup.findById(value).populate("courses");
+    if (byObjectId) return byObjectId;
+  }
   const slug = value.startsWith("diploma-")
     ? value.slice("diploma-".length)
     : value;
 
-  if (!slug) return [];
-
   const groups = await CourseGroup.find({}).populate("courses");
-  const group = groups.find((entry) => toSlug(entry.title) === slug);
+  const group = groups.find(
+    (entry) => toSlug(entry.title) === slug || String(entry._id) === value
+  );
+  return group || null;
+}
 
-  if (!group) return [];
-  return group.courses || [];
+async function resolveDiplomaCourses(itemId) {
+  const group = await resolveDiplomaGroup(itemId);
+  return group?.courses || [];
+}
+
+async function resolveCanonicalItem(rawItem, index) {
+  const itemId = rawItem.id || rawItem.itemId;
+  if (!itemId) {
+    throw createHttpError(400, `Item ${index + 1} is missing an id`);
+  }
+
+  const rawKind = String(rawItem.kind || "").toLowerCase().trim();
+  const quantity = Math.max(Number(rawItem.quantity) || 1, 1);
+  const trimmedId = String(itemId).trim();
+
+  let canonicalTitle = "";
+  let canonicalPrice = "";
+  let resolvedKind = rawKind;
+
+  if (rawKind === "diploma" || trimmedId.startsWith("diploma-")) {
+    const group = await resolveDiplomaGroup(trimmedId);
+    if (!group) {
+      throw createHttpError(400, `Diploma group ${trimmedId} could not be verified`);
+    }
+    resolvedKind = "diploma";
+    canonicalTitle = group.title;
+    canonicalPrice = group.bundlePrice || "";
+    if (!canonicalPrice && Array.isArray(group.courses)) {
+      const sum = group.courses.reduce((acc, c) => acc + parsePrice(c.price), 0);
+      canonicalPrice = `EGP ${sum}`;
+    }
+  } else if (rawKind === "product") {
+    const product = await resolveProduct(trimmedId);
+    if (!product) {
+      throw createHttpError(400, `Product ${trimmedId} could not be verified`);
+    }
+    resolvedKind = "product";
+    canonicalTitle = product.name;
+    canonicalPrice = product.price;
+  } else {
+    // Course or unspecified
+    const course = await resolveCourse(trimmedId);
+    if (course) {
+      resolvedKind = "course";
+      canonicalTitle = course.title;
+      canonicalPrice = course.price;
+    } else {
+      const product = await resolveProduct(trimmedId);
+      if (product) {
+        resolvedKind = "product";
+        canonicalTitle = product.name;
+        canonicalPrice = product.price;
+      } else {
+        const group = await resolveDiplomaGroup(trimmedId);
+        if (group) {
+          resolvedKind = "diploma";
+          canonicalTitle = group.title;
+          canonicalPrice = group.bundlePrice || "";
+          if (!canonicalPrice && Array.isArray(group.courses)) {
+            const sum = group.courses.reduce((acc, c) => acc + parsePrice(c.price), 0);
+            canonicalPrice = `EGP ${sum}`;
+          }
+        } else {
+          throw createHttpError(400, `Item ${trimmedId} could not be verified in catalog`);
+        }
+      }
+    }
+  }
+
+  if (!canonicalPrice || parsePrice(canonicalPrice) <= 0) {
+    throw createHttpError(
+      400,
+      `Item "${canonicalTitle || trimmedId}" has an invalid price in catalog`
+    );
+  }
+
+  return {
+    itemId: trimmedId,
+    title: canonicalTitle || String(rawItem.name || rawItem.title || "").trim() || trimmedId,
+    quantity,
+    price: canonicalPrice,
+    kind: resolvedKind,
+  };
+}
+
+function computeAmount(items) {
+  return items.reduce(
+    (total, item) => total + parsePrice(item.price) * item.quantity,
+    0
+  );
+}
+
+function canAccessOrder(order, auth) {
+  if (!auth) return false;
+  if (auth.user.role === "admin") return true;
+  return order.userId.toString() === auth.userId.toString();
 }
 
 async function upsertEnrollment(userId, courseId, orderId) {
@@ -180,7 +255,13 @@ async function create(req, res, next) {
 
     validateRequired(req.body, ["items", "screenshotUrl"]);
 
-    const items = normalizeItems(req.body.items);
+    if (!Array.isArray(req.body.items) || req.body.items.length === 0) {
+      throw createHttpError(400, "Order must include at least one item");
+    }
+
+    const items = await Promise.all(
+      req.body.items.map((item, index) => resolveCanonicalItem(item, index))
+    );
     const amount = computeAmount(items);
 
     if (amount <= 0) {
@@ -206,6 +287,22 @@ async function create(req, res, next) {
       items,
       submittedAt: new Date(),
     });
+
+    sendOrderReceivedEmail({
+      to: req.auth.user.email,
+      name: req.auth.user.name,
+      orderId: order.id,
+      amount,
+      items,
+    }).catch(() => {});
+
+    sendAdminNewOrderAlert({
+      orderId: order.id,
+      userName: req.auth.user.name,
+      userEmail: req.auth.user.email,
+      amount,
+      items,
+    }).catch(() => {});
 
     return sendCreated(res, serializeOrder(order));
   } catch (err) {
@@ -280,6 +377,13 @@ async function approve(req, res, next) {
 
     await createEnrollmentsFromOrder(order);
 
+    sendOrderApprovedEmail({
+      to: order.userEmail,
+      name: order.userName,
+      orderId: order.id,
+      items: order.items || [],
+    }).catch(() => {});
+
     return sendSuccess(res, serializeOrder(order));
   } catch (err) {
     return next(err);
@@ -301,6 +405,13 @@ async function reject(req, res, next) {
     order.status = "rejected";
     order.reason = String(req.body.reason).trim();
     await order.save();
+
+    sendOrderRejectedEmail({
+      to: order.userEmail,
+      name: order.userName,
+      orderId: order.id,
+      reason: order.reason,
+    }).catch(() => {});
 
     return sendSuccess(res, serializeOrder(order));
   } catch (err) {

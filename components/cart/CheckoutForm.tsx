@@ -12,10 +12,12 @@ import { FormErrorSummary } from "@/components/forms/FormErrorSummary";
 import { PaymentProofUpload } from "@/components/forms/PaymentProofUpload";
 import { createOrder } from "@/lib/api/orders";
 import { ApiClientError } from "@/lib/api/client";
+// import { useTranslation } from "@/lib/i18n";
 import { checkoutSchema } from "@/lib/validation/forms";
 
 export function CheckoutForm() {
   const router = useRouter();
+  // const t = useTranslation();
   const { items, count, subtotalLabel, clearCart, hydrated } = useCart();
   const [screenshotUrl, setScreenshotUrl] = useState("");
   const [error, setError] = useState("");

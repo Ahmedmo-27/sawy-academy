@@ -80,6 +80,22 @@ export const signupSchema = schema((value, issues) => {
   return data;
 });
 
+export const forgotPasswordSchema = schema((value, issues) => {
+  const data = { email: text(value.email) };
+  if (!EMAIL_PATTERN.test(data.email)) issue(issues, "email", "Enter a valid email address.");
+  return data;
+});
+
+export const resetPasswordSchema = schema((value, issues) => {
+  const data = {
+    password: typeof value.password === "string" ? value.password : "",
+    confirmPassword: typeof value.confirmPassword === "string" ? value.confirmPassword : "",
+  };
+  if (data.password.length < 8) issue(issues, "password", "Password must be at least 8 characters.");
+  if (data.password !== data.confirmPassword) issue(issues, "confirmPassword", "Passwords do not match.");
+  return data;
+});
+
 export const designRequestSchema = schema((value, issues) => {
   if (!text(value.name)) issue(issues, "name", "Full name is required.");
   if (!EMAIL_PATTERN.test(text(value.email))) issue(issues, "email", "Enter a valid email address.");

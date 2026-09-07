@@ -1,4 +1,9 @@
-import { apiGet, apiPost, apiUploadWithProgress } from "@/lib/api/client";
+import {
+  apiDelete,
+  apiGet,
+  apiPost,
+  apiUploadWithProgress,
+} from "@/lib/api/client";
 
 export interface LessonVideoAccess {
   lessonId: string;
@@ -178,4 +183,28 @@ export async function pollLessonVideoProcessing(
   }
 
   throw new DOMException("Polling cancelled", "AbortError");
+}
+
+export function deleteLessonVideo(courseSlug: string, lessonId: string) {
+  return apiDelete<{
+    lessonId: string;
+    videoAvailable: false;
+    status: "none";
+  }>(
+    `/api/courses/${encodeURIComponent(
+      courseSlug
+    )}/lessons/${encodeURIComponent(lessonId)}/video`
+  );
+}
+
+export function deleteLessonDocument(courseSlug: string, lessonId: string) {
+  return apiDelete<{
+    lessonId: string;
+    documentAvailable: false;
+    status: "none";
+  }>(
+    `/api/courses/${encodeURIComponent(
+      courseSlug
+    )}/lessons/${encodeURIComponent(lessonId)}/document`
+  );
 }

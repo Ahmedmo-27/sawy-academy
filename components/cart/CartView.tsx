@@ -11,6 +11,7 @@ import { useCart } from "@/components/cart/CartProvider";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { AsyncState } from "@/components/feedback/AsyncState";
 import { Skeleton } from "@/components/feedback/Skeleton";
+// import { useTranslation } from "@/lib/i18n";
 import { formatPrice, parsePrice } from "@/lib/cart/pricing";
 
 function OrderSummary({
@@ -20,6 +21,8 @@ function OrderSummary({
   count: number;
   subtotalLabel: string;
 }) {
+  // const t = useTranslation();
+
   return (
     <aside className="hairline-border bg-concrete p-[var(--spacing-gutter)]">
       <header className="pb-2">
@@ -62,6 +65,7 @@ function OrderSummary({
 }
 
 export function CartView() {
+  // const t = useTranslation();
   const {
     items,
     count,
@@ -141,9 +145,9 @@ export function CartView() {
                   )}
                 </div>
 
-                <div className="min-w-0 flex flex-col gap-4">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                    <div>
+                <div className="min-w-0 flex flex-col justify-between gap-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
                       {(item.category || item.kind) && (
                         <p className="label-caps mb-2">
                           {item.category ?? item.kind}
