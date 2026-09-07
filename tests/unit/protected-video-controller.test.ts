@@ -149,7 +149,7 @@ describe("protected manifest helpers", () => {
     process.env.VIDEO_MEDIA_GRANT_SECRET =
       "test-secret-that-is-at-least-thirty-two-bytes-long";
     const previousNodeEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = "test";
+    (process.env as Record<string, string | undefined>).NODE_ENV = "test";
     const { request, course, lesson, asset } = context();
     const rewritten = rewriteVariant(
       "#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,URI=\"internal.key\"\nsegment-000001.ts\n",
@@ -159,7 +159,8 @@ describe("protected manifest helpers", () => {
       asset,
       "720p/index.m3u8"
     );
-    process.env.NODE_ENV = previousNodeEnv;
+    (process.env as Record<string, string | undefined>).NODE_ENV =
+      previousNodeEnv;
 
     expect(rewritten).toContain("/api/media?grant=");
     expect(rewritten).not.toContain("https://media.example.com");

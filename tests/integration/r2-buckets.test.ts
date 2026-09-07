@@ -95,7 +95,7 @@ const SMOKE_PDF = Buffer.from("%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n
 const SMOKE_MP4 = Buffer.from("ftypisom", "utf8");
 
 async function readObjectBody(
-  client: { send: (command: unknown) => Promise<{ Body?: AsyncIterable<Uint8Array> }> },
+  client: { send: (command: unknown) => Promise<any> },
   bucket: string,
   key: string
 ) {

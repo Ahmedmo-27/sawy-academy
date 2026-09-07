@@ -158,14 +158,38 @@ async function ensureSettings() {
   }
 
   const footerLinks = settings.footer?.links ?? [];
-  if (!collectHrefs(footerLinks).includes("/faqs")) {
+  let footerUpdated = false;
+  let newFooterLinks = [...footerLinks];
+
+  if (!collectHrefs(newFooterLinks).includes("/faqs")) {
+    newFooterLinks = insertBeforeContact(newFooterLinks, {
+      id: "faqs",
+      label: "FAQs",
+      href: "/faqs",
+    });
+    footerUpdated = true;
+  }
+  if (!collectHrefs(newFooterLinks).includes("/terms")) {
+    newFooterLinks.push({
+      id: "terms",
+      label: "Terms of Service",
+      href: "/terms",
+    });
+    footerUpdated = true;
+  }
+  if (!collectHrefs(newFooterLinks).includes("/refund-policy")) {
+    newFooterLinks.push({
+      id: "refund-policy",
+      label: "Refund Policy",
+      href: "/refund-policy",
+    });
+    footerUpdated = true;
+  }
+
+  if (footerUpdated) {
     settings.footer = {
       ...(settings.footer?.toObject?.() ?? settings.footer ?? {}),
-      links: insertBeforeContact(footerLinks, {
-        id: "faqs",
-        label: "FAQs",
-        href: "/faqs",
-      }),
+      links: newFooterLinks,
     };
     settings.markModified("footer");
     await settings.save();

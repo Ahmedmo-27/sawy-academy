@@ -16,6 +16,7 @@
 
   --font-serif: var(--font-fraunces), "Georgia", serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
+  /* --font-arabic: var(--font-arabic), "IBM Plex Sans Arabic", "Cairo", system-ui, sans-serif; */
 
   /* 8px module — Swiss Modernism 2.0 */
   --spacing-0: 0;
@@ -162,11 +163,36 @@
     scroll-margin-top: 5rem;
   }
 
-  @media (min-width: 1024px) {
-    section[id] {
-      scroll-margin-top: 5.5rem;
-    }
+  /* Bilingual / Arabic & RTL styling (commented out)
+  html[lang="ar"],
+  [dir="rtl"] {
+    font-family: var(--font-arabic);
   }
+
+  html[lang="ar"] .type-display,
+  html[lang="ar"] .type-hero,
+  html[lang="ar"] .type-heading,
+  html[lang="ar"] .type-title {
+    font-family: var(--font-arabic);
+    letter-spacing: -0.01em;
+  }
+
+  html[lang="ar"] .eyebrow,
+  html[lang="ar"] .label-caps,
+  html[lang="ar"] .dim-label {
+    letter-spacing: 0.08em;
+    font-family: var(--font-arabic);
+  }
+
+  html[lang="ar"] .action-primary::after,
+  html[lang="ar"] .action-secondary::after,
+  html[lang="ar"] .action-danger::after,
+  [dir="rtl"] .action-primary::after,
+  [dir="rtl"] .action-secondary::after,
+  [dir="rtl"] .action-danger::after {
+    transform-origin: right;
+  }
+  */
 }
 
 @layer utilities {

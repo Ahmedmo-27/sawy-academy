@@ -5,14 +5,26 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+// import { LanguageToggle } from "@/components/LanguageToggle";
 import { useCart } from "@/components/cart/CartProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useSiteSettings } from "@/components/cms/SiteContentProvider";
 import { Wordmark } from "@/components/Wordmark";
+// import { useTranslation, type Translations } from "@/lib/i18n";
 import { navTransition } from "@/lib/motion";
 import { getLenis } from "@/lib/smoothScroll";
 import type { NavLinkItem } from "@/lib/api/types";
+
+/*
+function getLocalizedNavLabel(item: { id?: string; label: string }, t: Translations): string {
+  const id = item.id?.toLowerCase();
+  if (id && id in t.navigation) {
+    return t.navigation[id as keyof Translations["navigation"]];
+  }
+  return item.label;
+}
+*/
 
 function isActive(pathname: string, href: string) {
   if (!href) return false;
@@ -108,6 +120,7 @@ function FlyoutMenu({
   item: NavLinkItem;
   pathname: string;
 }) {
+  // const t = useTranslation();
   const [open, setOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -115,6 +128,8 @@ function FlyoutMenu({
   const menuId = `nav-menu-${item.id}`;
   const children = item.children ?? [];
   const active = children.some((child) => isActive(pathname, child.href));
+  // const localizedLabel = getLocalizedNavLabel(item, t);
+  const localizedLabel = item.label;
 
   useEffect(() => {
     setOpen(false);
@@ -178,12 +193,15 @@ function FlyoutMenu({
     if (event.key === "ArrowDown") {
       event.preventDefault();
       focusItem((currentIndex + 1) % items.length);
+      return;
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
       focusItem((currentIndex - 1 + items.length) % items.length);
+      return;
     } else if (event.key === "Home") {
       event.preventDefault();
       focusItem(0);
+      return;
     } else if (event.key === "End") {
       event.preventDefault();
       focusItem(items.length - 1);
@@ -195,8 +213,12 @@ function FlyoutMenu({
   return (
     <div
       className="relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onPointerEnter={() => {
+        if (window.matchMedia("(hover: hover)").matches) setOpen(true);
+      }}
+      onPointerLeave={() => {
+        if (window.matchMedia("(hover: hover)").matches) setOpen(false);
+      }}
     >
       <button
         ref={buttonRef}
@@ -210,7 +232,7 @@ function FlyoutMenu({
         onClick={() => setOpen((v) => !v)}
         onKeyDown={onButtonKeyDown}
       >
-        {item.label}
+        {localizedLabel}
         <Chevron open={open} />
         <motion.span
           className="absolute bottom-0 left-0 h-px w-full bg-current origin-left"
@@ -226,8 +248,8 @@ function FlyoutMenu({
             ref={menuRef}
             id={menuId}
             role="menu"
-            aria-label={item.label}
-            className="absolute left-0 top-full z-[60] pt-3"
+            aria-label={localizedLabel}
+            className="absolute start-0 top-full z-[60] pt-3"
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
@@ -254,6 +276,7 @@ function FlyoutMenu({
                         : "text-charcoal-infill hover:text-charcoal"
                     }`}
                   >
+                    {/* {getLocalizedNavLabel(child, t)} */}
                     {child.label}
                   </Link>
                 </div>
@@ -267,6 +290,7 @@ function FlyoutMenu({
 }
 
 export function Navigation() {
+  // const t = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
@@ -435,6 +459,7 @@ export function Navigation() {
                 ) : (
                   <NavLink
                     href={item.href}
+                    /* label={getLocalizedNavLabel(item, t)} */
                     label={item.label}
                     active={isActive(pathname, item.href)}
                   />
@@ -445,7 +470,9 @@ export function Navigation() {
 
           <span className="h-4 w-px bg-hairline" aria-hidden="true" />
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 xl:gap-4">
+            {/* <LanguageToggle /> */}
+
             <Link
               href="/cart"
               aria-current={cartActive ? "page" : undefined}
@@ -487,16 +514,19 @@ export function Navigation() {
           </div>
         </div>
 
-        <button
-          ref={mobileMenuButtonRef}
-          type="button"
-          className="xl:hidden inline-flex min-h-11 min-w-11 items-center justify-center eyebrow text-charcoal"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-        >
-          {open ? "Close" : count > 0 ? `Menu (${count})` : "Menu"}
-        </button>
+        <div className="flex xl:hidden items-center gap-2">
+          {/* <LanguageToggle /> */}
+          <button
+            ref={mobileMenuButtonRef}
+            type="button"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center eyebrow text-charcoal"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+          >
+            {open ? "Close" : count > 0 ? `Menu (${count})` : "Menu"}
+          </button>
+        </div>
       </nav>
 
       <AnimatePresence initial={false}>
@@ -527,6 +557,8 @@ export function Navigation() {
           <ul className="flex flex-col gap-1">
             {navItems.map((item) => {
               const children = item.children ?? [];
+              // const localizedParentLabel = getLocalizedNavLabel(item, t);
+              const localizedParentLabel = item.label;
               if (children.length > 0) {
                 const expanded = flyoutOpenId === item.id;
                 const active = children.some((child) =>
@@ -546,7 +578,7 @@ export function Navigation() {
                         )
                       }
                     >
-                      {item.label}
+                      {localizedParentLabel}
                       <Chevron open={expanded} />
                     </button>
                     <AnimatePresence initial={false}>
@@ -577,6 +609,7 @@ export function Navigation() {
                                     : "text-charcoal-infill"
                                 }`}
                               >
+                                {/* {getLocalizedNavLabel(child, t)} */}
                                 {child.label}
                               </Link>
                             </li>
@@ -601,7 +634,7 @@ export function Navigation() {
                         : "text-charcoal-infill"
                     }`}
                   >
-                    {item.label}
+                    {localizedParentLabel}
                   </Link>
                 </li>
               );

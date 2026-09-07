@@ -382,11 +382,85 @@ function requireVideoKek(_req, _res, next) {
   }
 }
 
+async function removeVideo(req, res, next) {
+  try {
+    const course = await Course.findOne({ slug: String(req.params.slug) });
+    if (!course) throw createHttpError(404, "Course not found");
+
+    const lessonKey = String(req.params.lessonId || "").trim();
+    const lessonIdentity = mongoose.Types.ObjectId.isValid(lessonKey)
+      ? { $or: [{ _id: lessonKey }, { id: lessonKey }] }
+      : { id: lessonKey };
+    const lesson = await Lesson.findOne({
+      ...lessonIdentity,
+      _id: { $in: course.lessons },
+    }).select("+videoObjectKey");
+
+    if (!lesson) throw createHttpError(404, "Lesson not found");
+
+    const videoAssets = await VideoAsset.find({ lessonId: lesson._id }).select(
+      "+source.objectKey +outputPrefix"
+    );
+    const assetIds = videoAssets.map((asset) => asset._id);
+
+    if (assetIds.length > 0) {
+      await Promise.all([
+        VideoProcessingJob.deleteMany({ assetId: { $in: assetIds } }),
+        VideoAsset.deleteMany({ _id: { $in: assetIds } }),
+      ]);
+    }
+
+    if (lesson.videoObjectKey) {
+      deleteR2Object(lesson.videoObjectKey).catch(() => {});
+    }
+
+    const { deletePrefix } = require("../lib/videoR2Storage");
+    if (videoAssets.length > 0) {
+      Promise.all([
+        ...videoAssets.map((asset) => deleteR2Object(asset.source.objectKey)),
+        deletePrefix(`video-assets/${course._id}/${lesson._id}/`),
+      ]).catch((error) => {
+        logger.warn("Failed to delete lesson video from R2", {
+          lessonId: lesson._id,
+          error,
+        });
+      });
+    }
+
+    await Lesson.updateOne(
+      { _id: lesson._id },
+      {
+        $set: {
+          videoAvailable: false,
+          videoProcessingStatus: "none",
+        },
+        $unset: {
+          videoAssetId: 1,
+          videoOriginalFilename: 1,
+          videoProcessingError: 1,
+          videoProcessingUpdatedAt: 1,
+          videoObjectKey: 1,
+          videoGeneration: 1,
+        },
+      }
+    );
+
+    return sendSuccess(res, {
+      lessonId: lesson._id.toString(),
+      videoAvailable: false,
+      status: "none",
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   create,
   createIntent,
   deleteR2Object,
   publicRenditions,
+  removeVideo,
   requireVideoKek,
   retry,
   status,

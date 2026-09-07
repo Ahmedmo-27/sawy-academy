@@ -6,6 +6,7 @@ const videoUploadController = require("../controllers/videoUploadController");
 const lessonDocumentController = require("../controllers/lessonDocumentController");
 const {
   authenticate,
+  optionalAuthenticate,
   requireAdmin,
   requireDevice,
 } = require("../middleware/authMiddleware");
@@ -17,14 +18,14 @@ const router = express.Router();
 const adminWrite = [authenticate, requireDevice, requireAdmin];
 const grantUpload = [authenticateLessonUploadGrant];
 
-router.get("/", courseController.getAll);
+router.get("/", optionalAuthenticate, courseController.getAll);
 router.get("/groups", courseController.getGroups);
 router.post("/groups", adminWrite, courseGroupController.create);
 router.put("/groups/:id", adminWrite, courseGroupController.update);
 router.delete("/groups/:id", adminWrite, courseGroupController.remove);
 
 router.patch("/:slug/lessons/reorder", adminWrite, lessonController.reorder);
-router.get("/:slug/lessons", lessonController.list);
+router.get("/:slug/lessons", optionalAuthenticate, lessonController.list);
 router.post("/:slug/lessons", adminWrite, lessonController.create);
 router.post(
   "/:slug/lessons/:lessonId/video/intent",
@@ -48,6 +49,11 @@ router.post(
   adminWrite,
   videoUploadController.retry
 );
+router.delete(
+  "/:slug/lessons/:lessonId/video",
+  adminWrite,
+  videoUploadController.removeVideo
+);
 router.post(
   "/:slug/lessons/:lessonId/document/intent",
   adminWrite,
@@ -64,10 +70,15 @@ router.get(
   adminWrite,
   lessonDocumentController.getDocumentStatus
 );
+router.delete(
+  "/:slug/lessons/:lessonId/document",
+  adminWrite,
+  lessonDocumentController.removeDocument
+);
 router.put("/:slug/lessons/:lessonId", adminWrite, lessonController.update);
 router.delete("/:slug/lessons/:lessonId", adminWrite, lessonController.remove);
 
-router.get("/:slug", courseController.getBySlug);
+router.get("/:slug", optionalAuthenticate, courseController.getBySlug);
 router.post("/", adminWrite, courseController.create);
 router.put("/:slug", adminWrite, courseController.update);
 router.delete("/:slug", adminWrite, courseController.remove);

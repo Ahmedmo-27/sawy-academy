@@ -11,6 +11,7 @@ const {
 } = require("../lib/r2ObjectKeys");
 const { getPrivateObject } = require("../lib/privateR2Storage");
 const { isPrivateR2Configured } = require("../lib/r2Config");
+const { sendServiceStatusEmail } = require("../lib/email/mailer");
 
 function rawReferenceImageUrls(doc) {
   const payload = doc.payload;
@@ -287,13 +288,27 @@ async function updateStatus(req, res, next) {
       throw createHttpError(400, "Invalid status");
     }
 
-    request.status = nextStatus;
-
-    if (req.body.notes !== undefined) {
+    if (nextStatus === "rejected") {
+      const notes = String(req.body.notes || "").trim();
+      if (!notes) {
+        throw createHttpError(400, "Rejection notes are required");
+      }
+      request.notes = notes;
+    } else if (req.body.notes !== undefined) {
       request.notes = String(req.body.notes).trim();
     }
 
+    request.status = nextStatus;
     await request.save();
+
+    sendServiceStatusEmail({
+      to: request.email,
+      name: request.name,
+      serviceType: request.type,
+      status: nextStatus,
+      notes: request.notes,
+    }).catch(() => {});
+
     return sendSuccess(res, publicService(request));
   } catch (err) {
     return next(err);

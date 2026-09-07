@@ -7,6 +7,7 @@ interface VideoPlayerProps {
   manifestUrl: string;
   title: string;
   watermarkText: string;
+  lessonId?: string;
   onRefreshManifest: () => Promise<string>;
 }
 
@@ -15,6 +16,8 @@ interface QualityOption {
   label: string;
   detail: string;
 }
+
+const PLAYBACK_SPEEDS = [0.75, 1, 1.25, 1.5, 1.75, 2] as const;
 
 const WATERMARK_POSITIONS = [
   "left-[5%] top-[8%]",
@@ -77,10 +80,12 @@ export function VideoPlayer({
   manifestUrl,
   title,
   watermarkText,
+  lessonId,
   onRefreshManifest,
 }: VideoPlayerProps) {
   const headingId = useId();
   const qualityMenuId = useId();
+  const speedMenuId = useId();
   const playerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -91,6 +96,9 @@ export function VideoPlayer({
   const mediaRecoveryRef = useRef(0);
   const hideControlsRef = useRef<number | null>(null);
   const resumeRef = useRef<{ time: number; playing: boolean } | null>(null);
+  const restoredTimeRef = useRef(false);
+  const lastSaveTimeRef = useRef(0);
+
   const [sourceUrl, setSourceUrl] = useState(() =>
     safeManifestUrl(manifestUrl)
   );
@@ -103,12 +111,19 @@ export function VideoPlayer({
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [qualities, setQualities] = useState<QualityOption[]>([]);
   const [selectedLevel, setSelectedLevel] = useState(AUTO_LEVEL);
   const [activeLevel, setActiveLevel] = useState(AUTO_LEVEL);
   const [qualityOpen, setQualityOpen] = useState(false);
+  const [speedOpen, setSpeedOpen] = useState(false);
+  const [resumeNotification, setResumeNotification] = useState("");
+
+  const storageKey = lessonId
+    ? `sawy_video_pos_${lessonId}`
+    : `sawy_video_pos_${encodeURIComponent(title || manifestUrl)}`;
 
   useEffect(() => {
     refreshManifestRef.current = onRefreshManifest;
@@ -205,6 +220,42 @@ export function VideoPlayer({
     }
   }, []);
 
+  const tryRestoreSavedPosition = useCallback((v: HTMLVideoElement) => {
+    if (restoredTimeRef.current || typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const savedSeconds = parseFloat(raw);
+        if (
+          Number.isFinite(savedSeconds) &&
+          savedSeconds > 5 &&
+          (!v.duration || savedSeconds < v.duration - 10)
+        ) {
+          v.currentTime = savedSeconds;
+          setCurrentTime(savedSeconds);
+          setResumeNotification(`Resumed from ${formatTime(savedSeconds)}`);
+          setTimeout(() => setResumeNotification(""), 3500);
+        }
+      }
+    } catch {
+      // ignore storage access errors
+    }
+    restoredTimeRef.current = true;
+  }, [storageKey]);
+
+  const savePlaybackPosition = useCallback((time: number, totalDuration: number) => {
+    if (typeof window === "undefined") return;
+    try {
+      if (totalDuration > 0 && time >= totalDuration - 5) {
+        localStorage.removeItem(storageKey);
+      } else if (time > 3) {
+        localStorage.setItem(storageKey, time.toFixed(1));
+      }
+    } catch {
+      // ignore storage access errors
+    }
+  }, [storageKey]);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !sourceUrl) return;
@@ -225,11 +276,18 @@ export function VideoPlayer({
       setVolume(video.volume);
       setCurrentTime(video.currentTime);
       setDuration(Number.isFinite(video.duration) ? video.duration : 0);
+
+      const now = Date.now();
+      if (now - lastSaveTimeRef.current > 3000) {
+        lastSaveTimeRef.current = now;
+        savePlaybackPosition(video.currentTime, video.duration);
+      }
     };
     const handleCanPlay = () => {
       networkRecoveryRef.current = 0;
       mediaRecoveryRef.current = 0;
       setPlaybackError("");
+      tryRestoreSavedPosition(video);
       restorePlayback();
       syncVideoState();
     };
@@ -241,7 +299,10 @@ export function VideoPlayer({
 
     video.addEventListener("canplay", handleCanPlay);
     video.addEventListener("play", syncVideoState);
-    video.addEventListener("pause", syncVideoState);
+    video.addEventListener("pause", () => {
+      syncVideoState();
+      savePlaybackPosition(video.currentTime, video.duration);
+    });
     video.addEventListener("timeupdate", syncVideoState);
     video.addEventListener("durationchange", syncVideoState);
     video.addEventListener("volumechange", syncVideoState);
@@ -259,6 +320,7 @@ export function VideoPlayer({
       hls.on(Events.MEDIA_ATTACHED, () => hls.loadSource(sourceUrl));
       hls.on(Events.MANIFEST_PARSED, () => {
         syncLevels(hls);
+        tryRestoreSavedPosition(video);
         restorePlayback();
       });
       hls.on(Events.LEVELS_UPDATED, () => syncLevels(hls));
@@ -322,7 +384,7 @@ export function VideoPlayer({
       video.removeAttribute("src");
       video.load();
     };
-  }, [refreshManifest, sourceUrl, sourceVersion]);
+  }, [refreshManifest, sourceUrl, sourceVersion, tryRestoreSavedPosition, savePlaybackPosition]);
 
   function togglePlay() {
     const video = videoRef.current;
@@ -371,6 +433,80 @@ export function VideoPlayer({
     setQualityOpen(false);
     revealControls();
   }
+
+  function selectSpeed(speed: number) {
+    const video = videoRef.current;
+    if (!video) return;
+    video.playbackRate = speed;
+    setPlaybackRate(speed);
+    setSpeedOpen(false);
+    revealControls();
+  }
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (!playerRef.current) return;
+      const activeEl = document.activeElement;
+      const isInputFocused =
+        activeEl?.tagName === "INPUT" ||
+        activeEl?.tagName === "TEXTAREA" ||
+        activeEl?.tagName === "SELECT" ||
+        (activeEl as HTMLElement)?.isContentEditable;
+
+      if (isInputFocused) return;
+      const isPlayerFocused =
+        playerRef.current.contains(activeEl) ||
+        document.fullscreenElement === playerRef.current;
+
+      if (!isPlayerFocused) return;
+
+      const video = videoRef.current;
+      if (!video) return;
+
+      switch (event.key) {
+        case " ":
+        case "k":
+        case "K":
+          event.preventDefault();
+          togglePlay();
+          break;
+        case "ArrowLeft":
+          event.preventDefault();
+          seekTo(video.currentTime - 5);
+          revealControls();
+          break;
+        case "ArrowRight":
+          event.preventDefault();
+          seekTo(video.currentTime + 5);
+          revealControls();
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          changeVolume(Math.min(1, video.volume + 0.05));
+          revealControls();
+          break;
+        case "ArrowDown":
+          event.preventDefault();
+          changeVolume(Math.max(0, video.volume - 0.05));
+          revealControls();
+          break;
+        case "m":
+        case "M":
+          event.preventDefault();
+          toggleMute();
+          revealControls();
+          break;
+        case "f":
+        case "F":
+          event.preventDefault();
+          toggleFullscreen();
+          break;
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [revealControls]);
 
   const activeQuality =
     activeLevel >= 0 ? qualities.find((option) => option.id === activeLevel) : null;
@@ -504,7 +640,50 @@ export function VideoPlayer({
               className="hidden h-1 w-20 cursor-pointer appearance-none bg-concrete/20 accent-clay sm:block"
             />
 
-            <div className="relative ml-auto">
+            <div className="relative ml-auto flex items-center gap-1">
+              {/* Playback Speed Selector */}
+              <div className="relative">
+                <button
+                  type="button"
+                  className="label-caps min-h-9 px-2 !text-concrete hover:text-clay-muted"
+                  aria-haspopup="listbox"
+                  aria-expanded={speedOpen}
+                  aria-controls={speedMenuId}
+                  onClick={() => {
+                    setSpeedOpen((open) => !open);
+                    setQualityOpen(false);
+                    revealControls();
+                  }}
+                >
+                  {playbackRate}×
+                </button>
+                {speedOpen && (
+                  <ul
+                    id={speedMenuId}
+                    role="listbox"
+                    aria-label="Playback speed"
+                    className="absolute bottom-full right-0 z-40 mb-2 min-w-28 border border-hairline/30 bg-charcoal/95 py-1 shadow-xl"
+                  >
+                    {PLAYBACK_SPEEDS.map((speed) => (
+                      <li key={speed}>
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={playbackRate === speed}
+                          className={`flex w-full items-center justify-between px-3 py-2 text-left label-caps !text-concrete hover:bg-concrete/10 ${
+                            playbackRate === speed ? "text-clay-muted font-bold" : ""
+                          }`}
+                          onClick={() => selectSpeed(speed)}
+                        >
+                          <span>{speed}×</span>
+                          {speed === 1 && <span className="opacity-50 text-[10px]">Normal</span>}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
               {qualities.length > 0 && (
                 <>
                   <button
@@ -515,6 +694,7 @@ export function VideoPlayer({
                     aria-controls={qualityMenuId}
                     onClick={() => {
                       setQualityOpen((open) => !open);
+                      setSpeedOpen(false);
                       revealControls();
                     }}
                   >
@@ -577,6 +757,16 @@ export function VideoPlayer({
             </button>
           </div>
         </div>
+
+        {resumeNotification && (
+          <div
+            className="pointer-events-none absolute left-4 top-4 z-30 rounded border border-hairline/40 bg-charcoal/90 px-3 py-1.5 shadow-lg backdrop-blur-sm"
+            role="status"
+            aria-live="polite"
+          >
+            <p className="label-caps text-xs !text-concrete">{resumeNotification}</p>
+          </div>
+        )}
 
         {refreshing && (
           <div

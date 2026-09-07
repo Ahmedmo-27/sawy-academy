@@ -256,6 +256,7 @@ export interface Enrollment extends TimestampedRecord {
   courseCode?: string;
   completedLessons: number;
   totalLessons: number;
+  completedLessonIds?: string[];
   /** Present when the course is still in progress */
   nextLessonSlug?: string | null;
   /** Explicit completion flag; also inferred when completedLessons >= totalLessons */

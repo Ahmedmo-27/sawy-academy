@@ -7,9 +7,21 @@ const {
   requireDevice,
 } = require("../middleware/authMiddleware");
 
+const { getQueueMetrics } = require("../lib/videoProcessingQueue");
+const { sendSuccess } = require("../controllers/controllerUtils");
+
 const router = express.Router();
 
 router.use(authenticate, requireDevice, requireAdmin);
+
+router.get("/video-queue/status", async (_req, res, next) => {
+  try {
+    const metrics = await getQueueMetrics();
+    return sendSuccess(res, metrics);
+  } catch (err) {
+    return next(err);
+  }
+});
 
 router.get("/users/:userId/devices", deviceController.listUserDevicesAdmin);
 router.post(

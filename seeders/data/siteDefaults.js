@@ -70,6 +70,8 @@ const footer = {
     { id: "products", label: "Products", href: "/products" },
     { id: "faqs", label: "FAQs", href: "/faqs" },
     { id: "contact", label: "Contact", href: "/contact" },
+    { id: "terms", label: "Terms of Service", href: "/terms" },
+    { id: "refund-policy", label: "Refund Policy", href: "/refund-policy" },
     { id: "privacy", label: "Privacy Policy", href: "/privacy" },
   ],
 };

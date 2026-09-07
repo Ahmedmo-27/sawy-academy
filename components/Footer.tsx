@@ -7,11 +7,44 @@ import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { useSiteSettings } from "@/components/cms/SiteContentProvider";
 import { SocialLinks } from "@/components/SocialLinks";
+// import { LanguageToggle } from "@/components/LanguageToggle";
+// import { useLocale, type Translations } from "@/lib/i18n";
 import { withFaqFooterLink } from "@/lib/branding";
+
+/*
+function getLocalizedFooterLabel(item: { id?: string; label: string }, t: Translations): string {
+  const id = item.id?.toLowerCase();
+  if (id === "terms" || id === "terms-of-service") return t.navigation.terms;
+  if (id === "refund-policy" || id === "refund") return t.navigation.refundPolicy;
+  if (id && id in t.navigation) {
+    return t.navigation[id as keyof Translations["navigation"]];
+  }
+  return item.label;
+}
+*/
 
 export function Footer() {
   const { branding, settings } = useSiteSettings();
+  // const { locale, t } = useLocale();
   const footerLinks = withFaqFooterLink(settings.footer?.links ?? []);
+  // const isAr = locale === "ar";
+
+  /*
+  const professorTitle = isAr
+    ? "أ.د. محمد الصاوي"
+    : branding.professorTitle;
+  const professor = isAr ? "د. محمد الصاوي" : branding.professor;
+  const country = isAr ? "مصر" : branding.address.country;
+  const addressLine2 = isAr ? "الزمالك، القاهرة" : branding.address.line2;
+  const footerBlurb = isAr
+    ? "عمارة وتصميم فراغي"
+    : branding.footerBlurb || "Architecture & Spatial Design";
+  */
+  const professorTitle = branding.professorTitle;
+  const professor = branding.professor;
+  const country = branding.address.country;
+  const addressLine2 = branding.address.line2;
+  const footerBlurb = branding.footerBlurb || "Architecture & Spatial Design";
 
   return (
     <footer className="mt-auto relative z-10">
@@ -23,13 +56,13 @@ export function Footer() {
             <div className="shrink-0">
               <Wordmark linked={false} size="sm" tone="light" />
               <ScaleBar scale="1:200" className="mt-6 mb-4 max-w-[100px]" />
-              <p className="type-title mb-2">{branding.professorTitle}</p>
+              <p className="type-title mb-2">{professorTitle}</p>
               <p className="type-infill leading-relaxed max-w-xs">
-                {branding.address.line2}
+                {addressLine2}
                 <br />
-                {branding.address.country}
+                {country}
                 <br />
-                {branding.footerBlurb || "Architecture & Spatial Design"}
+                {footerBlurb}
               </p>
             </div>
 
@@ -38,6 +71,7 @@ export function Footer() {
                 {footerLinks.map((link) => (
                   <li key={link.id || link.href} className="shrink-0">
                     <Link href={link.href} className="action-secondary whitespace-nowrap">
+                      {/* {getLocalizedFooterLabel(link, t)} */}
                       {link.label}
                     </Link>
                   </li>
@@ -51,12 +85,13 @@ export function Footer() {
               © {new Date().getFullYear()} {branding.name}
             </p>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              {/* <LanguageToggle variant="full" /> */}
               <SocialLinks branding={branding} tone="on-dark" />
               <Link href="/privacy" className="action-secondary">
                 Privacy Policy
               </Link>
               <p className="label-caps text-charcoal-infill">
-                {branding.professor} · {branding.address.country}
+                {professor} · {country}
               </p>
             </div>
           </div>

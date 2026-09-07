@@ -15,6 +15,8 @@ import {
   updateLesson,
 } from "@/lib/api/courses";
 import {
+  deleteLessonDocument,
+  deleteLessonVideo,
   pollLessonVideoProcessing,
   retryLessonVideoProcessing,
   uploadLessonDocument,
@@ -77,6 +79,11 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [formSnapshot, setFormSnapshot] = useState(JSON.stringify(emptyLesson));
   const [deleteTarget, setDeleteTarget] = useState<Lesson | null>(null);
+  const [mediaDeleteTarget, setMediaDeleteTarget] = useState<{
+    kind: "video" | "document";
+    lessonKey: string;
+  } | null>(null);
+  const [isDeletingMedia, setIsDeletingMedia] = useState(false);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
@@ -196,6 +203,57 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
       const message = "The video could not be prepared again. Please try later.";
       setError(message);
       toastError(message);
+    }
+  }
+
+  async function handleConfirmMediaDelete() {
+    if (!mediaDeleteTarget) return;
+    setIsDeletingMedia(true);
+    setError("");
+    try {
+      if (mediaDeleteTarget.kind === "video") {
+        await deleteLessonVideo(courseSlug, mediaDeleteTarget.lessonKey);
+        setItems((current) =>
+          current.map((lesson) =>
+            getLessonKey(lesson) === mediaDeleteTarget.lessonKey
+              ? {
+                  ...lesson,
+                  videoAvailable: false,
+                  videoProcessingStatus: "none" as const,
+                }
+              : lesson
+          )
+        );
+        setVideoStatuses((current) => {
+          const next = { ...current };
+          delete next[mediaDeleteTarget.lessonKey];
+          return next;
+        });
+        neutral("Video removed from lesson");
+      } else {
+        await deleteLessonDocument(courseSlug, mediaDeleteTarget.lessonKey);
+        setItems((current) =>
+          current.map((lesson) =>
+            getLessonKey(lesson) === mediaDeleteTarget.lessonKey
+              ? {
+                  ...lesson,
+                  documentAvailable: false,
+                }
+              : lesson
+          )
+        );
+        neutral("PDF document removed from lesson");
+      }
+      setMediaDeleteTarget(null);
+    } catch (caughtError) {
+      const msg =
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Failed to remove media";
+      setError(msg);
+      toastError(msg);
+    } finally {
+      setIsDeletingMedia(false);
     }
   }
 
@@ -669,9 +727,24 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
             {editingKey &&
               items.find((lesson) => getLessonKey(lesson) === editingKey)
                 ?.videoAvailable && (
-                <p className="type-infill mt-3 text-charcoal-muted">
-                  A protected video is currently stored for this lesson.
-                </p>
+                <div className="mt-3 flex items-center justify-between gap-3 hairline-border bg-concrete-dark/30 p-3">
+                  <p className="type-infill text-charcoal">
+                    A protected video is currently attached to this lesson.
+                  </p>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-danger admin-btn-compact shrink-0"
+                    onClick={() =>
+                      setMediaDeleteTarget({
+                        kind: "video",
+                        lessonKey: editingKey,
+                      })
+                    }
+                    disabled={isSaving || isDeletingMedia}
+                  >
+                    Remove video
+                  </button>
+                </div>
               )}
             {isSaving && videoFile && (
               <ProcessProgressBar
@@ -717,9 +790,24 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
             {editingKey &&
               items.find((lesson) => getLessonKey(lesson) === editingKey)
                 ?.documentAvailable && (
-                <p className="type-infill mt-3 text-charcoal-muted">
-                  A private PDF is currently stored for this lesson.
-                </p>
+                <div className="mt-3 flex items-center justify-between gap-3 hairline-border bg-concrete-dark/30 p-3">
+                  <p className="type-infill text-charcoal">
+                    A private PDF is currently attached to this lesson.
+                  </p>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-danger admin-btn-compact shrink-0"
+                    onClick={() =>
+                      setMediaDeleteTarget({
+                        kind: "document",
+                        lessonKey: editingKey,
+                      })
+                    }
+                    disabled={isSaving || isDeletingMedia}
+                  >
+                    Remove PDF
+                  </button>
+                </div>
               )}
             {isSaving && documentFile && documentUploadProgress > 0 && (
               <ProcessProgressBar
@@ -743,6 +831,22 @@ export function LessonsManager({ courseSlug, lessons }: LessonsManagerProps) {
         isBusy={isSaving}
         onCancel={() => setDeleteTarget(null)}
         onConfirm={() => void confirmDelete()}
+      />
+
+      <ConfirmDialog
+        open={Boolean(mediaDeleteTarget)}
+        title={`Remove ${
+          mediaDeleteTarget?.kind === "video" ? "video" : "PDF document"
+        }?`}
+        message={`The ${
+          mediaDeleteTarget?.kind === "video"
+            ? "video and all transcoded renditions"
+            : "PDF document"
+        } will be deleted from Cloudflare R2 storage. This cannot be undone.`}
+        confirmLabel="Remove"
+        isBusy={isDeletingMedia}
+        onCancel={() => setMediaDeleteTarget(null)}
+        onConfirm={() => void handleConfirmMediaDelete()}
       />
     </div>
   );

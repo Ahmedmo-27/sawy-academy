@@ -18,11 +18,8 @@ const {
   isPrivateR2Configured,
 } = require("../lib/r2Config");
 const { buildLessonDocKey } = require("../lib/r2ObjectKeys");
-const { getPrivateObject, putPrivateObject } = require("../lib/privateR2Storage");
-const {
-  assertCourseAccess,
-  findLesson,
-} = require("../lib/lessonVideoAccessPolicy");
+const privateR2Storage = require("../lib/privateR2Storage");
+const lessonVideoAccessPolicy = require("../lib/lessonVideoAccessPolicy");
 const { createLessonUploadIntent } = require("../lib/lessonUploadGrant");
 
 const DEFAULT_MAX_DOC_BYTES = 50 * 1024 * 1024;
@@ -109,7 +106,7 @@ async function uploadDocument(req, res, next) {
     );
 
     const body = fs.createReadStream(req.file.path);
-    await putPrivateObject({
+    await privateR2Storage.putPrivateObject({
       objectKey,
       body,
       contentType: "application/pdf",
@@ -183,13 +180,13 @@ async function downloadDocument(req, res, next) {
       throw createHttpError(401, "Authentication required");
     }
 
-    const lesson = await findLesson(req.params.lessonId);
+    const lesson = await lessonVideoAccessPolicy.findLesson(req.params.lessonId);
     const course = await Course.findOne({ lessons: lesson._id });
     if (!course) {
       throw createHttpError(404, "Parent course not found");
     }
 
-    await assertCourseAccess(req.auth, course);
+    await lessonVideoAccessPolicy.assertCourseAccess(req.auth, course);
 
     const docLesson = await Lesson.findById(lesson._id).select(
       "+documentObjectKey +documentOriginalFilename"
@@ -198,7 +195,7 @@ async function downloadDocument(req, res, next) {
       throw createHttpError(404, "Lesson document is not available");
     }
 
-    const object = await getPrivateObject(docLesson.documentObjectKey);
+    const object = await privateR2Storage.getPrivateObject(docLesson.documentObjectKey);
     if (!object.Body) {
       throw createHttpError(404, "Lesson document is not available");
     }
@@ -245,6 +242,61 @@ async function getDocumentStatus(req, res, next) {
   }
 }
 
+async function removeDocument(req, res, next) {
+  try {
+    const { course, lesson } = await resolveCourseLesson(
+      req.params.slug,
+      req.params.lessonId
+    );
+
+    const docLesson = await Lesson.findById(lesson._id).select(
+      "+documentObjectKey"
+    );
+    const documentAssets = await DocumentAsset.find({
+      lessonId: lesson._id,
+    }).select("+objectKey");
+
+    if (documentAssets.length > 0) {
+      await DocumentAsset.deleteMany({ lessonId: lesson._id });
+    }
+
+    if (docLesson?.documentObjectKey) {
+      deleteR2Object(docLesson.documentObjectKey).catch(() => {});
+    }
+
+    const { deletePrefix } = require("../lib/videoR2Storage");
+    if (documentAssets.length > 0) {
+      Promise.all([
+        ...documentAssets.map((doc) => deleteR2Object(doc.objectKey)),
+        deletePrefix(`docs/${course._id}/${lesson._id}/`),
+      ]).catch(() => {});
+    }
+
+    await Lesson.updateOne(
+      { _id: lesson._id },
+      {
+        $set: {
+          documentAvailable: false,
+        },
+        $unset: {
+          documentAssetId: 1,
+          documentOriginalFilename: 1,
+          documentObjectKey: 1,
+          documentGeneration: 1,
+        },
+      }
+    );
+
+    return sendSuccess(res, {
+      lessonId: lesson._id.toString(),
+      documentAvailable: false,
+      status: "none",
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 function createIntent(req, res, next) {
   try {
     return sendSuccess(res, createLessonUploadIntent(req, "document"));
@@ -254,9 +306,11 @@ function createIntent(req, res, next) {
 }
 
 module.exports = {
-  uploadMiddleware: upload.single("document"),
-  uploadDocument,
   createIntent,
+  deleteR2Object,
   downloadDocument,
   getDocumentStatus,
+  removeDocument,
+  uploadDocument,
+  uploadMiddleware: upload.single("document"),
 };

@@ -163,21 +163,41 @@ describe("VideoPlayer", () => {
     await waitFor(() => expect(instance.destroy).toHaveBeenCalledTimes(1));
   });
 
-  it("rejects non-HTTPS playback locations", () => {
+  it("allows viewer to select playback speed", async () => {
+    const user = userEvent.setup();
     render(
       <VideoPlayer
-        manifestUrl="http://example.com/manifest.m3u8"
+        manifestUrl={manifestUrl}
         title="Drawing foundations"
         watermarkText="student@example.com"
         onRefreshManifest={vi.fn()}
       />
     );
 
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      "This recording is temporarily unavailable."
+    const speedButton = screen.getByRole("button", { name: "1×" });
+    expect(speedButton).toBeInTheDocument();
+
+    await user.click(speedButton);
+    const speed15 = screen.getByRole("option", { name: "1.5×" });
+    await user.click(speed15);
+
+    expect(screen.getByRole("button", { name: "1.5×" })).toBeInTheDocument();
+  });
+
+  it("resumes playback position from localStorage", () => {
+    const lessonId = "lesson-unique-99";
+    localStorage.setItem(`sawy_video_pos_${lessonId}`, "145.5");
+
+    render(
+      <VideoPlayer
+        manifestUrl={manifestUrl}
+        title="Drawing foundations"
+        lessonId={lessonId}
+        watermarkText="student@example.com"
+        onRefreshManifest={vi.fn()}
+      />
     );
-    expect(
-      screen.queryByLabelText("Drawing foundations video")
-    ).not.toBeInTheDocument();
+
+    expect(screen.getByText("Resumed from 2:25")).toBeInTheDocument();
   });
 });

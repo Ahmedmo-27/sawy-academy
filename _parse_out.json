@@ -1,0 +1,786 @@
+{
+  "metadata": {
+    "repository": "Ahmedmo-27/sawy-academy",
+    "branch": "main",
+    "analysis_date": "Aug 6, 2026, 11:18 PM",
+    "scan_summary": {
+      "files_included": "",
+      "files_excluded": "",
+      "lines_analyzed": "33140"
+    }
+  },
+  "summary": {
+    "sast": {
+      "total_issues": 18,
+      "false_positives": 52,
+      "severity_distribution": {
+        "HIGH": 8,
+        "MEDIUM": 10,
+        "LOW": 0
+      }
+    },
+    "secrets": {
+      "total_detected": 2,
+      "confidence_distribution": {
+        "HIGH": 1,
+        "MEDIUM": 1,
+        "LOW": 0
+      }
+    },
+    "infrastructure": {
+      "total_issues": 0,
+      "severity_distribution": {
+        "HIGH": 0,
+        "MEDIUM": 0,
+        "LOW": 0
+      }
+    },
+    "sca": {
+      "total_vulnerabilities": 19,
+      "severity_distribution": {
+        "CRITICAL": 0,
+        "HIGH": 11,
+        "MEDIUM": 8,
+        "LOW": 0,
+        "UNKNOWN": 0
+      },
+      "healthy_packages_scanned": 484
+    },
+    "antipatterns": {
+      "total_issues": 287
+    },
+    "complex_functions": {
+      "total_complex_functions": 4
+    },
+    "docstrings_absent": {
+      "total_missing": 332
+    },
+    "duplicate_code": {
+      "total_groups": 22
+    },
+    "dead_code": {
+      "total_issues": 3
+    },
+    "sbom": {
+      "total_components": 490,
+      "permissive": 462,
+      "non_permissive": 28
+    }
+  },
+  "resultKeys": [
+    "sast",
+    "sast_false_positives",
+    "secrets",
+    "infrastructure",
+    "sca",
+    "sca_healthy_packages",
+    "antipatterns",
+    "complex_functions",
+    "docstrings_absent",
+    "duplicate_code",
+    "dead_code",
+    "sbom"
+  ],
+  "sast": [
+    {
+      "sev": "HIGH",
+      "file": "controllers/courseController.js",
+      "line": 104,
+      "title": "User-controlled request body is passed directly to a database model create or update operation. This can lead to mass as"
+    },
+    {
+      "sev": "HIGH",
+      "file": "controllers/courseController.js",
+      "line": 122,
+      "title": "User-controlled request body is passed directly to a database model create or update operation. This can lead to mass as"
+    },
+    {
+      "sev": "HIGH",
+      "file": "controllers/productController.js",
+      "line": 54,
+      "title": "User-controlled request body is passed directly to a database model create or update operation. This can lead to mass as"
+    },
+    {
+      "sev": "HIGH",
+      "file": "controllers/projectController.js",
+      "line": 81,
+      "title": "User-controlled request body is passed directly to a database model create or update operation. This can lead to mass as"
+    },
+    {
+      "sev": "HIGH",
+      "file": "controllers/researchController.js",
+      "line": 54,
+      "title": "User-controlled request body is passed directly to a database model create or update operation. This can lead to mass as"
+    },
+    {
+      "sev": "HIGH",
+      "file": "components/cart/CartProvider.tsx",
+      "line": 231,
+      "title": "An order or cart item quantity from user input is used in price calculations without validation that it is a positive nu"
+    },
+    {
+      "sev": "HIGH",
+      "file": "controllers/courseGroupController.js",
+      "line": 104,
+      "title": "User-controlled request body is passed directly to a database model create or update operation. This can lead to mass as"
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "routes/authRoutes.js",
+      "line": 11,
+      "title": "This Express application defines POST routes without CSRF protection middleware (such as `csurf` or `csrf-csrf`). Withou"
+    },
+    {
+      "sev": "HIGH",
+      "file": "controllers/lessonController.js",
+      "line": 96,
+      "title": "User-controlled request body is passed directly to a database model create or update operation. This can lead to mass as"
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "components/cms/HomePageStudio.tsx",
+      "line": 138,
+      "title": "A value derived from React component input is used as an `href`. If an attacker can supply a `javascript:` URI, clicking"
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "components/cms/HomePageStudio.tsx",
+      "line": 146,
+      "title": "A value derived from React component input is used as an `href`. If an attacker can supply a `javascript:` URI, clicking"
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "components/cms/HomePageStudio.tsx",
+      "line": 260,
+      "title": "A value derived from React component input is used as an `href`. If an attacker can supply a `javascript:` URI, clicking"
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "components/cms/HomePageStudio.tsx",
+      "line": 309,
+      "title": "A value derived from React component input is used as an `href`. If an attacker can supply a `javascript:` URI, clicking"
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "components/cms/HomePageStudio.tsx",
+      "line": 391,
+      "title": "A value derived from React component input is used as an `href`. If an attacker can supply a `javascript:` URI, clicking"
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "components/cms/HomePageStudio.tsx",
+      "line": 440,
+      "title": "A value derived from React component input is used as an `href`. If an attacker can supply a `javascript:` URI, clicking"
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "components/cms/HomePageStudio.tsx",
+      "line": 496,
+      "title": "A value derived from React component input is used as an `href`. If an attacker can supply a `javascript:` URI, clicking"
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "components/cms/HomePageStudio.tsx",
+      "line": 506,
+      "title": "A value derived from React component input is used as an `href`. If an attacker can supply a `javascript:` URI, clicking"
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "components/cms/HomePageStudio.tsx",
+      "line": 557,
+      "title": "A value derived from React component input is used as an `href`. If an attacker can supply a `javascript:` URI, clicking"
+    }
+  ],
+  "secrets": [
+    {
+      "sev": "HIGH",
+      "file": "seeders/seedAdmin.js",
+      "line": 7,
+      "title": "Secret Keyword",
+      "keys": [
+        "type",
+        "file_path",
+        "line_number",
+        "confidence"
+      ]
+    },
+    {
+      "sev": "MEDIUM",
+      "file": "lib/auth/jwt.js",
+      "line": 4,
+      "title": "Secret Keyword",
+      "keys": [
+        "type",
+        "file_path",
+        "line_number",
+        "confidence"
+      ]
+    }
+  ],
+  "scaSample": [
+    {
+      "sev": "High",
+      "pkg": "next",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "High",
+      "pkg": "next",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "High",
+      "pkg": "next",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "High",
+      "pkg": "brace-expansion",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "High",
+      "pkg": "brace-expansion",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "High",
+      "pkg": "brace-expansion",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "High",
+      "pkg": "brace-expansion",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "High",
+      "pkg": "postcss",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "High",
+      "pkg": "postcss",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "High",
+      "pkg": "postcss",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "High",
+      "pkg": "sharp",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "Medium",
+      "pkg": "next",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "Medium",
+      "pkg": "next",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "Medium",
+      "pkg": "next",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "Medium",
+      "pkg": "next",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "Medium",
+      "pkg": "next",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "Medium",
+      "pkg": "postcss",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "Medium",
+      "pkg": "postcss",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    },
+    {
+      "sev": "Medium",
+      "pkg": "postcss",
+      "title": "",
+      "keys": [
+        "vulnerability_id",
+        "package_name",
+        "current_version",
+        "severity",
+        "cvss_score",
+        "description",
+        "fixed_version",
+        "fix_available"
+      ]
+    }
+  ],
+  "sastBySev": {
+    "HIGH": 8,
+    "MEDIUM": 10
+  },
+  "sastCount": 18,
+  "fpCount": 52,
+  "dead_code": {
+    "count": 3,
+    "sample": [
+      {
+        "file": "components/animation/BlueprintGridLayer.tsx",
+        "title": "extra",
+        "keys": [
+          "type",
+          "sub_type",
+          "file_path",
+          "message",
+          "line_number",
+          "confidence"
+        ]
+      },
+      {
+        "file": "components/animation/BlueprintMorphImage.tsx",
+        "title": "extra",
+        "keys": [
+          "type",
+          "sub_type",
+          "file_path",
+          "message",
+          "line_number",
+          "confidence"
+        ]
+      },
+      {
+        "file": "components/animation/GsapReveal.tsx",
+        "title": "extra",
+        "keys": [
+          "type",
+          "sub_type",
+          "file_path",
+          "message",
+          "line_number",
+          "confidence"
+        ]
+      }
+    ]
+  },
+  "complex_functions": {
+    "count": 4,
+    "sample": [
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/components/Navigation.tsx/complex_functions.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/components/Navigation.tsx/complex_functions.j",
+        "keys": [
+          "file_path"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/components/auth/SignupForm.tsx/complex_functions.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/components/auth/SignupForm.tsx/complex_functi",
+        "keys": [
+          "file_path"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/components/logging/RouteLogger.tsx/complex_functions.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/components/logging/RouteLogger.tsx/complex_fu",
+        "keys": [
+          "file_path"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/lib/api/client.ts/complex_functions.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/lib/api/client.ts/complex_functions.json\"}",
+        "keys": [
+          "file_path"
+        ]
+      }
+    ]
+  },
+  "duplicate_code": {
+    "count": 22,
+    "sample": [
+      {
+        "title": "{\"group_id\":1,\"occurrences\":[{\"file_path\":\"\"},{\"file_path\":\"\"}]}",
+        "keys": [
+          "group_id",
+          "occurrences"
+        ]
+      },
+      {
+        "title": "{\"group_id\":2,\"occurrences\":[{\"file_path\":\"\"},{\"file_path\":\"\"}]}",
+        "keys": [
+          "group_id",
+          "occurrences"
+        ]
+      },
+      {
+        "title": "{\"group_id\":3,\"occurrences\":[{\"file_path\":\"\"},{\"file_path\":\"\"}]}",
+        "keys": [
+          "group_id",
+          "occurrences"
+        ]
+      },
+      {
+        "title": "{\"group_id\":4,\"occurrences\":[{\"file_path\":\"\"},{\"file_path\":\"\"}]}",
+        "keys": [
+          "group_id",
+          "occurrences"
+        ]
+      },
+      {
+        "title": "{\"group_id\":5,\"occurrences\":[{\"file_path\":\"\"},{\"file_path\":\"\"}]}",
+        "keys": [
+          "group_id",
+          "occurrences"
+        ]
+      }
+    ]
+  },
+  "antipatterns": {
+    "count": 287,
+    "sample": [
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/courses/[slug]/[lessonSlug]/page.tsx/anti_patterns.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/courses/[slug]/[lessonSlug]/page.tsx/anti",
+        "keys": [
+          "file_path",
+          "line_number",
+          "message",
+          "symbol"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/courses/[slug]/page.tsx/anti_patterns.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/courses/[slug]/page.tsx/anti_patterns.jso",
+        "keys": [
+          "file_path",
+          "line_number",
+          "message",
+          "symbol"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/courses/page.tsx/anti_patterns.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/courses/page.tsx/anti_patterns.json\",\"lin",
+        "keys": [
+          "file_path",
+          "line_number",
+          "message",
+          "symbol"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/courses/page.tsx/anti_patterns.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/courses/page.tsx/anti_patterns.json\",\"lin",
+        "keys": [
+          "file_path",
+          "line_number",
+          "message",
+          "symbol"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/loading.tsx/anti_patterns.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/loading.tsx/anti_patterns.json\",\"line_num",
+        "keys": [
+          "file_path",
+          "line_number",
+          "message",
+          "symbol"
+        ]
+      }
+    ]
+  },
+  "docstrings_absent": {
+    "count": 332,
+    "sample": [
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/.nav-remote-tmp.tsx/docstring.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/.nav-remote-tmp.tsx/docstring.json\"}",
+        "keys": [
+          "file_path"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/.nav-remote-tmp.tsx/docstring.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/.nav-remote-tmp.tsx/docstring.json\"}",
+        "keys": [
+          "file_path"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/.nav-remote-tmp.tsx/docstring.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/.nav-remote-tmp.tsx/docstring.json\"}",
+        "keys": [
+          "file_path"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/.nav-remote-tmp.tsx/docstring.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/.nav-remote-tmp.tsx/docstring.json\"}",
+        "keys": [
+          "file_path"
+        ]
+      },
+      {
+        "file": "3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/api/contact/route.ts/docstring.json",
+        "title": "{\"file_path\":\"3ddf3307abb59af6b7b1098050e01bae246ab9c1/app/api/contact/route.ts/docstring.json\"}",
+        "keys": [
+          "file_path"
+        ]
+      }
+    ]
+  },
+  "sbom": {
+    "count": 490,
+    "sample": [
+      {
+        "title": "cors",
+        "keys": [
+          "language",
+          "name",
+          "version",
+          "license",
+          "copyleftStrength",
+          "policyNote"
+        ]
+      },
+      {
+        "title": "dotenv",
+        "keys": [
+          "language",
+          "name",
+          "version",
+          "license",
+          "copyleftStrength",
+          "policyNote"
+        ]
+      },
+      {
+        "title": "express",
+        "keys": [
+          "language",
+          "name",
+          "version",
+          "license",
+          "copyleftStrength",
+          "policyNote"
+        ]
+      },
+      {
+        "title": "framer-motion",
+        "keys": [
+          "language",
+          "name",
+          "version",
+          "license",
+          "copyleftStrength",
+          "policyNote"
+        ]
+      },
+      {
+        "title": "gsap",
+        "keys": [
+          "language",
+          "name",
+          "version",
+          "license",
+          "copyleftStrength",
+          "policyNote"
+        ]
+      }
+    ]
+  },
+  "infrastructure": {
+    "count": 0,
+    "sample": []
+  }
+}

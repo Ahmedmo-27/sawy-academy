@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
+// Bilingual / Arabic font configuration (commented out)
+// import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { getSiteUrl } from "@/lib/site-url";
@@ -15,6 +17,15 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
 });
+
+/*
+const ibmPlexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-arabic",
+  display: "swap",
+});
+*/
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),

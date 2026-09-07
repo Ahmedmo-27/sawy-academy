@@ -3,12 +3,14 @@ const Course = require("../models/Course");
 const Lesson = require("../models/Lesson");
 const VideoAsset = require("../models/VideoAsset");
 const VideoProcessingJob = require("../models/VideoProcessingJob");
+const DocumentAsset = require("../models/DocumentAsset");
 const {
+  assertCourseAccess,
   authorizeLessonVideo,
 } = require("../lib/lessonVideoAccessPolicy");
 const { getMediaGrantTtlSeconds } = require("../lib/mediaGrant");
 const { deleteR2Object } = require("./videoUploadController");
-const { deletePrefix } = require("../lib/videoR2Storage");
+const videoR2Storage = require("../lib/videoR2Storage");
 const logger = require("../utils/logger");
 const { toSlug } = require("../utils/slug");
 const {
@@ -66,13 +68,34 @@ async function findLessonForCourse(course, lessonId) {
 async function list(req, res, next) {
   try {
     const course = await findCourseBySlug(req.params.slug);
+    let canAccess = false;
+    if (req.auth?.user?.role === "admin") {
+      canAccess = true;
+    } else if (req.auth) {
+      try {
+        await assertCourseAccess(req.auth, course);
+        canAccess = true;
+      } catch {
+        canAccess = false;
+      }
+    }
+
     const lessons = await Lesson.find({ _id: { $in: course.lessons } })
       .select("-videoUrl")
       .sort({
         order: 1,
-      });
+      })
+      .lean();
 
-    return sendSuccess(res, lessons);
+    const result = canAccess
+      ? lessons
+      : lessons.map((l) => ({
+          ...l,
+          content: "",
+          isGated: true,
+        }));
+
+    return sendSuccess(res, result);
   } catch (err) {
     return next(err);
   }
@@ -157,16 +180,20 @@ async function remove(req, res, next) {
   try {
     const course = await findCourseBySlug(req.params.slug);
     const lesson = await findLessonForCourse(course, req.params.lessonId);
-    const lessonWithVideo = await Lesson.findById(lesson._id).select(
-      "+videoObjectKey"
+    const lessonWithMedia = await Lesson.findById(lesson._id).select(
+      "+videoObjectKey +documentObjectKey"
     );
     const videoAssets = await VideoAsset.find({ lessonId: lesson._id }).select(
       "+source.objectKey +outputPrefix"
     );
+    const documentAssets = await DocumentAsset.find({
+      lessonId: lesson._id,
+    }).select("+objectKey");
 
     course.lessons = course.lessons.filter((id) => !id.equals(lesson._id));
     await course.save();
     await Lesson.findByIdAndDelete(lesson._id);
+
     if (videoAssets.length > 0) {
       const assetIds = videoAssets.map((asset) => asset._id);
       await Promise.all([
@@ -175,23 +202,49 @@ async function remove(req, res, next) {
       ]);
     }
 
-    if (lessonWithVideo?.videoObjectKey) {
-      deleteR2Object(lessonWithVideo.videoObjectKey).catch((error) => {
+    if (documentAssets.length > 0) {
+      await DocumentAsset.deleteMany({ lessonId: lesson._id });
+    }
+
+    if (lessonWithMedia?.videoObjectKey) {
+      deleteR2Object(lessonWithMedia.videoObjectKey).catch((error) => {
         logger.warn("Failed to remove deleted lesson video from R2", {
           lessonId: lesson._id,
           error,
         });
       });
     }
+
+    if (lessonWithMedia?.documentObjectKey) {
+      deleteR2Object(lessonWithMedia.documentObjectKey).catch((error) => {
+        logger.warn("Failed to remove deleted lesson document from R2", {
+          lessonId: lesson._id,
+          error,
+        });
+      });
+    }
+
     if (videoAssets.length > 0) {
       Promise.all(
         videoAssets.flatMap((asset) => [
           deleteR2Object(asset.source.objectKey),
-          deletePrefix(asset.outputPrefix),
-          deletePrefix(`${asset.outputPrefix.slice(0, -4)}staging/`),
+          videoR2Storage.deletePrefix(asset.outputPrefix),
+          videoR2Storage.deletePrefix(`${asset.outputPrefix.slice(0, -4)}staging/`),
         ])
       ).catch((error) => {
         logger.warn("Failed to remove deleted lesson video asset from R2", {
+          lessonId: lesson._id,
+          error,
+        });
+      });
+    }
+
+    if (documentAssets.length > 0) {
+      Promise.all([
+        ...documentAssets.map((doc) => deleteR2Object(doc.objectKey)),
+        videoR2Storage.deletePrefix(`docs/${course._id}/${lesson._id}/`),
+      ]).catch((error) => {
+        logger.warn("Failed to remove deleted lesson document asset from R2", {
           lessonId: lesson._id,
           error,
         });

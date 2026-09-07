@@ -38,6 +38,7 @@ import type {
 import { toSlug } from "@/lib/slug";
 import { runParallelStagedLoad } from "@/lib/load/stagedLoad";
 import { safeHref } from "@/lib/safeHref";
+// import { useLocale } from "@/lib/i18n";
 
 function text(value: unknown, fallback = "") {
   return typeof value === "string" ? value : fallback;
@@ -61,11 +62,30 @@ function SectionHeader({
   href: string;
   linkLabel: string;
 }) {
+  // const { locale } = useLocale();
+  // const isAr = locale === "ar";
   const safeLink = safeHref(href);
+  /*
+  const displayRoom = isAr && room
+    ? room
+        .replace(/0/g, "٠")
+        .replace(/1/g, "١")
+        .replace(/2/g, "٢")
+        .replace(/3/g, "٣")
+        .replace(/4/g, "٤")
+        .replace(/5/g, "٥")
+        .replace(/6/g, "٦")
+        .replace(/7/g, "٧")
+        .replace(/8/g, "٨")
+        .replace(/9/g, "٩")
+    : room;
+  */
+  const displayRoom = room;
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
       <div className="flex items-start gap-6">
-        <span className="dim-label pt-1">{room}</span>
+        <span className="dim-label pt-1">{displayRoom}</span>
         <div>
           <p className="eyebrow mb-2">{eyebrow}</p>
           <SplitTextReveal type="lines">
@@ -94,10 +114,31 @@ function HeroSection({
 }: {
   content: Record<string, unknown>;
 }) {
+  // const { locale, t } = useLocale();
+  // const isAr = locale === "ar";
   const jumpLinks = Array.isArray(content.jumpLinks)
     ? (content.jumpLinks as Array<{ href?: string; label?: string }>)
     : [];
   const heroImageUrl = text(content.heroImageUrl);
+  /*
+  const primaryCtaLabel =
+    isAr && (!content.primaryCtaLabel || content.primaryCtaLabel === "View")
+      ? t.common.view
+      : text(content.primaryCtaLabel, "View");
+  const secondaryCtaLabel =
+    isAr &&
+    (!content.secondaryCtaLabel || content.secondaryCtaLabel === "Browse")
+      ? t.common.browse
+      : text(content.secondaryCtaLabel, "Browse");
+  const floorPlanLabel =
+    isAr &&
+    (!content.floorPlanLabel || content.floorPlanLabel === "Floor plan")
+      ? t.rooms.floorPlan
+      : text(content.floorPlanLabel, "Floor plan");
+  */
+  const primaryCtaLabel = text(content.primaryCtaLabel, "View");
+  const secondaryCtaLabel = text(content.secondaryCtaLabel, "Browse");
+  const floorPlanLabel = text(content.floorPlanLabel, "Floor plan");
 
   return (
     <section className="relative overflow-x-clip" aria-label="Entrance">
@@ -145,7 +186,7 @@ function HeroSection({
                     href={safeHref(content.primaryCtaHref)}
                     className="cta-entrance w-full sm:w-auto justify-center sm:justify-start"
                   >
-                    {text(content.primaryCtaLabel, "View")}
+                    {primaryCtaLabel}
                   </Link>
                 )}
                 {safeHref(content.secondaryCtaHref) && (
@@ -153,7 +194,7 @@ function HeroSection({
                     href={safeHref(content.secondaryCtaHref)}
                     className="action-secondary self-start sm:self-center py-3 sm:py-0"
                   >
-                    {text(content.secondaryCtaLabel, "Browse")}
+                    {secondaryCtaLabel}
                   </Link>
                 )}
               </div>
@@ -172,7 +213,7 @@ function HeroSection({
                   aria-label="Jump to rooms"
                 >
                   <p className="label-caps mb-2 sm:mb-3">
-                    {text(content.floorPlanLabel, "Floor plan")}
+                    {floorPlanLabel}
                   </p>
                   <ul className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-2">
                     {jumpLinks.map((link, i) => {
