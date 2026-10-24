@@ -27,7 +27,7 @@ export function SectionCutDivider({
       {/* Centered label with equal flex rails on both sides */}
       <div className="relative flex w-full items-center justify-center">
         <motion.div
-          className="h-px min-w-0 flex-1 origin-left bg-charcoal/25"
+          className="h-[0.5px] min-w-0 flex-1 origin-left bg-charcoal/15"
           variants={{
             hidden: { scaleX: 0 },
             visible: { scaleX: 1 },
@@ -81,7 +81,7 @@ export function SectionCutDivider({
         </div>
 
         <motion.div
-          className="h-px min-w-0 flex-1 origin-right bg-charcoal/25"
+          className="h-[0.5px] min-w-0 flex-1 origin-right bg-charcoal/15"
           variants={{
             hidden: { scaleX: 0 },
             visible: { scaleX: 1 },
@@ -95,13 +95,13 @@ export function SectionCutDivider({
       </div>
 
       <motion.svg
-        className="mx-auto mt-1 h-3 w-full max-w-full opacity-15"
+        className="mx-auto mt-0.5 h-2.5 w-full max-w-full opacity-10"
         preserveAspectRatio="xMidYMid meet"
         viewBox="0 0 400 12"
         xmlns="http://www.w3.org/2000/svg"
         variants={{
           hidden: { opacity: 0 },
-          visible: { opacity: 0.15 },
+          visible: { opacity: 0.1 },
         }}
         transition={{
           duration: prefersReducedMotion ? 0 : 0.8,
@@ -122,7 +122,7 @@ export function SectionCutDivider({
               x2="20"
               y2="6"
               stroke="#d4d0c8"
-              strokeWidth="0.35"
+              strokeWidth="0.2"
             />
             <line
               x1="10"
@@ -130,13 +130,13 @@ export function SectionCutDivider({
               x2="10"
               y2="12"
               stroke="#d4d0c8"
-              strokeWidth="0.35"
+              strokeWidth="0.2"
             />
             <polygon
               points="10,2 12,6 10,10 8,6"
               fill="none"
               stroke="#d4d0c8"
-              strokeWidth="0.3"
+              strokeWidth="0.15"
             />
           </pattern>
         </defs>
@@ -156,11 +156,11 @@ function HatchMarks({
   prefersReducedMotion: boolean;
 }) {
   return (
-    <div className={`flex h-6 items-end gap-[5px] sm:gap-[6px] ${className}`}>
+    <div className={`flex h-5 items-end gap-[3px] sm:gap-[4px] ${className}`}>
       {Array.from({ length: count }).map((_, i) => (
         <motion.span
           key={i}
-          className="block h-3 w-px origin-bottom bg-charcoal/30"
+          className="block h-2.5 w-[0.5px] origin-bottom bg-charcoal/25"
           variants={{
             hidden: { scaleY: 0, opacity: 0 },
             visible: { scaleY: 1, opacity: 1 },

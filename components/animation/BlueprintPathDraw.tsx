@@ -61,7 +61,7 @@ export function BlueprintPathDraw({
   return (
     <svg
       ref={svgRef}
-      className={`mx-auto h-8 w-full max-w-full ${className}`}
+      className={`mx-auto h-6 w-full max-w-full ${className}`}
       viewBox="0 0 400 32"
       fill="none"
       preserveAspectRatio="xMidYMid meet"
@@ -72,15 +72,15 @@ export function BlueprintPathDraw({
         className="bp-draw"
         d="M20 16 H380"
         stroke="#d4d0c8"
-        strokeWidth="0.75"
+        strokeWidth="0.45"
       />
       {/* Symmetric end ticks */}
       <path
         className="bp-draw"
         d="M40 8 V24 M360 8 V24"
         stroke="#8b5a4a"
-        strokeWidth="0.5"
-        opacity="0.6"
+        strokeWidth="0.3"
+        opacity="0.5"
       />
       {variant === "section" && (
         <>
@@ -89,21 +89,21 @@ export function BlueprintPathDraw({
             className="bp-draw"
             d="M185 16 L200 8 L215 16 L200 24 Z"
             stroke="var(--color-construction)"
-            strokeWidth="0.5"
+            strokeWidth="0.3"
           />
           {/* Mirrored dashed segments */}
           <path
             className="bp-draw"
             d="M55 16 H95"
             stroke="var(--color-construction)"
-            strokeWidth="0.5"
+            strokeWidth="0.3"
             strokeDasharray="3 3"
           />
           <path
             className="bp-draw"
             d="M305 16 H345"
             stroke="var(--color-construction)"
-            strokeWidth="0.5"
+            strokeWidth="0.3"
             strokeDasharray="3 3"
           />
         </>

@@ -53,6 +53,11 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
       enterOffset: number;
       exitOffset: number;
       depth: number;
+      stackStepX: number;
+      stackStepY: number;
+      stackStepZ: number;
+      sideOpacity: number;
+      sideScale: number;
       /** Viewport-heights of scroll per card (hold + transition). */
       vhPerCard: number;
       /** Extra scroll after the last card settles. */
@@ -68,18 +73,20 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
         transformOrigin: "50% 50%",
         top: "50%",
         left: "50%",
-        yPercent: -50,
       });
 
       cardEls.forEach((card, i) => {
         const detail = card.querySelector<HTMLElement>("[data-scrub-detail]");
         const isActive = i === 0;
+        const depthIndex = Math.max(i - 1, 0);
+        const sideOpacity = Math.max(opts.sideOpacity - depthIndex * 0.16, 0.08);
         gsap.set(card, {
           rotateY: isActive ? 0 : opts.rotate,
-          xPercent: isActive ? CENTER : ENTER_RIGHT,
-          z: isActive ? 0 : -opts.depth,
-          opacity: isActive ? 1 : 0,
-          scale: isActive ? 1 : 0.92,
+          xPercent: isActive ? CENTER : ENTER_RIGHT + depthIndex * opts.stackStepX,
+          yPercent: isActive ? -50 : -50 + depthIndex * opts.stackStepY,
+          z: isActive ? 0 : -(opts.depth + depthIndex * opts.stackStepZ),
+          opacity: isActive ? 1 : sideOpacity,
+          scale: isActive ? 1 : Math.max(opts.sideScale - depthIndex * 0.02, 0.82),
           zIndex: isActive ? n : 0,
         });
         if (detail) {
@@ -118,6 +125,7 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
           prev.querySelector<HTMLElement>("[data-scrub-detail]");
         const nextDetail =
           card.querySelector<HTMLElement>("[data-scrub-detail]");
+        const trailing = cardEls.slice(i + 1);
         // Hold on the active card, then transition — linger before leaving.
         const hold = 0.45;
         const start = (i - 1) * (1 + hold) + hold;
@@ -130,6 +138,7 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
           {
             rotateY: -opts.rotate,
             xPercent: EXIT_LEFT,
+            yPercent: -50,
             z: -opts.depth,
             opacity: 0,
             scale: 0.92,
@@ -150,13 +159,15 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
           {
             rotateY: opts.rotate,
             xPercent: ENTER_RIGHT,
+            yPercent: -50,
             z: -opts.depth,
-            opacity: 0,
-            scale: 0.92,
+            opacity: opts.sideOpacity,
+            scale: opts.sideScale,
           },
           {
             rotateY: 0,
             xPercent: CENTER,
+            yPercent: -50,
             z: 0,
             opacity: 1,
             scale: 1,
@@ -165,6 +176,24 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
           },
           start
         );
+        trailing.forEach((tailCard, trailingIndex) => {
+          const slot = trailingIndex;
+          const opacity = Math.max(opts.sideOpacity - slot * 0.16, 0.08);
+          tl.to(
+            tailCard,
+            {
+              rotateY: opts.rotate,
+              xPercent: ENTER_RIGHT + slot * opts.stackStepX,
+              yPercent: -50 + slot * opts.stackStepY,
+              z: -(opts.depth + slot * opts.stackStepZ),
+              opacity,
+              scale: Math.max(opts.sideScale - slot * 0.02, 0.82),
+              ease: "none",
+              duration: 1,
+            },
+            start
+          );
+        });
         if (nextDetail) {
           tl.fromTo(
             nextDetail,
@@ -189,19 +218,29 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
     mm.add("(max-width: 767px)", () =>
       setup({
         rotate: 10,
-        enterOffset: 100,
-        exitOffset: 100,
+        enterOffset: 96,
+        exitOffset: 116,
         depth: 70,
+        stackStepX: 15,
+        stackStepY: 1.6,
+        stackStepZ: 44,
+        sideOpacity: 0.46,
+        sideScale: 0.9,
         vhPerCard: 0.45,
         vhSettle: 0.2,
       })
     );
     mm.add("(min-width: 768px)", () =>
       setup({
-        rotate: 18,
-        enterOffset: 78,
-        exitOffset: 78,
-        depth: 120,
+        rotate: 24,
+        enterOffset: 108,
+        exitOffset: 126,
+        depth: 145,
+        stackStepX: 18,
+        stackStepY: 1.8,
+        stackStepZ: 52,
+        sideOpacity: 0.5,
+        sideScale: 0.88,
         vhPerCard: 0.5,
         vhSettle: 0.2,
       })

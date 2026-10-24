@@ -20,18 +20,6 @@ const portfolioFilters = [
   "Competitions",
 ] as const;
 
-const spanMap = {
-  tall: "col-span-12 md:col-span-6 lg:col-span-5",
-  wide: "col-span-12 lg:col-span-7",
-  square: "col-span-12 md:col-span-6 lg:col-span-5",
-};
-
-const aspectMap = {
-  tall: "aspect-[4/5]",
-  wide: "aspect-[16/10]",
-  square: "aspect-[4/5] lg:aspect-square",
-};
-
 type Filter = (typeof portfolioFilters)[number];
 
 export function PortfolioStudio() {
@@ -232,28 +220,25 @@ export function PortfolioStudio() {
             <>
               <GsapStagger
                 key={filtered.map((p) => p.id).join("-")}
-                className="grid min-w-0 max-w-full grid-cols-12 gap-x-0 gap-y-10 sm:gap-x-5 sm:gap-y-12 lg:gap-x-10 lg:gap-y-16"
+                className="grid min-w-0 max-w-full grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:gap-x-12 lg:gap-y-16"
               >
-                {filtered.map((project) => {
-                  const aspect = project.aspect ?? "square";
-                  return (
-                    <div
-                      key={project.id}
-                      className={`min-w-0 max-w-full ${spanMap[aspect]}`}
-                    >
-                      <ProjectCard
-                        title={project.title}
-                        category={project.category}
-                        year={project.year}
-                        image={project.image}
-                        sheetRef={project.sheetRef ?? ""}
-                        href={`/portfolio/${project.slug}`}
-                        aspectClass={aspectMap[aspect]}
-                        index={projects.findIndex((item) => item.id === project.id)}
-                      />
-                    </div>
-                  );
-                })}
+                {filtered.map((project) => (
+                  <div
+                    key={project.id}
+                    className="min-w-0 max-w-full"
+                  >
+                    <ProjectCard
+                      title={project.title}
+                      category={project.category}
+                      year={project.year}
+                      image={project.image}
+                      sheetRef={project.sheetRef ?? ""}
+                      href={`/portfolio/${project.slug}`}
+                      aspectClass="aspect-[16/10]"
+                      index={projects.findIndex((item) => item.id === project.id)}
+                    />
+                  </div>
+                ))}
               </GsapStagger>
               {filtered.length === 0 && (
                 <AsyncState
