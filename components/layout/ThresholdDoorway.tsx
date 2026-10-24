@@ -36,7 +36,7 @@ export function ThresholdDoorway({ label, className = "" }: ThresholdDoorwayProp
 
   return (
     <div
-      className={`section-compressed bg-concrete-dark/30 ${className}`}
+      className={`py-3.5 border-y border-charcoal/10 bg-concrete-dark/50 ${className}`}
       aria-hidden={!label}
     >
       <PageContainer className="py-4">

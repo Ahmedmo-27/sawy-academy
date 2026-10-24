@@ -27,7 +27,7 @@ export function SectionCutDivider({
       {/* Centered label with equal flex rails on both sides */}
       <div className="relative flex w-full items-center justify-center">
         <motion.div
-          className="h-px min-w-0 flex-1 origin-left bg-hairline"
+          className="h-px min-w-0 flex-1 origin-left bg-charcoal/25"
           variants={{
             hidden: { scaleX: 0 },
             visible: { scaleX: 1 },
@@ -52,7 +52,7 @@ export function SectionCutDivider({
 
           {label ? (
             <motion.span
-              className="label-caps mx-2 max-w-[min(12rem,42vw)] truncate whitespace-nowrap text-charcoal/25 sm:mx-4 sm:max-w-[min(20rem,50vw)]"
+              className="text-[0.75rem] font-semibold uppercase tracking-[0.16em] mx-2 max-w-[min(12rem,42vw)] truncate whitespace-nowrap text-charcoal sm:mx-4 sm:max-w-[min(20rem,50vw)]"
               title={label}
               variants={{
                 hidden: { opacity: 0 },
@@ -81,7 +81,7 @@ export function SectionCutDivider({
         </div>
 
         <motion.div
-          className="h-px min-w-0 flex-1 origin-right bg-hairline"
+          className="h-px min-w-0 flex-1 origin-right bg-charcoal/25"
           variants={{
             hidden: { scaleX: 0 },
             visible: { scaleX: 1 },
@@ -160,7 +160,7 @@ function HatchMarks({
       {Array.from({ length: count }).map((_, i) => (
         <motion.span
           key={i}
-          className="block h-3 w-px origin-bottom bg-charcoal/12"
+          className="block h-3 w-px origin-bottom bg-charcoal/30"
           variants={{
             hidden: { scaleY: 0, opacity: 0 },
             visible: { scaleY: 1, opacity: 1 },

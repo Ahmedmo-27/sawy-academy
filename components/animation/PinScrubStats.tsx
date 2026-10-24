@@ -192,8 +192,8 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
         enterOffset: 100,
         exitOffset: 100,
         depth: 70,
-        vhPerCard: 1.05,
-        vhSettle: 0.45,
+        vhPerCard: 0.45,
+        vhSettle: 0.2,
       })
     );
     mm.add("(min-width: 768px)", () =>
@@ -202,8 +202,8 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
         enterOffset: 78,
         exitOffset: 78,
         depth: 120,
-        vhPerCard: 1.15,
-        vhSettle: 0.5,
+        vhPerCard: 0.5,
+        vhSettle: 0.2,
       })
     );
 
@@ -230,7 +230,7 @@ export function PinScrubStats({ items, className = "" }: PinScrubStatsProps) {
             <article
               key={`${item.label}-${i}`}
               data-scrub-card
-              className="absolute flex h-[98%] w-[min(55rem,100%)] max-w-full flex-col overflow-hidden border border-hairline bg-concrete will-change-transform"
+              className="absolute flex h-[98%] w-[min(55rem,100%)] max-w-full flex-col overflow-hidden border border-charcoal/15 bg-white shadow-[0_12px_40px_-6px_rgba(26,26,26,0.10)] will-change-transform"
             >
               {item.image ? (
                 <div className="relative min-h-0 w-full flex-[1.15] overflow-hidden border-b border-hairline bg-concrete-dark">

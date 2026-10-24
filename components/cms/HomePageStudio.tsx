@@ -83,20 +83,22 @@ function SectionHeader({
   const displayRoom = room;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
-      <div className="flex items-start gap-6">
-        <span className="dim-label pt-1">{displayRoom}</span>
+    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8 pb-4 border-b border-charcoal/10">
+      <div className="flex items-start gap-4 sm:gap-6">
+        <span className="inline-flex items-center justify-center px-2.5 py-1 text-[0.8125rem] font-mono font-semibold text-clay bg-clay/10 border border-clay/20 shrink-0">
+          {displayRoom}
+        </span>
         <div>
-          <p className="eyebrow mb-2">{eyebrow}</p>
+          <p className="eyebrow mb-1.5 text-clay">{eyebrow}</p>
           <SplitTextReveal type="lines">
-            <h2 className="type-heading">{title}</h2>
+            <h2 className="type-heading font-serif text-charcoal">{title}</h2>
           </SplitTextReveal>
         </div>
       </div>
       {safeLink && linkLabel && (
         <GsapReveal type="text" delay={0.06}>
-          <Link href={safeLink} className="action-secondary shrink-0">
-            {linkLabel}
+          <Link href={safeLink} className="action-secondary shrink-0 pb-1">
+            {linkLabel} →
           </Link>
         </GsapReveal>
       )}
@@ -146,7 +148,7 @@ function HeroSection({
       <HeroConstruction />
       <GridColumns />
 
-      <PageContainer className="relative z-10 pt-[calc(var(--nav-height)+3rem+env(safe-area-inset-top))] pb-8 sm:pt-32 sm:pb-12 lg:pt-40 lg:pb-16">
+      <PageContainer className="relative z-10 pt-[calc(var(--nav-height)+1.5rem+env(safe-area-inset-top))] pb-8 sm:pt-24 sm:pb-10 lg:pt-28 lg:pb-12">
         <div className="grid min-w-0 grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:items-center lg:gap-6">
           <div className="order-2 min-w-0 max-w-full lg:order-none lg:col-span-5 lg:pr-4">
             <GsapReveal type="text" immediate className="min-w-0 max-w-full">
@@ -264,38 +266,38 @@ function PhilosophySection({ content }: { content: Record<string, unknown> }) {
   return (
     <>
       <ThresholdDoorway label={text(content.roomLabel, "PHILOSOPHY")} />
-      <Section id="philosophy" rhythm="atrium" contained={false}>
+      <Section id="philosophy" rhythm="standard" contained={false}>
         <PageContainer>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
-            <div className="lg:col-span-1">
-              <span className="dim-label">
-                {text(content.roomNumber, "01")}
-              </span>
-            </div>
-            <div className="lg:col-span-7">
-              <blockquote>
-                <GsapReveal type="heading">
-                  <p className="type-display leading-snug mb-6">
-                    {text(content.quote)}
-                  </p>
+          <div className="surface-card-elevated p-8 sm:p-10 lg:p-12 border-l-4 border-l-clay">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              <div className="lg:col-span-8">
+                <span className="inline-flex items-center justify-center px-2.5 py-1 text-[0.8125rem] font-mono font-semibold text-clay bg-clay/10 border border-clay/20 mb-4">
+                  ROOM {text(content.roomNumber, "01")}
+                </span>
+                <blockquote>
+                  <GsapReveal type="heading">
+                    <p className="type-display leading-snug mb-6 text-charcoal">
+                      “{text(content.quote)}”
+                    </p>
+                  </GsapReveal>
+                  <GsapReveal type="text" delay={0.08}>
+                    <footer className="eyebrow text-clay">
+                      — {text(content.attribution)}
+                    </footer>
+                  </GsapReveal>
+                </blockquote>
+              </div>
+              <div className="lg:col-span-4">
+                <GsapReveal type="image">
+                  <MediaBay
+                    src={text(content.philosophyImageUrl)}
+                    alt="Philosophy diagram"
+                    className="aspect-[4/3] lg:aspect-[4/5] border border-charcoal/10"
+                    fallback="plan"
+                    morph
+                  />
                 </GsapReveal>
-                <GsapReveal type="text" delay={0.08}>
-                  <footer className="eyebrow text-clay">
-                    — {text(content.attribution)}
-                  </footer>
-                </GsapReveal>
-              </blockquote>
-            </div>
-            <div className="lg:col-span-4">
-              <GsapReveal type="image">
-                <MediaBay
-                  src={text(content.philosophyImageUrl)}
-                  alt="Philosophy diagram"
-                  className="aspect-[4/3] lg:aspect-[4/5]"
-                  fallback="plan"
-                  morph
-                />
-              </GsapReveal>
+              </div>
             </div>
           </div>
         </PageContainer>
@@ -496,7 +498,7 @@ function CoursesSection({
             linkLabel={text(content.linkLabel, "Full curriculum")}
           />
           <ThresholdFrame label={text(content.thresholdLabel, "Programme index")}>
-            <GsapStagger className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-hairline mt-6">
+            <GsapStagger className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               {featured.map((group) => {
                 const courses = (group.courses ?? []).filter(
                   (c): c is NonNullable<typeof c> & object =>
@@ -506,49 +508,51 @@ function CoursesSection({
                 return (
                   <div
                     key={group._id ?? group.id ?? group.title}
-                    className="bg-concrete p-6 lg:p-8 flex flex-col elevation-surface"
+                    className="surface-card-elevated p-6 lg:p-8 flex flex-col group"
                   >
                     <MediaBay
                       src={group.image}
                       alt={group.title}
-                      className="aspect-[16/10] mb-6"
+                      className="aspect-[16/10] mb-6 overflow-hidden border border-charcoal/10"
                       fallback="course"
                       morph
                     />
-                    <p className="eyebrow mb-2">{group.subtitle}</p>
-                    <h3 className="type-title mb-3">{group.title}</h3>
-                    <p className="type-infill mb-6 flex-1">
+                    <p className="eyebrow mb-2 text-clay">{group.subtitle}</p>
+                    <h3 className="type-title mb-3 text-xl sm:text-2xl font-serif font-medium group-hover:text-clay transition-colors">{group.title}</h3>
+                    <p className="type-infill mb-6 flex-1 text-charcoal/80">
                       {first && "description" in first
                         ? String(first.description ?? "")
                         : ""}
                     </p>
-                    <div className="hairline-t pt-6 space-y-4">
-                      <span className="label-caps">
-                        {courses.length} courses
-                      </span>
+                    <div className="border-t border-charcoal/10 pt-6 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="label-caps font-semibold px-2.5 py-1 bg-concrete border border-charcoal/10">
+                          {courses.length} courses
+                        </span>
+                        {group.bundlePrice ? (
+                          <p className="font-serif font-semibold text-xl text-clay">
+                            {group.bundlePrice}
+                          </p>
+                        ) : (
+                          <p className="type-infill font-medium">
+                            From{" "}
+                            {first && "price" in first
+                              ? String(first.price ?? "")
+                              : ""}
+                          </p>
+                        )}
+                      </div>
                       {group.type === "leveled" && (
                         <LevelProgressLine
                           progress={1}
                           className="max-w-[100px]"
                         />
                       )}
-                      {group.bundlePrice ? (
-                        <p className="type-display text-clay">
-                          {group.bundlePrice}
-                        </p>
-                      ) : (
-                        <p className="type-infill">
-                          From{" "}
-                          {first && "price" in first
-                            ? String(first.price ?? "")
-                            : ""}
-                        </p>
-                      )}
                       <Link
                         href={groupHref(group)}
-                        className="action-secondary"
+                        className="cta-entrance w-full justify-center text-center mt-2"
                       >
-                        View syllabus
+                        View syllabus →
                       </Link>
                     </div>
                   </div>
@@ -641,34 +645,34 @@ function ResearchSection({
           <ThresholdFrame
             label={text(content.thresholdLabel, "Bibliography")}
           >
-            <div className="mt-6 space-y-0">
+            <div className="mt-6 space-y-4">
               {featured.map((item, i) => (
                 <GsapReveal key={item.id} type="card" delay={i * 0.055}>
-                  <article className={`py-8 ${i > 0 ? "hairline-t" : ""}`}>
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+                  <article className="surface-card-elevated p-6 lg:p-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
                       <div className="lg:col-span-3">
                         <MediaBay
                           src={item.image}
                           alt={item.title}
-                          className="aspect-[4/3] sm:aspect-[4/5] max-w-[18rem] sm:max-w-[12rem]"
+                          className="aspect-[4/3] sm:aspect-[4/5] max-w-[18rem] sm:max-w-[12rem] border border-charcoal/10"
                           fallback="research"
                           morph
                         />
-                        <div className="mt-4 flex gap-4 lg:flex-col lg:gap-2">
-                          <span className="label-caps">{item.category}</span>
-                          <span className="label-caps text-charcoal-infill">
+                        <div className="mt-4 flex gap-3 lg:flex-col lg:gap-1.5">
+                          <span className="label-caps font-semibold text-clay">{item.category}</span>
+                          <span className="label-caps font-mono text-charcoal/70">
                             {item.year}
                           </span>
                         </div>
                       </div>
                       <div className="lg:col-span-9">
-                        <h3 className="type-title mb-2">
+                        <h3 className="type-title mb-2 text-xl sm:text-2xl font-serif font-medium text-charcoal">
                           {item.title}
                         </h3>
-                        <p className="label-caps mb-3 text-charcoal-infill">
+                        <p className="label-caps mb-3 text-clay font-medium">
                           {item.venue}
                         </p>
-                        <p className="type-infill line-clamp-2">
+                        <p className="type-infill line-clamp-3 text-charcoal/80 leading-relaxed">
                           {item.abstract}
                         </p>
                       </div>
@@ -704,9 +708,9 @@ function ContactSection({
             linkLabel={text(content.linkLabel, "Send a message")}
           />
           <GsapReveal type="card">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-hairline">
-              <div className="bg-concrete p-6 lg:p-10 lg:col-span-5 elevation-surface">
-                <p className="type-infill max-w-lg mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 surface-card-elevated overflow-hidden">
+              <div className="bg-white p-6 lg:p-10 lg:col-span-5 border-b lg:border-b-0 lg:border-r border-charcoal/10">
+                <p className="type-body text-charcoal/80 max-w-lg mb-8 leading-relaxed">
                   {text(content.body)}
                 </p>
                 <Magnetic>
@@ -718,7 +722,7 @@ function ContactSection({
                   </Link>
                 </Magnetic>
               </div>
-              <div className="bg-concrete lg:col-span-3">
+              <div className="bg-concrete-dark/10 lg:col-span-3 border-b lg:border-b-0 lg:border-r border-charcoal/10">
                 <MediaBay
                   src={text(content.contactImageUrl)}
                   alt="Studio"
@@ -727,7 +731,7 @@ function ContactSection({
                   morph
                 />
               </div>
-              <div className="bg-concrete-dark/40 p-6 lg:p-10 lg:col-span-4">
+              <div className="bg-concrete-dark/30 p-6 lg:p-10 lg:col-span-4">
                 <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
                 <dl className="space-y-6">
                   <div>
@@ -794,6 +798,58 @@ function CustomSection({ content }: { content: Record<string, unknown> }) {
         </PageContainer>
       </Section>
     </>
+  );
+}
+
+function QuickJumpDock() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      setVisible(window.scrollY > 400);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  if (!visible) return null;
+
+  const items = [
+    { id: "philosophy", label: "Manifesto" },
+    { id: "studio-pulse", label: "Pulse" },
+    { id: "portfolio", label: "Work" },
+    { id: "courses", label: "Courses" },
+    { id: "products", label: "Shop" },
+    { id: "researches", label: "Research" },
+    { id: "contact", label: "Contact" },
+  ];
+
+  return (
+    <aside
+      aria-label="Quick section navigation"
+      className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 hidden md:flex items-center gap-1 px-3.5 py-2 bg-charcoal/95 text-concrete rounded-full backdrop-blur-md shadow-2xl border border-white/20 transition-all duration-300"
+    >
+      <span className="text-[11px] font-mono font-semibold text-clay uppercase tracking-wider pl-1.5 pr-1 select-none">
+        Index //
+      </span>
+      {items.map((item) => (
+        <a
+          key={item.id}
+          href={`#${item.id}`}
+          className="text-[12px] font-medium tracking-wide uppercase px-2.5 py-1 rounded-full text-concrete/80 hover:text-white hover:bg-white/15 transition-colors"
+        >
+          {item.label}
+        </a>
+      ))}
+      <a
+        href="#main-content"
+        aria-label="Back to top"
+        className="ml-1 px-2 py-1 text-clay hover:text-white text-[12px] font-bold transition-colors"
+        title="Top of page"
+      >
+        ↑
+      </a>
+    </aside>
   );
 }
 
@@ -932,6 +988,7 @@ export function HomePageStudio() {
           </div>
         );
       })}
+      <QuickJumpDock />
     </>
   );
 }
