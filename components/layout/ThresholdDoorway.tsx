@@ -36,11 +36,11 @@ export function ThresholdDoorway({ label, className = "" }: ThresholdDoorwayProp
 
   return (
     <div
-      className={`py-3.5 border-y border-charcoal/10 bg-concrete-dark/50 ${className}`}
+      className={`border-y border-charcoal/5 bg-concrete-dark/30 py-2 ${className}`}
       aria-hidden={!label}
     >
-      <PageContainer className="py-4">
-        <BlueprintPathDraw className="mb-2" />
+      <PageContainer className="py-3">
+        <BlueprintPathDraw className="mb-1.5" />
         <SectionCutDivider label={label} />
       </PageContainer>
     </div>

@@ -244,11 +244,11 @@ export function PageTransition() {
             key={index}
             data-page-panel
             className={`relative h-full will-change-transform ${
-              index % 2 === 0 ? "bg-charcoal" : "bg-charcoal-muted"
+              index % 2 === 0 ? "bg-concrete" : "bg-concrete-dark"
             }`}
           >
-            <span className="absolute inset-y-0 right-0 w-px bg-concrete/10" />
-            <span className="absolute left-3 top-3 font-sans text-[9px] tracking-[0.2em] text-concrete/30 sm:left-4 sm:top-4">
+            <span className="absolute inset-y-0 right-0 w-px bg-charcoal/10" />
+            <span className="absolute left-3 top-3 font-sans text-[9px] tracking-[0.2em] text-charcoal/40 sm:left-4 sm:top-4">
               {String(index + 1).padStart(2, "0")}
             </span>
           </div>
@@ -259,19 +259,19 @@ export function PageTransition() {
         data-page-label
         className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
       >
-        <p className="mb-3 font-sans text-[10px] font-medium uppercase tracking-[0.32em] text-clay-muted sm:text-xs">
+        <p className="mb-3 font-sans text-[10px] font-medium uppercase tracking-[0.32em] text-clay sm:text-xs">
           Sawy Academy
         </p>
-        <p className="font-serif text-3xl font-light text-concrete sm:text-5xl">
+        <p className="font-serif text-3xl font-light text-charcoal sm:text-5xl">
           {destination}
         </p>
         <span
           data-page-rule
-          className="mt-6 block h-px w-20 bg-clay-muted sm:w-28"
+          className="mt-6 block h-px w-20 bg-clay sm:w-28"
         />
       </div>
 
-      <span className="absolute bottom-5 left-5 font-sans text-[9px] uppercase tracking-[0.24em] text-concrete/35 sm:bottom-7 sm:left-8">
+      <span className="absolute bottom-5 left-5 font-sans text-[9px] uppercase tracking-[0.24em] text-charcoal/50 sm:bottom-7 sm:left-8">
         Drawing the next space
       </span>
     </div>

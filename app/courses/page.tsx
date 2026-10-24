@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BioGeometryShape } from "@/components/BioGeometryShape";
 import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { GsapReveal, GsapStagger } from "@/components/animation/GsapReveal";
 import { SplitTextReveal } from "@/components/animation/SplitTextReveal";
 import { EnrollButton } from "@/components/courses/EnrollButton";
+import { CourseTrackNav, type CourseTrack } from "@/components/courses/CourseTrackNav";
+import { CurriculumPathwayGrid } from "@/components/courses/CurriculumPathwayGrid";
+import { BiogeometryLevelStepper } from "@/components/courses/BiogeometryLevelStepper";
 import { MediaBay } from "@/components/decorative/MediaBay";
 import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
@@ -51,7 +54,7 @@ function CourseListing({
             <Link
               href={`/courses/${course.slug}`}
               aria-label={`View ${course.title} course details`}
-              className={`group grid min-h-11 grid-cols-1 gap-y-6 py-8 transition-colors duration-300 hover:bg-concrete-dark/25 focus-visible:bg-concrete-dark/25 sm:gap-x-6 sm:px-4 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-5 ${
+              className={`group grid min-h-11 grid-cols-1 gap-y-4 py-5 transition-colors duration-300 hover:bg-concrete-dark/25 focus-visible:bg-concrete-dark/25 sm:gap-x-4 sm:px-2 lg:grid-cols-12 lg:items-center lg:gap-6 lg:px-3 ${
                 numbered
                   ? "sm:grid-cols-[auto_7rem_minmax(0,1fr)]"
                   : "sm:grid-cols-[7rem_minmax(0,1fr)]"
@@ -87,15 +90,15 @@ function CourseListing({
                     : "sm:col-start-2 lg:col-start-auto lg:col-span-6"
                 } min-w-0`}
               >
-                <ScaleBar scale="1:100" className="mb-3 max-w-[100px]" />
-                <h3 className="font-serif font-medium text-xl sm:text-2xl mb-2 text-charcoal transition-colors duration-200 group-hover:text-clay">
+                <ScaleBar scale="1:100" className="mb-2 max-w-[100px]" />
+                <h3 className="font-serif font-medium text-2xl sm:text-[2rem] mb-2 text-charcoal transition-colors duration-200 group-hover:text-clay">
                   {course.title}
                 </h3>
-                <p className="type-infill line-clamp-none max-w-[42rem] leading-relaxed sm:line-clamp-2">
+                <p className="line-clamp-none max-w-[44rem] text-base leading-relaxed sm:text-[1.125rem] sm:line-clamp-3 text-charcoal/90">
                   {course.description}
                 </p>
-                <span className="action-secondary mt-4 inline-flex min-h-11 items-center">
-                  View course
+                <span className="action-secondary mt-3.5 inline-flex min-h-10 items-center px-3.5 py-2 text-sm sm:text-base font-medium">
+                  View course details →
                 </span>
               </div>
               <div
@@ -103,19 +106,19 @@ function CourseListing({
                   numbered
                     ? "sm:col-start-3 lg:col-start-auto"
                     : "sm:col-start-2 lg:col-start-auto"
-                } flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-hairline pt-5 sm:border-0 sm:pt-0 lg:col-span-3 lg:flex-col lg:items-end`}
+                } flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-hairline pt-4 sm:border-0 sm:pt-0 lg:col-span-3 lg:flex-col lg:items-end`}
               >
-                <span className="label-caps text-charcoal">
+                <span className="label-caps text-sm text-charcoal font-semibold tracking-wider">
                   {course.level}
                 </span>
                 <LevelProgressLine
                   progress={parseLevelProgress(course.level)}
                   className="w-24 lg:ml-auto lg:w-full lg:max-w-[140px]"
                 />
-                <span className="type-infill basis-full lg:basis-auto">
+                <span className="basis-full text-base sm:text-[1.0625rem] font-medium text-charcoal/90 lg:basis-auto">
                   {course.instructor}
                 </span>
-                <span className="font-serif font-semibold text-lg text-clay lg:mt-1">
+                <span className="font-serif font-medium text-sm sm:text-base text-clay lg:mt-1">
                   {course.price}
                 </span>
               </div>
@@ -133,6 +136,37 @@ export default function CoursesPage() {
   const [progress, setProgress] = useState(0);
   const [loadError, setLoadError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [activeTrack, setActiveTrack] = useState<CourseTrack>("all");
+
+  // Read URL query parameter ?track= on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const trackParam = params.get("track");
+      if (trackParam === "diploma" || trackParam === "biogeometry" || trackParam === "all") {
+        setActiveTrack(trackParam);
+      }
+    }
+  }, []);
+
+  const handleSelectTrack = (track: CourseTrack) => {
+    setActiveTrack(track);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (track === "all") {
+        url.searchParams.delete("track");
+      } else {
+        url.searchParams.set("track", track);
+      }
+      window.history.replaceState({}, "", url.toString());
+
+      // If switching to a specific track, scroll gently to the curriculum section
+      const targetElement = document.getElementById(track === "all" ? "curriculum-top" : track);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -176,6 +210,39 @@ export default function CoursesPage() {
     };
   }, [reloadKey]);
 
+  // Identify groups
+  const diplomaGroup = useMemo(
+    () => courseGroups.find((g) => g.type === "diploma"),
+    [courseGroups]
+  );
+  const biogeometryGroup = useMemo(
+    () =>
+      courseGroups.find(
+        (g) => g.type === "leveled" || g.title.toLowerCase().includes("biogeometry")
+      ),
+    [courseGroups]
+  );
+
+  const diplomaCourses = useMemo(
+    () => (diplomaGroup ? asCourses(diplomaGroup) : []),
+    [diplomaGroup]
+  );
+  const biogeometryCourses = useMemo(
+    () => (biogeometryGroup ? asCourses(biogeometryGroup) : []),
+    [biogeometryGroup]
+  );
+
+  // Groups to display based on track filter
+  const visibleGroups = useMemo(() => {
+    if (activeTrack === "diploma") {
+      return diplomaGroup ? [diplomaGroup] : [];
+    }
+    if (activeTrack === "biogeometry") {
+      return biogeometryGroup ? [biogeometryGroup] : [];
+    }
+    return courseGroups;
+  }, [activeTrack, courseGroups, diplomaGroup, biogeometryGroup]);
+
   return (
     <>
       <CmsPageHeader pageKey="courses" />
@@ -183,18 +250,19 @@ export default function CoursesPage() {
       <ThresholdDoorway label="CURRICULUM" />
 
       <Section
+        id="curriculum-top"
         rhythm="atrium"
         contained={false}
         className={!loading && !loadError && courseGroups.length > 0 ? "pb-4" : undefined}
       >
-        <PageContainer className="relative space-y-20 lg:space-y-28">
-          {/* Drafting accents stay local to the curriculum instead of following reading. */}
+        <PageContainer className="relative space-y-16 lg:space-y-24">
+          {/* Drafting accents stay local to the curriculum */}
           <BioGeometryShape
             kind="coil"
             variant="draw"
             size={280}
             stroke="var(--color-clay)"
-            opacity={0.5}
+            opacity={0.4}
             drawEnd={0.5}
             parallax={80}
             parallaxX={40}
@@ -206,7 +274,7 @@ export default function CoursesPage() {
             variant="draw"
             size={240}
             stroke="var(--color-clay-muted)"
-            opacity={0.45}
+            opacity={0.35}
             drawEnd={0.7}
             parallax={60}
             parallaxX={-50}
@@ -241,154 +309,186 @@ export default function CoursesPage() {
               </div>
             </ThresholdFrame>
           )}
-          {!loading &&
-            !loadError &&
-            courseGroups.map((group, groupIndex) => {
-              const slug = courseGroupSlug(group);
-              const courses = asCourses(group);
-              return (
-                <div
-                  key={group._id ?? group.id ?? slug}
-                  className="relative"
-                >
-                  {groupIndex > 0 && (
-                    <ThresholdDoorway
-                      label={
-                        group.type === "leveled"
-                          ? "LEVEL PROGRESSION"
-                          : "DIPLOMA"
-                      }
-                      className="mb-12"
-                    />
-                  )}
 
-                  <GsapReveal type="heading">
-                    <div className="relative z-[1] mb-10 space-y-8">
-                      <MediaBay
-                        src={group.image}
-                        alt={group.title}
-                        className={`w-full ${
-                          groupIndex === 0
-                            ? "aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9]"
-                            : "aspect-[16/10] lg:aspect-[21/9]"
-                        }`}
-                        fallback="course"
-                        morph
-                        priority={groupIndex === 0}
-                        sizes="100vw"
-                      />
-                      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end">
-                        <div className="lg:col-span-8">
-                          <p className="eyebrow mb-2">{group.subtitle}</p>
-                          <SplitTextReveal type="lines">
-                            <h2 className="type-heading">{group.title}</h2>
-                          </SplitTextReveal>
-                          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
-                            <span className="label-caps text-charcoal">
-                              {courses.length}{" "}
-                              {courses.length === 1 ? "course" : "courses"}
-                            </span>
-                            <span className="label-caps">
-                              {group.type === "diploma"
-                                ? "Diploma programme"
-                                : "Level progression"}
-                            </span>
-                            <span className="type-infill text-charcoal">
-                              {group.bundlePrice
-                                ? group.bundlePrice
-                                : courses[0]?.price
-                                  ? `From ${courses[0].price}`
-                                  : "Pricing on request"}
-                            </span>
-                          </div>
-                          <Link
-                            href={`/courses/${slug}`}
-                            className="action-primary mt-5 inline-flex min-h-11 items-center"
-                          >
-                            Explore programme
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </GsapReveal>
+          {!loading && !loadError && courseGroups.length > 0 && (
+            <div className="relative z-[1]">
+              {/* Above-the-fold Track Navigation Tabs */}
+              <CourseTrackNav
+                activeTrack={activeTrack}
+                onSelectTrack={handleSelectTrack}
+                diplomaCount={diplomaCourses.length}
+                biogeometryCount={biogeometryCourses.length}
+              />
 
-                  <GsapReveal type="card" delay={0.08}>
-                    <ThresholdFrame
-                      label={
-                        group.type === "diploma"
-                          ? "Bay 03 — Diploma Programme"
-                          : "Bay 04 — Leveled Course"
-                      }
+              {/* In 'all' mode: Show side-by-side Dual Pathway Grid for prominent discovery */}
+              {activeTrack === "all" && (
+                <CurriculumPathwayGrid
+                  diplomaGroup={diplomaGroup}
+                  biogeometryGroup={biogeometryGroup}
+                  onSelectTrack={handleSelectTrack}
+                />
+              )}
+
+              {/* Filter active reset helper */}
+              {activeTrack !== "all" && (
+                <div className="mb-10 flex items-center justify-between border-b border-hairline pb-4">
+                  <p className="type-infill text-sm">
+                    Showing <strong className="text-charcoal font-semibold">{activeTrack === "diploma" ? "Architecture Diploma" : "Biogeometry Track"}</strong> courses only.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectTrack("all")}
+                    className="action-secondary inline-flex items-center px-3 py-1.5 text-xs"
+                  >
+                    ← View All Programmes
+                  </button>
+                </div>
+              )}
+
+              {/* Group Sections */}
+              <div className="space-y-20 lg:space-y-28">
+                {visibleGroups.map((group, groupIndex) => {
+                  const slug = courseGroupSlug(group);
+                  const courses = asCourses(group);
+                  const isDiploma = group.type === "diploma";
+                  const isLeveled = group.type === "leveled";
+                  const sectionId = isDiploma ? "diploma" : isLeveled ? "biogeometry" : slug;
+
+                  return (
+                    <div
+                      key={group._id ?? group.id ?? slug}
+                      id={sectionId}
+                      className="relative scroll-mt-24"
                     >
-                      <div
-                        className={`relative z-[1] mt-4 hairline-border p-3 sm:p-4 lg:p-6 ${
-                          group.type === "diploma" ? "section-intimate" : ""
-                        }`}
-                      >
-                        {group.type === "diploma" && group.bundlePrice && (
-                          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-10 hairline-b pb-10">
-                            <div>
-                              <p className="label-caps mb-2">
-                                Diploma Programme
-                              </p>
-                              <p className="type-infill max-w-md leading-relaxed">
-                                Enroll in the full Architecture Diploma to access
-                                all core courses. Includes studio access and
-                                critique sessions.
-                              </p>
-                              <LevelProgressLine progress={1} className="mt-4" />
+                      {/* Section Doorway */}
+                      <ThresholdDoorway
+                        label={
+                          isDiploma
+                            ? "DIPLOMA PROGRAMME — ARCHITECTURE"
+                            : isLeveled
+                            ? "BIOGEOMETRY TRACK — LEVEL PROGRESSION"
+                            : group.title.toUpperCase()
+                        }
+                        className="mb-12"
+                      />
+
+                      <GsapReveal type="heading">
+                        <div className="relative z-[1] mb-10 space-y-8">
+                          <MediaBay
+                            src={group.image}
+                            alt={group.title}
+                            className={`w-full ${
+                              groupIndex === 0 && activeTrack === "all"
+                                ? "aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9]"
+                                : "aspect-[16/10] lg:aspect-[21/9]"
+                            }`}
+                            fallback="course"
+                            morph
+                            priority={groupIndex === 0}
+                            sizes="100vw"
+                          />
+                          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end">
+                            <div className="lg:col-span-8">
+                              <p className="eyebrow mb-2">{group.subtitle}</p>
+                              <SplitTextReveal type="lines">
+                                <h2 className="type-heading">{group.title}</h2>
+                              </SplitTextReveal>
+                              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+                                <span className="label-caps text-charcoal">
+                                  {courses.length}{" "}
+                                  {courses.length === 1 ? "course" : isLeveled ? "levels" : "courses"}
+                                </span>
+                                <span className="label-caps">
+                                  {isDiploma
+                                    ? "Diploma programme"
+                                    : "Sequential level progression"}
+                                </span>
+                                <span className="type-infill text-charcoal font-medium">
+                                  {group.bundlePrice
+                                    ? group.bundlePrice
+                                    : courses[0]?.price
+                                      ? `From ${courses[0].price}`
+                                      : "Pricing on request"}
+                                </span>
+                              </div>
+                              <Link
+                                href={`/courses/${slug}`}
+                                className="action-primary mt-5 inline-flex min-h-11 items-center"
+                              >
+                                Explore programme overview
+                              </Link>
                             </div>
-                            <p className="type-display text-clay whitespace-nowrap">
-                              {group.bundlePrice}
-                            </p>
-                            <EnrollButton
-                              id={`diploma-${slug}`}
-                              name={group.title}
-                              price={group.bundlePrice}
-                              kind="diploma"
-                              label="Add diploma to cart"
-                              className="action-primary inline-flex min-h-11 items-center lg:mt-2 disabled:text-clay-muted disabled:cursor-not-allowed"
+                          </div>
+                        </div>
+                      </GsapReveal>
+
+                      <GsapReveal type="card" delay={0.08}>
+                        <ThresholdFrame
+                          label={
+                            isDiploma
+                              ? "Bay 01 — Architecture Diploma Set"
+                              : "Bay 02 — Biogeometry Curriculum & Progression"
+                          }
+                        >
+                          <div
+                            className={`relative z-[1] mt-4 hairline-border p-4 sm:p-6 lg:p-8 ${
+                              isDiploma ? "section-intimate" : ""
+                            }`}
+                          >
+                            {/* Diploma Bundle Package Feature */}
+                            {isDiploma && group.bundlePrice && (
+                              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-10 hairline-b pb-10">
+                                <div className="max-w-xl">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="w-2 h-2 rounded-full bg-clay" />
+                                    <p className="label-caps text-clay font-medium text-xs sm:text-sm">
+                                      Complete Diploma Package
+                                    </p>
+                                  </div>
+                                  <h4 className="font-serif text-2xl sm:text-3xl font-medium text-charcoal mb-2">
+                                    Full Architecture Diploma
+                                  </h4>
+                                  <p className="text-base sm:text-lg leading-relaxed text-charcoal/90">
+                                    Enroll in the comprehensive Architecture Diploma to access
+                                    all 4 core studio courses. Includes full drawing-set deliverables,
+                                    studio access, and personal critique sessions.
+                                  </p>
+                                  <LevelProgressLine progress={1} className="mt-4 max-w-xs" />
+                                </div>
+                                <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-3 shrink-0">
+                                  <p className="font-serif font-medium text-2xl sm:text-3xl text-clay whitespace-nowrap">
+                                    {group.bundlePrice}
+                                  </p>
+                                  <EnrollButton
+                                    id={`diploma-${slug}`}
+                                    name={group.title}
+                                    price={group.bundlePrice}
+                                    kind="diploma"
+                                    label="Add diploma to cart"
+                                    className="action-primary inline-flex min-h-11 items-center disabled:text-clay-muted disabled:cursor-not-allowed"
+                                  />
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Biogeometry Level Stepper & Prerequisite Roadmap */}
+                            {isLeveled && <BiogeometryLevelStepper />}
+
+                            {/* Course / Level Listing */}
+                            <CourseListing
+                              courses={courses}
+                              numbered={isDiploma}
+                              groupImage={group.image}
                             />
                           </div>
-                        )}
-
-                        {group.type === "leveled" && (
-                          <div className="mb-10 hairline-b pb-10 section-compressed">
-                            <p className="label-caps mb-2">
-                              Three-Level Progression
-                            </p>
-                            <p className="type-infill max-w-md leading-relaxed">
-                              Biogeometry is taken level by level. Each level
-                              builds on the previous.
-                            </p>
-                            <div className="flex gap-2 mt-4 max-w-xs">
-                              <LevelProgressLine
-                                progress={0.33}
-                                className="flex-1"
-                              />
-                              <LevelProgressLine
-                                progress={0.66}
-                                className="flex-1"
-                              />
-                              <LevelProgressLine
-                                progress={1}
-                                className="flex-1"
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        <CourseListing
-                          courses={courses}
-                          numbered={group.type === "diploma"}
-                          groupImage={group.image}
-                        />
-                      </div>
-                    </ThresholdFrame>
-                  </GsapReveal>
-                </div>
-              );
-            })}
+                        </ThresholdFrame>
+                      </GsapReveal>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </PageContainer>
       </Section>
     </>

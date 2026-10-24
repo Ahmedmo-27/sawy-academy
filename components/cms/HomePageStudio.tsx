@@ -15,6 +15,9 @@ import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { PortraitSilhouette } from "@/components/decorative/PortraitSilhouette";
 import { Magnetic } from "@/components/animation/Magnetic";
+import { ArchitecturalTilt3D } from "@/components/animation/ArchitecturalTilt3D";
+import { OrthographicSectionCut } from "@/components/animation/OrthographicSectionCut";
+import { ArchitecturalMetricTicker } from "@/components/animation/ArchitecturalMetricTicker";
 import { ProjectCard } from "@/components/portfolio/ProjectCard";
 import { ProductCard } from "@/components/products/ProductCard";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -300,6 +303,15 @@ function PhilosophySection({ content }: { content: Record<string, unknown> }) {
               </div>
             </div>
           </div>
+
+          {/* Interactive Orthographic Section Cut Laboratory */}
+          <div className="mt-8">
+            <OrthographicSectionCut
+              renderSrc={text(content.philosophyImageUrl) || "/images/portfolio/atrium-house.jpg"}
+              title="INTERACTIVE STUDY // ORTHOGRAPHIC SECTION CUT & POCHE ANALYSIS"
+              aspectClass="aspect-[16/9] sm:aspect-[21/9]"
+            />
+          </div>
         </PageContainer>
       </Section>
     </>
@@ -464,6 +476,31 @@ function StudioPulseSection({
             </SplitTextReveal>
           </div>
         </div>
+
+        {/* Architectural Datum Ticker Strip */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10 p-6 surface-card-elevated">
+          <ArchitecturalMetricTicker
+            value={12}
+            suffix="+ YRS"
+            label="PRACTICE & RESEARCH"
+          />
+          <ArchitecturalMetricTicker
+            value={2400}
+            suffix="+"
+            label="ENROLLED STUDENTS"
+          />
+          <ArchitecturalMetricTicker
+            value={100}
+            suffix="%"
+            label="ONLINE ON-DEMAND ACCESS"
+          />
+          <ArchitecturalMetricTicker
+            value={Math.max(groups.length, 5)}
+            suffix=" TRACKS"
+            label="DIPLOMA & MASTERCLASSES"
+          />
+        </div>
+
         <PinScrubStats items={items} />
       </PageContainer>
     </Section>
@@ -506,56 +543,59 @@ function CoursesSection({
                 );
                 const first = courses[0];
                 return (
-                  <div
+                  <ArchitecturalTilt3D
                     key={group._id ?? group.id ?? group.title}
-                    className="surface-card-elevated p-6 lg:p-8 flex flex-col group"
+                    maxTilt={5}
+                    className="h-full"
                   >
-                    <MediaBay
-                      src={group.image}
-                      alt={group.title}
-                      className="aspect-[16/10] mb-6 overflow-hidden border border-charcoal/10"
-                      fallback="course"
-                      morph
-                    />
-                    <p className="eyebrow mb-2 text-clay">{group.subtitle}</p>
-                    <h3 className="type-title mb-3 text-xl sm:text-2xl font-serif font-medium group-hover:text-clay transition-colors">{group.title}</h3>
-                    <p className="type-infill mb-6 flex-1 text-charcoal/80">
-                      {first && "description" in first
-                        ? String(first.description ?? "")
-                        : ""}
-                    </p>
-                    <div className="border-t border-charcoal/10 pt-6 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="label-caps font-semibold px-2.5 py-1 bg-concrete border border-charcoal/10">
-                          {courses.length} courses
-                        </span>
-                        {group.bundlePrice ? (
-                          <p className="font-serif font-semibold text-xl text-clay">
-                            {group.bundlePrice}
-                          </p>
-                        ) : (
-                          <p className="type-infill font-medium">
-                            From{" "}
-                            {first && "price" in first
-                              ? String(first.price ?? "")
-                              : ""}
-                          </p>
+                    <div className="surface-card-elevated p-6 lg:p-8 flex flex-col group h-full">
+                      <MediaBay
+                        src={group.image}
+                        alt={group.title}
+                        className="aspect-[16/10] mb-6 overflow-hidden border border-charcoal/10"
+                        fallback="course"
+                        morph
+                      />
+                      <p className="eyebrow mb-2 text-clay">{group.subtitle}</p>
+                      <h3 className="type-title mb-3 text-xl sm:text-2xl font-serif font-medium group-hover:text-clay transition-colors">{group.title}</h3>
+                      <p className="type-infill mb-6 flex-1 text-charcoal/80">
+                        {first && "description" in first
+                          ? String(first.description ?? "")
+                          : ""}
+                      </p>
+                      <div className="border-t border-charcoal/10 pt-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="label-caps font-semibold px-2.5 py-1 bg-concrete border border-charcoal/10">
+                            {courses.length} courses
+                          </span>
+                          {group.bundlePrice ? (
+                            <p className="font-serif font-semibold text-xl text-clay">
+                              {group.bundlePrice}
+                            </p>
+                          ) : (
+                            <p className="type-infill font-medium">
+                              From{" "}
+                              {first && "price" in first
+                                ? String(first.price ?? "")
+                                : ""}
+                            </p>
+                          )}
+                        </div>
+                        {group.type === "leveled" && (
+                          <LevelProgressLine
+                            progress={1}
+                            className="max-w-[100px]"
+                          />
                         )}
+                        <Link
+                          href={groupHref(group)}
+                          className="cta-entrance w-full justify-center text-center mt-2"
+                        >
+                          View syllabus →
+                        </Link>
                       </div>
-                      {group.type === "leveled" && (
-                        <LevelProgressLine
-                          progress={1}
-                          className="max-w-[100px]"
-                        />
-                      )}
-                      <Link
-                        href={groupHref(group)}
-                        className="cta-entrance w-full justify-center text-center mt-2"
-                      >
-                        View syllabus →
-                      </Link>
                     </div>
-                  </div>
+                  </ArchitecturalTilt3D>
                 );
               })}
             </GsapStagger>
@@ -801,58 +841,6 @@ function CustomSection({ content }: { content: Record<string, unknown> }) {
   );
 }
 
-function QuickJumpDock() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    function onScroll() {
-      setVisible(window.scrollY > 400);
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  if (!visible) return null;
-
-  const items = [
-    { id: "philosophy", label: "Manifesto" },
-    { id: "studio-pulse", label: "Pulse" },
-    { id: "portfolio", label: "Work" },
-    { id: "courses", label: "Courses" },
-    { id: "products", label: "Shop" },
-    { id: "researches", label: "Research" },
-    { id: "contact", label: "Contact" },
-  ];
-
-  return (
-    <aside
-      aria-label="Quick section navigation"
-      className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 hidden md:flex items-center gap-1 px-3.5 py-2 bg-charcoal/95 text-concrete rounded-full backdrop-blur-md shadow-2xl border border-white/20 transition-all duration-300"
-    >
-      <span className="text-[11px] font-mono font-semibold text-clay uppercase tracking-wider pl-1.5 pr-1 select-none">
-        Index //
-      </span>
-      {items.map((item) => (
-        <a
-          key={item.id}
-          href={`#${item.id}`}
-          className="text-[12px] font-medium tracking-wide uppercase px-2.5 py-1 rounded-full text-concrete/80 hover:text-white hover:bg-white/15 transition-colors"
-        >
-          {item.label}
-        </a>
-      ))}
-      <a
-        href="#main-content"
-        aria-label="Back to top"
-        className="ml-1 px-2 py-1 text-clay hover:text-white text-[12px] font-bold transition-colors"
-        title="Top of page"
-      >
-        ↑
-      </a>
-    </aside>
-  );
-}
-
 export function HomePageStudio() {
   const [sections, setSections] = useState<HomeSection[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -988,7 +976,6 @@ export function HomePageStudio() {
           </div>
         );
       })}
-      <QuickJumpDock />
     </>
   );
 }
