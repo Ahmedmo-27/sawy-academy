@@ -88,7 +88,7 @@ function CourseListing({
                 } min-w-0`}
               >
                 <ScaleBar scale="1:100" className="mb-3 max-w-[100px]" />
-                <h3 className="type-title mb-2 transition-colors duration-200 group-hover:text-clay">
+                <h3 className="font-serif font-medium text-xl sm:text-2xl mb-2 text-charcoal transition-colors duration-200 group-hover:text-clay">
                   {course.title}
                 </h3>
                 <p className="type-infill line-clamp-none max-w-[42rem] leading-relaxed sm:line-clamp-2">
@@ -115,7 +115,7 @@ function CourseListing({
                 <span className="type-infill basis-full lg:basis-auto">
                   {course.instructor}
                 </span>
-                <span className="type-body text-charcoal lg:mt-1">
+                <span className="font-serif font-semibold text-lg text-clay lg:mt-1">
                   {course.price}
                 </span>
               </div>

@@ -71,7 +71,7 @@ export function HorizontalPinGallery({
           trigger: pin,
           start: () => `top ${getNavOffsetPx()}`,
           end: () =>
-            `+=${Math.max(getScroll() * 1.05, viewport.clientWidth * 0.55)}`,
+            `+=${Math.max(getScroll() * 0.85, viewport.clientWidth * 0.42)}`,
           pin: true,
           scrub: 0.2,
           invalidateOnRefresh: true,

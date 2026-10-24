@@ -47,7 +47,7 @@ export function ProductCard({
   }
 
   return (
-    <article className="group flex h-full min-w-0 flex-col bg-concrete elevation-surface">
+    <article className="group flex h-full min-w-0 flex-col surface-card-elevated">
       <Link href={href} className="relative block">
         <MediaBay
           src={image}
@@ -65,7 +65,7 @@ export function ProductCard({
       </Link>
       <div className="flex min-w-0 flex-1 flex-col p-5 sm:p-5 lg:p-6">
         <p className="label-caps mb-2">{category}</p>
-        <h2 className="type-title mb-2 line-clamp-2 text-base leading-snug sm:text-[length:var(--text-title)]">
+        <h2 className="font-serif font-medium mb-2 line-clamp-2 text-lg sm:text-xl text-charcoal leading-snug">
           <Link
             href={href}
             className="hover:text-clay transition-colors duration-200"
@@ -76,8 +76,8 @@ export function ProductCard({
         <p className="type-infill mb-5 line-clamp-2 flex-1 leading-snug lg:hidden">
           {description}
         </p>
-        <div className="mt-auto flex min-w-0 flex-col gap-3 border-t border-hairline pt-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
-          <span className="type-title shrink-0 text-sm tabular-nums sm:text-base">
+        <div className="mt-auto flex min-w-0 flex-col gap-3 border-t border-charcoal/10 pt-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+          <span className="font-serif font-semibold shrink-0 text-base tabular-nums sm:text-lg text-clay">
             {price}
           </span>
           <Magnetic strength={16}>

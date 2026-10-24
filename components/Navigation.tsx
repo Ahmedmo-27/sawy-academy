@@ -97,8 +97,8 @@ function NavLink({
       href={href}
       aria-label={accessibleLabel}
       aria-current={active ? "page" : undefined}
-      className={`relative inline-flex min-h-11 items-center eyebrow transition-colors duration-200 ${
-        active ? "text-clay" : "text-charcoal-infill hover:text-charcoal"
+      className={`relative inline-flex min-h-11 items-center text-[0.875rem] font-medium tracking-[0.06em] uppercase transition-colors duration-200 ${
+        active ? "text-clay" : "text-charcoal hover:text-clay"
       }`}
     >
       {label}
@@ -223,8 +223,8 @@ function FlyoutMenu({
       <button
         ref={buttonRef}
         type="button"
-        className={`relative eyebrow inline-flex min-h-11 items-center gap-1.5 transition-colors duration-200 ${
-          active ? "text-clay" : "text-charcoal-infill hover:text-charcoal"
+        className={`relative text-[0.875rem] font-medium tracking-[0.06em] uppercase inline-flex min-h-11 items-center gap-1.5 transition-colors duration-200 ${
+          active ? "text-clay" : "text-charcoal hover:text-clay"
         }`}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -261,7 +261,7 @@ function FlyoutMenu({
               }
             }}
           >
-            <div className="hairline-border min-w-[13.5rem] bg-concrete shadow-[0_16px_40px_rgba(26,26,26,0.12)]">
+            <div className="border border-charcoal/15 min-w-[14.5rem] bg-white shadow-[0_16px_40px_rgba(26,26,26,0.12)]">
               {children.map((child, i) => (
                 <div key={child.id || child.href} className={i > 0 ? "hairline-t" : ""}>
                   <Link
@@ -270,10 +270,10 @@ function FlyoutMenu({
                     aria-current={
                       isActive(pathname, child.href) ? "page" : undefined
                     }
-                    className={`flex min-h-11 items-center whitespace-nowrap px-5 py-3 eyebrow transition-colors duration-200 ${
+                    className={`flex min-h-11 items-center whitespace-nowrap px-5 py-3 text-[0.875rem] font-medium tracking-[0.04em] uppercase transition-colors duration-200 ${
                       isActive(pathname, child.href)
                         ? "text-clay"
-                        : "text-charcoal-infill hover:text-charcoal"
+                        : "text-charcoal hover:text-clay"
                     }`}
                   >
                     {/* {getLocalizedNavLabel(child, t)} */}
@@ -568,7 +568,7 @@ export function Navigation() {
                   <li key={item.id}>
                     <button
                       type="button"
-                      className={`w-full flex min-h-11 items-center justify-between eyebrow py-3 ${
+                      className={`w-full flex min-h-11 items-center justify-between text-[0.9375rem] font-medium tracking-[0.06em] uppercase py-3 ${
                         active ? "text-clay" : "text-charcoal-infill"
                       }`}
                       aria-expanded={expanded}
@@ -603,7 +603,7 @@ export function Navigation() {
                                     ? "page"
                                     : undefined
                                 }
-                                className={`eyebrow flex min-h-11 items-center py-2.5 ${
+                                className={`flex min-h-11 items-center py-2.5 text-[0.875rem] font-medium tracking-[0.06em] uppercase ${
                                   isActive(pathname, child.href)
                                     ? "text-clay"
                                     : "text-charcoal-infill"
@@ -628,7 +628,7 @@ export function Navigation() {
                     aria-current={
                       isActive(pathname, item.href) ? "page" : undefined
                     }
-                    className={`eyebrow flex min-h-11 items-center py-3 ${
+                    className={`flex min-h-11 items-center py-3 text-[0.9375rem] font-medium tracking-[0.06em] uppercase ${
                       isActive(pathname, item.href)
                         ? "text-clay"
                         : "text-charcoal-infill"
