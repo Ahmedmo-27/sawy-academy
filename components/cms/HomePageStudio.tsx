@@ -20,6 +20,7 @@ import { OrthographicSectionCut } from "@/components/animation/OrthographicSecti
 import { ArchitecturalMetricTicker } from "@/components/animation/ArchitecturalMetricTicker";
 import { ProjectCard } from "@/components/portfolio/ProjectCard";
 import { ProductCard } from "@/components/products/ProductCard";
+import { ResearchCardMedia } from "@/components/researches/ResearchCardMedia";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
@@ -691,8 +692,9 @@ function ResearchSection({
                   <article className="surface-card-elevated p-6 lg:p-8">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
                       <div className="lg:col-span-3">
-                        <MediaBay
-                          src={item.image}
+                        <ResearchCardMedia
+                          pdfUrl={item.pdfUrl}
+                          image={item.image}
                           alt={item.title}
                           className="aspect-[4/3] sm:aspect-[4/5] max-w-[18rem] sm:max-w-[12rem] border border-charcoal/10"
                           fallback="research"
