@@ -56,14 +56,13 @@ function Chevron({ open }: { open: boolean }) {
   );
 }
 
-function CartGlyph() {
+function CartGlyph({ className = "h-5 w-5" }: { className?: string }) {
   return (
     <svg
-      width="20"
-      height="20"
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden="true"
+      className={`shrink-0 ${className}`}
     >
       <path
         d="M5.5 8.5 H18.5 L17.5 20 H6.5 Z"
@@ -481,15 +480,15 @@ export function Navigation() {
                   ? `Cart, ${count} item${count === 1 ? "" : "s"}`
                   : "Cart"
               }
-              className={`relative inline-flex min-h-11 min-w-11 items-center justify-center transition-colors duration-200 ${
+              className={`relative inline-flex min-h-12 min-w-12 items-center justify-center transition-colors duration-200 ${
                 cartActive
                   ? "text-clay"
                   : "text-charcoal-infill hover:text-charcoal"
               }`}
             >
-              <CartGlyph />
+              <CartGlyph className="h-6 w-6" />
               {count > 0 && (
-                <span className="absolute -top-1.5 -right-2 label-caps text-[9px] leading-none text-clay">
+                <span className="absolute -top-2 -right-2 label-caps text-[11px] leading-none text-clay">
                   {count}
                 </span>
               )}
