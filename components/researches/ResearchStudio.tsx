@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { GsapStagger } from "@/components/animation/GsapReveal";
-import { MediaBay } from "@/components/decorative/MediaBay";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { SectionLoader } from "@/components/feedback/SectionLoader";
 import { AsyncState } from "@/components/feedback/AsyncState";
+import { ResearchCardMedia } from "@/components/researches/ResearchCardMedia";
 import { listResearchPage } from "@/lib/api/research";
 import type {
   ResearchCategory,
@@ -191,8 +191,9 @@ export function ResearchStudio({
             <p className="label-caps mb-6 text-clay">Selected research</p>
             <article className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-end lg:gap-10">
               <div className="lg:col-span-7">
-                <MediaBay
-                  src={featured.image}
+                <ResearchCardMedia
+                  pdfUrl={featured.pdfUrl}
+                  image={featured.image}
                   alt={featured.title}
                   className="aspect-[16/10] w-full lg:aspect-[21/12]"
                   fallback="research"
@@ -322,8 +323,9 @@ export function ResearchStudio({
                     </span>
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
                       <div className="lg:col-span-3">
-                        <MediaBay
-                          src={item.image}
+                        <ResearchCardMedia
+                          pdfUrl={item.pdfUrl}
+                          image={item.image}
                           alt={item.title}
                           className="aspect-[4/3] max-w-[18rem] sm:aspect-[4/5] sm:max-w-[14rem]"
                           fallback="research"
