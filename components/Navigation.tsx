@@ -480,15 +480,15 @@ export function Navigation() {
                   ? `Cart, ${count} item${count === 1 ? "" : "s"}`
                   : "Cart"
               }
-              className={`relative inline-flex min-h-12 min-w-12 items-center justify-center transition-colors duration-200 ${
+              className={`relative inline-flex min-h-11 min-w-11 items-center justify-center transition-colors duration-200 ${
                 cartActive
                   ? "text-clay"
                   : "text-charcoal-infill hover:text-charcoal"
               }`}
             >
-              <CartGlyph className="h-6 w-6" />
+              <CartGlyph className="h-5 w-5" />
               {count > 0 && (
-                <span className="absolute -top-2 -right-2 label-caps text-[11px] leading-none text-clay">
+                <span className="absolute -top-1.5 -right-2 label-caps text-[10px] leading-none text-clay">
                   {count}
                 </span>
               )}
