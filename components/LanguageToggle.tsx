@@ -79,6 +79,6 @@ export function LanguageToggle({
 }
 */
 
-export function LanguageToggle() {
+export function LanguageToggle(_props?: { variant?: string; className?: string }) {
   return null;
 }

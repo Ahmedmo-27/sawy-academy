@@ -19,6 +19,7 @@ export interface Research {
   pdfUrl?: string;
   externalUrl?: string;
   keywords?: string[];
+  image?: string;
 }
 
 export const researchFilters = [
@@ -32,6 +33,7 @@ export const researchFilters = [
 export const researches: Research[] = [
   {
     id: "r1",
+    image: "/images/research/biogeometric-housing.jpg",
     title: "Biogeometric Principles in Contemporary Egyptian Housing",
     year: "2024",
     category: "Published",
@@ -49,6 +51,7 @@ export const researches: Research[] = [
   },
   {
     id: "r2",
+    image: "/images/research/earth-construction.jpg",
     title: "Material Memory: Earth Construction in the Nile Delta",
     year: "2023",
     category: "Published",
@@ -61,6 +64,7 @@ export const researches: Research[] = [
   },
   {
     id: "r3",
+    image: "/images/research/sacred-geometry-mosque.jpg",
     title: "Sacred Geometry and Spatial Experience in Mosque Architecture",
     year: "2023",
     category: "Conference",
@@ -73,6 +77,7 @@ export const researches: Research[] = [
   },
   {
     id: "r4",
+    image: "/images/research/urban-courtyards.jpg",
     title: "Urban Microclimates and Courtyard Morphology",
     year: "2022",
     category: "Published",
@@ -83,6 +88,7 @@ export const researches: Research[] = [
   },
   {
     id: "r5",
+    image: "/images/research/biogeometry-manual.jpg",
     title: "Form, Energy, and Proportion: A Biogeometry Design Manual",
     year: "2022",
     category: "Book",
@@ -92,6 +98,7 @@ export const researches: Research[] = [
   },
   {
     id: "r6",
+    image: "/images/research/desert-facades.jpg",
     title: "Climate-Responsive Facades for Desert Architecture",
     year: "2024",
     category: "Ongoing",
@@ -101,6 +108,7 @@ export const researches: Research[] = [
   },
   {
     id: "r7",
+    image: "/images/research/spatial-drawing-pedagogy.jpg",
     title: "Pedagogy of Spatial Drawing: Teaching Architecture by Hand",
     year: "2021",
     category: "Conference",
@@ -110,6 +118,7 @@ export const researches: Research[] = [
   },
   {
     id: "r8",
+    image: "/images/research/nubian-settlements.jpg",
     title: "Geometric Order in Vernacular Nubian Settlement Patterns",
     year: "2020",
     category: "Published",

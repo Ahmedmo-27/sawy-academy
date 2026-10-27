@@ -125,8 +125,8 @@ function LevelRowView({
         } ${locked ? "opacity-50" : ""}`}
       >
         <div className="min-w-0 sm:col-span-7">
-          <p className="dim-label mb-2">{row.sheetRef}</p>
-          <h2 className="type-title mb-2 break-words text-base">
+          <p className="font-mono text-xs text-charcoal/60 mb-2">{row.sheetRef}</p>
+          <h2 className="font-serif text-lg sm:text-xl font-medium text-charcoal mb-2 break-words">
             {locked ? (
               <span>{row.course.title}</span>
             ) : (
@@ -138,7 +138,7 @@ function LevelRowView({
               </Link>
             )}
           </h2>
-          <p className="type-infill max-w-lg break-words leading-relaxed">
+          <p className="text-base sm:text-[1.0625rem] max-w-xl break-words leading-relaxed text-charcoal/90">
             {row.course.description}
           </p>
           {(state === "unlocked_in_progress" ||
@@ -152,9 +152,9 @@ function LevelRowView({
         </div>
 
         <div className="flex min-w-0 flex-col gap-3 sm:col-span-5 sm:items-end">
-          <span className="label-caps">{row.course.level}</span>
-          <span className="label-caps text-charcoal-infill">{duration}</span>
-          <span className="type-body text-charcoal">{row.course.price}</span>
+          <span className="label-caps text-sm text-charcoal font-semibold">{row.course.level}</span>
+          <span className="text-sm sm:text-base font-medium text-charcoal/70">{duration}</span>
+          <span className="font-serif font-medium text-sm sm:text-base text-clay">{row.course.price}</span>
           {completed && (
             <span className="inline-flex items-center gap-2 label-caps text-clay">
               <CompleteMarker />
@@ -242,13 +242,13 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
 
       <div className="hairline-border p-4 sm:p-6 lg:p-10">
         <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
-        <p className="label-caps mb-2">Leveled progression</p>
-        <p className="type-infill max-w-xl leading-relaxed">{group.subtitle}</p>
-        <p className="type-infill mt-4 max-w-xl leading-relaxed text-charcoal-muted">
+        <p className="label-caps mb-2 text-clay font-medium text-xs sm:text-sm">Leveled progression</p>
+        <p className="text-base sm:text-lg max-w-2xl leading-relaxed text-charcoal/90">{group.subtitle}</p>
+        <p className="text-base sm:text-[1.0625rem] mt-3 max-w-2xl leading-relaxed text-charcoal/80">
           {instructor}. Each level unlocks only after the previous level is
           completed.
         </p>
-        <p className="label-caps mt-6 text-charcoal-infill">
+        <p className="label-caps mt-6 text-charcoal font-semibold text-xs sm:text-sm">
           Sequence — {String(levels.length).padStart(2, "0")} levels
         </p>
       </div>
@@ -259,7 +259,7 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
       >
         <div className="mt-4 min-w-0 hairline-border p-4 sm:p-6 lg:p-10">
           <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
-          <p className="label-caps mb-8 text-charcoal-infill">
+          <p className="label-caps mb-8 text-charcoal font-semibold text-xs sm:text-sm tracking-wider">
             Sequence — {String(levels.length).padStart(2, "0")} levels
           </p>
           <ol className="list-none p-0 m-0">

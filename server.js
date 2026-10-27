@@ -89,6 +89,99 @@ app.use("/api/contact", contactRoutes);
 
 app.use(errorHandler);
 
+async function syncAssetPathsToDatabase() {
+  try {
+    const Course = require("./models/Course");
+    const CourseGroup = require("./models/CourseGroup");
+    const Research = require("./models/Research");
+    const HomePage = require("./models/HomePage");
+    const SiteSettings = require("./models/SiteSettings");
+
+    // 1. Courses
+    const courseImages = {
+      "spatial-composition-i": "/images/courses/spatial-composition-1.jpg",
+      "drawing-and-representation": "/images/courses/drawing-representation.jpg",
+      "material-studies": "/images/courses/material-studies.jpg",
+      "design-studio-i": "/images/courses/design-studio-1.jpg",
+      "biogeometry-level-01": "/images/courses/biogeometry-level-1.jpg",
+      "biogeometry-level-02": "/images/courses/biogeometry-level-2.jpg",
+      "biogeometry-level-03": "/images/courses/biogeometry-level-3.jpg",
+      "parametric-form-algorithmic-design": "/images/courses/design-studio-1.jpg",
+    };
+    for (const [slug, img] of Object.entries(courseImages)) {
+      await Course.updateMany({ slug }, { $set: { image: img } });
+    }
+
+    // 2. CourseGroups
+    await CourseGroup.updateMany(
+      { type: "diploma" },
+      { $set: { image: "/images/courses/architecture-diploma.jpg" } }
+    );
+    await CourseGroup.updateMany(
+      { type: "leveled" },
+      { $set: { image: "/images/courses/biogeometry-programme.jpg" } }
+    );
+
+    // 3. Researches
+    const researchImages = {
+      r1: "/images/research/biogeometric-housing.jpg",
+      r2: "/images/research/earth-construction.jpg",
+      r3: "/images/research/sacred-geometry-mosque.jpg",
+      r4: "/images/research/urban-courtyards.jpg",
+      r5: "/images/research/biogeometry-manual.jpg",
+      r6: "/images/research/desert-facades.jpg",
+      r7: "/images/research/spatial-drawing-pedagogy.jpg",
+      r8: "/images/research/nubian-settlements.jpg",
+    };
+    for (const [id, img] of Object.entries(researchImages)) {
+      await Research.updateMany({ id }, { $set: { image: img } });
+    }
+
+    // 4. HomePage
+    const home = await HomePage.findOne({ key: "home" });
+    if (home && Array.isArray(home.sections)) {
+      for (const section of home.sections) {
+        if (section.type === "hero") {
+          section.content = section.content || {};
+          section.content.heroImageUrl = "/images/hero/prof-mohamed-el-sawy.jpg";
+        }
+        if (section.type === "philosophy") {
+          section.content = section.content || {};
+          section.content.philosophyImageUrl = "/images/hero/philosophy-drawing.jpg";
+        }
+      }
+      home.markModified("sections");
+      await home.save();
+    }
+
+    // 5. SiteSettings
+    const settings = await SiteSettings.findOne({ key: "default" });
+    if (settings) {
+      settings.branding = settings.branding || {};
+      settings.branding.logoUrl = "/images/brand/logo.svg";
+
+      settings.seo = settings.seo || {};
+      settings.seo.ogImageUrl = "/images/brand/og-image.jpg";
+
+      settings.servicesPage = {
+        designImageUrl: "/images/services/architectural-design.jpg",
+        researchImageUrl: "/images/services/academic-research.jpg",
+        processBriefImageUrl: "/images/services/process-brief.jpg",
+        processReviewImageUrl: "/images/services/process-review.jpg",
+        processDeliveryImageUrl: "/images/services/process-delivery.jpg",
+      };
+
+      settings.contactPage = settings.contactPage || {};
+      settings.contactPage.imageUrl = "/images/contact/studio-zamalek.jpg";
+
+      await settings.save();
+    }
+    logger.info("Sawy Academy assets synced to database successfully");
+  } catch (e) {
+    logger.warn("Could not sync assets to database", { error: e.message });
+  }
+}
+
 async function startServer() {
   const { assertJwtSecretConfigured } = require("./lib/auth/jwt");
   assertJwtSecretConfigured();
@@ -106,6 +199,8 @@ async function startServer() {
     maxPoolSize: 10,
     serverSelectionTimeoutMS: 10_000,
   });
+
+  await syncAssetPathsToDatabase();
 
   const port = process.env.PORT || 5000;
   const server = app.listen(port, () => {

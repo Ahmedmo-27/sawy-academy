@@ -57,7 +57,7 @@ export const DEFAULT_BRAND: BrandingSettings = {
   officeHours: "Sun – Thu, 10:00 – 17:00\nBy appointment only",
   established: "Est. 2012",
   footerBlurb: "Architecture & Spatial Design",
-  logoUrl: "",
+  logoUrl: "/images/brand/logo.svg",
   facebookUrl: "",
   instagramUrl: "",
   instapayDestinationType: "phone",
@@ -80,7 +80,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
     title: "Sawy Academy — Mohamed El Sawy",
     description:
       "Architecture portfolio, academic courses, and studio resources by Prof. Mohamed El Sawy, Cairo.",
-    ogImageUrl: "",
+    ogImageUrl: "/images/brand/og-image.jpg",
   },
   navigation: {
     items: [
@@ -187,14 +187,14 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   contactPage: {
     intro:
       "Whether you are seeking design consultation, research partnership, or wish to discuss enrollment at Sawy Academy — I welcome thoughtful correspondence.",
-    imageUrl: "",
+    imageUrl: "/images/contact/studio-zamalek.jpg",
   },
   sharedAssetUrls: [],
   servicesPage: {
-    designImageUrl: "",
-    researchImageUrl: "",
-    processBriefImageUrl: "",
-    processReviewImageUrl: "",
-    processDeliveryImageUrl: "",
+    designImageUrl: "/images/services/architectural-design.jpg",
+    researchImageUrl: "/images/services/academic-research.jpg",
+    processBriefImageUrl: "/images/services/process-brief.jpg",
+    processReviewImageUrl: "/images/services/process-review.jpg",
+    processDeliveryImageUrl: "/images/services/process-delivery.jpg",
   },
 };

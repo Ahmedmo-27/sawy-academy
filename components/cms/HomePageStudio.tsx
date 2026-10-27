@@ -124,7 +124,7 @@ function HeroSection({
   const jumpLinks = Array.isArray(content.jumpLinks)
     ? (content.jumpLinks as Array<{ href?: string; label?: string }>)
     : [];
-  const heroImageUrl = text(content.heroImageUrl);
+  const heroImageUrl = text(content.heroImageUrl) || "/images/hero/prof-mohamed-el-sawy.jpg";
   /*
   const primaryCtaLabel =
     isAr && (!content.primaryCtaLabel || content.primaryCtaLabel === "View")
@@ -293,7 +293,7 @@ function PhilosophySection({ content }: { content: Record<string, unknown> }) {
               <div className="lg:col-span-4">
                 <GsapReveal type="image">
                   <MediaBay
-                    src={text(content.philosophyImageUrl)}
+                    src={text(content.philosophyImageUrl) || "/images/hero/philosophy-drawing.jpg"}
                     alt="Philosophy diagram"
                     className="aspect-[4/3] lg:aspect-[4/5] border border-charcoal/10"
                     fallback="plan"
@@ -307,7 +307,7 @@ function PhilosophySection({ content }: { content: Record<string, unknown> }) {
           {/* Interactive Orthographic Section Cut Laboratory */}
           <div className="mt-8">
             <OrthographicSectionCut
-              renderSrc={text(content.philosophyImageUrl) || "/images/portfolio/atrium-house.jpg"}
+              renderSrc={text(content.philosophyImageUrl) || "/images/hero/philosophy-drawing.jpg"}
               title="INTERACTIVE STUDY // ORTHOGRAPHIC SECTION CUT & POCHE ANALYSIS"
               aspectClass="aspect-[16/9] sm:aspect-[21/9]"
             />

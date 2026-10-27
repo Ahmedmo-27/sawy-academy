@@ -16,7 +16,7 @@ export function CourseSheetIndex({
   return (
     <div>
       <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
-      <p className="label-caps mb-6 text-charcoal-infill">
+      <p className="label-caps mb-6 text-charcoal font-semibold text-xs sm:text-sm tracking-wider">
         Sheet index — {String(lessons.length).padStart(2, "0")} drawings
       </p>
       <ul>
@@ -28,7 +28,7 @@ export function CourseSheetIndex({
                 i > 0 ? "hairline-t" : ""
               }`}
             >
-              <span className="label-caps text-clay pt-0.5 sm:col-span-1">
+              <span className="font-mono text-sm sm:text-base text-clay font-medium pt-0.5 sm:col-span-1">
                 {String(lesson.order).padStart(2, "0")}
               </span>
               <span className="sm:col-span-2">
@@ -40,13 +40,13 @@ export function CourseSheetIndex({
                   fallbackLabel={lesson.sheetRef}
                 />
               </span>
-              <span className="dim-label pt-0.5 sm:col-span-2">
+              <span className="font-mono text-xs text-charcoal/60 pt-0.5 sm:col-span-2">
                 {lesson.sheetRef}
               </span>
-              <span className="type-title text-base group-hover:text-charcoal transition-colors sm:col-span-5">
+              <span className="font-serif text-lg sm:text-xl font-medium text-charcoal group-hover:text-clay transition-colors sm:col-span-5">
                 {lesson.title}
               </span>
-              <span className="label-caps pt-0.5 sm:col-span-2 sm:text-right">
+              <span className="text-sm sm:text-base font-medium text-charcoal/70 pt-0.5 sm:col-span-2 sm:text-right">
                 {lesson.duration}
               </span>
             </Link>

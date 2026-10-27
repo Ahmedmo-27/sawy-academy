@@ -214,22 +214,38 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
             className={`fixed ${SITE_GUTTER_LEFT} bottom-[16%] z-0 hidden md:block`}
           />
 
-          <div className="relative z-[1] flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-            <div>
-              <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
-              <p className="label-caps mb-2">{course.level}</p>
+          <div className="relative z-[1] flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 hairline-border p-6 sm:p-8 bg-concrete/60">
+            <div className="max-w-2xl">
+              <ScaleBar scale="1:100" className="mb-3 max-w-[120px]" />
+              <div className="flex flex-wrap items-center gap-3 mb-3">
+                <span className="label-caps text-sm text-charcoal font-semibold tracking-wider">
+                  {course.level}
+                </span>
+                <span className="text-hairline">|</span>
+                <span className="text-base font-medium text-charcoal/90">
+                  {course.instructor}
+                </span>
+              </div>
+              <p className="text-base sm:text-[1.125rem] leading-relaxed text-charcoal/90">
+                {course.description}
+              </p>
               <LevelProgressLine
                 progress={parseLevelProgress(course.level)}
-                className="max-w-[160px]"
+                className="mt-4 max-w-[160px]"
               />
             </div>
-            <EnrollButton
-              id={course.id}
-              name={course.title}
-              price={course.price}
-              category={course.level}
-              label="Add course to cart"
-            />
+            <div className="flex flex-col sm:items-end gap-2 shrink-0">
+              <span className="font-serif font-medium text-base sm:text-lg text-clay">
+                {course.price}
+              </span>
+              <EnrollButton
+                id={course.id}
+                name={course.title}
+                price={course.price}
+                category={course.level}
+                label="Add course to cart"
+              />
+            </div>
           </div>
 
           <ThresholdFrame label={`Bay — ${course.title}`}>
