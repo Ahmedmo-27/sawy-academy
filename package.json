@@ -22,7 +22,8 @@
     "r2:smoke-video:upload-only": "node scripts/r2-course-video-smoke.js --upload-only",
     "r2:smoke-cleanup": "node scripts/r2-smoke-cleanup.js",
     "test:e2e": "playwright test",
-    "analyze": "cross-env ANALYZE=true npm run build"
+    "analyze": "cross-env ANALYZE=true npm run build",
+    "generate:assets": "node scripts/generate-all-assets.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1106.0",

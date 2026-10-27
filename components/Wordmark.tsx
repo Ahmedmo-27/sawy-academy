@@ -30,6 +30,16 @@ export function Wordmark({
 
   const content = (
     <span className="inline-flex items-center gap-2.5 sm:gap-3 whitespace-nowrap">
+      {branding.logoUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src="/images/brand/logo-mark.svg"
+          alt="Sawy Academy"
+          className={`shrink-0 border border-clay/40 p-0.5 bg-concrete-dark/30 ${
+            size === "sm" ? "h-6 w-6" : "h-7 w-7"
+          }`}
+        />
+      )}
       <span
         className={`font-sans font-medium uppercase tracking-[0.28em] ${primaryTone} ${
           size === "sm" ? "text-xs" : "text-sm"

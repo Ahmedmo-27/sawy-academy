@@ -21,6 +21,7 @@ export interface Course {
   level: string;
   instructor: string;
   price: string;
+  image?: string;
   lessons: Lesson[];
   relatedProductIds: string[];
 }
@@ -33,6 +34,7 @@ export interface CourseGroup {
   title: string;
   subtitle: string;
   type: CourseGroupType;
+  image?: string;
   courses: Course[];
   bundlePrice?: string;
   /**
@@ -59,11 +61,13 @@ export const courseGroups: CourseGroup[] = [
     title: "Architecture Diploma",
     subtitle: "A structured diploma programme of core architectural courses",
     type: "diploma",
+    image: "/images/courses/architecture-diploma.jpg",
     bundlePrice: "EGP 52,000",
     courses: [
       {
         id: "d1",
         slug: "spatial-composition-i",
+        image: "/images/courses/spatial-composition-1.jpg",
         title: "Spatial Composition I",
         description:
           "Fundamentals of proportion, scale, and the relationship between void and mass in architectural space.",
@@ -114,6 +118,7 @@ export const courseGroups: CourseGroup[] = [
       {
         id: "d2",
         slug: "drawing-and-representation",
+        image: "/images/courses/drawing-representation.jpg",
         title: "Drawing & Representation",
         description:
           "Orthographic projection, section drawing, and the conventions of architectural documentation.",
@@ -163,6 +168,7 @@ export const courseGroups: CourseGroup[] = [
       {
         id: "d3",
         slug: "material-studies",
+        image: "/images/courses/material-studies.jpg",
         title: "Material Studies",
         description:
           "Hands-on exploration of timber, concrete, and stone — their properties, joints, and expressive potential.",
@@ -212,6 +218,7 @@ export const courseGroups: CourseGroup[] = [
       {
         id: "d4",
         slug: "design-studio-i",
+        image: "/images/courses/design-studio-1.jpg",
         title: "Design Studio I",
         description:
           "Integrated design project applying composition, drawing, and material knowledge to a built-form brief.",
@@ -270,6 +277,7 @@ export const courseGroups: CourseGroup[] = [
       {
         id: "b1",
         slug: "biogeometry-level-01",
+        image: "/images/courses/biogeometry-level-1.jpg",
         title: "Biogeometry — Level 01",
         description:
           "Introduction to biogeometric principles: proportion, sacred geometry, and the relationship between form and living energy in space.",
@@ -310,6 +318,7 @@ export const courseGroups: CourseGroup[] = [
       {
         id: "b2",
         slug: "biogeometry-level-02",
+        image: "/images/courses/biogeometry-level-2.jpg",
         title: "Biogeometry — Level 02",
         description:
           "Applied biogeometry for site analysis, interior layout, and integrating geometric principles into architectural design.",
@@ -350,6 +359,7 @@ export const courseGroups: CourseGroup[] = [
       {
         id: "b3",
         slug: "biogeometry-level-03",
+        image: "/images/courses/biogeometry-level-3.jpg",
         title: "Biogeometry — Level 03",
         description:
           "Advanced study and independent project — research-led application of biogeometry to a full design brief with critical review.",

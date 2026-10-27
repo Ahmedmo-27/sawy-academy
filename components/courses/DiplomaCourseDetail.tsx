@@ -47,9 +47,13 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
           <div className="max-w-xl">
             <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
-            <p className="label-caps mb-2">Diploma Programme</p>
-            <p className="type-infill leading-relaxed">{group.subtitle}</p>
-            <p className="type-infill mt-4 leading-relaxed text-charcoal-muted">
+            <p className="label-caps mb-2 text-clay font-medium text-xs sm:text-sm">
+              Diploma Programme
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-charcoal/90">
+              {group.subtitle}
+            </p>
+            <p className="text-base sm:text-[1.0625rem] mt-3 leading-relaxed text-charcoal/80">
               {instructor}. Enroll once for the full drawing set — every
               sub-course sheet is included in the bundle.
             </p>
@@ -57,11 +61,11 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
           </div>
           <div className="flex flex-col gap-4 lg:items-end shrink-0">
             {group.bundlePrice && (
-              <p className="type-display text-clay whitespace-nowrap">
+              <p className="font-serif font-medium text-2xl sm:text-3xl text-clay whitespace-nowrap">
                 {group.bundlePrice}
               </p>
             )}
-            <p className="label-caps">
+            <p className="label-caps text-xs sm:text-sm text-charcoal/70">
               {String(courses.length).padStart(2, "0")} sheets in set
             </p>
             {group.bundlePrice && (
@@ -81,7 +85,7 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
       <ThresholdFrame label={`Sheet index — ${group.title}`}>
         <div className="hairline-border p-6 lg:p-10 mt-4">
           <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
-          <p className="label-caps mb-6 text-charcoal-infill">
+          <p className="label-caps mb-6 text-charcoal font-semibold text-xs sm:text-sm tracking-wider">
             Drawing set cover — {String(courses.length).padStart(2, "0")} sheets
           </p>
           <ul>
@@ -97,25 +101,25 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
                       i > 0 ? "hairline-t" : ""
                     }`}
                   >
-                    <span className="col-span-1 label-caps text-clay pt-0.5 sm:col-span-1">
+                    <span className="col-span-1 font-mono text-sm sm:text-base text-clay font-medium pt-0.5 sm:col-span-1">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <span className="hidden sm:col-span-2 sm:block dim-label pt-0.5">
+                    <span className="hidden sm:col-span-2 sm:block font-mono text-xs text-charcoal/60 pt-0.5">
                       {sheetRef}
                     </span>
                     <span className="sm:col-span-5">
-                      <span className="type-title text-base block group-hover:text-charcoal transition-colors">
+                      <span className="font-serif text-lg sm:text-xl font-medium text-charcoal group-hover:text-clay transition-colors block">
                         {course.title}
                       </span>
-                      <span className="label-caps mt-1 block text-charcoal-infill">
+                      <span className="text-xs sm:text-sm text-charcoal-infill mt-1 block">
                         {course.level}
                         <span className="sm:hidden"> · {sheetRef}</span>
                       </span>
                     </span>
-                    <span className="label-caps pt-0.5 sm:col-span-2 sm:text-right">
+                    <span className="text-sm sm:text-base font-medium text-charcoal/70 pt-0.5 sm:col-span-2 sm:text-right">
                       {duration}
                     </span>
-                    <span className="action-secondary pt-0.5 self-start sm:col-span-2 sm:text-right">
+                    <span className="action-secondary text-sm sm:text-base font-medium pt-0.5 self-start sm:col-span-2 sm:text-right">
                       Open course details
                     </span>
                   </Link>
@@ -145,8 +149,8 @@ export function DiplomaCourseDetail({ group }: DiplomaCourseDetailProps) {
       {group.bundlePrice && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 hairline-t pt-10">
           <div>
-            <p className="label-caps mb-2">Full programme enrollment</p>
-            <p className="type-infill max-w-md">
+            <p className="label-caps mb-2 text-clay font-medium text-xs sm:text-sm">Full programme enrollment</p>
+            <p className="text-base sm:text-lg leading-relaxed text-charcoal/90 max-w-md">
               One enrollment unlocks every sheet in this diploma set.
             </p>
           </div>
