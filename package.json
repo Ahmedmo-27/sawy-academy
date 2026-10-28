@@ -51,7 +51,7 @@
     "react-hook-form": "^7.85.0",
     "three": "^0.186.1",
     "yet-another-react-lightbox": "^3.32.2",
-    "zod": "^4.4.3"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
