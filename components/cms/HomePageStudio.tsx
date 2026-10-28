@@ -21,6 +21,7 @@ import { ScrollVideoScrub } from "@/components/animation/ScrollVideoScrub";
 import { HeroSpatialScrub } from "@/components/animation/HeroSpatialScrub";
 import { ProjectCard } from "@/components/portfolio/ProjectCard";
 import { ProductCard } from "@/components/products/ProductCard";
+import { ResearchCardMedia } from "@/components/researches/ResearchCardMedia";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
@@ -638,15 +639,14 @@ function ResearchSection({
                   <article className="surface-card-elevated p-6 lg:p-8">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
                       <div className="lg:col-span-3">
-                        <Link href={`/researches/${item.slug}`} className="block group/media">
-                          <MediaBay
-                            src={item.image}
-                            alt={item.title}
-                            className="aspect-[4/3] sm:aspect-[4/5] max-w-[18rem] sm:max-w-[12rem] border border-charcoal/10 transition-transform duration-500 group-hover/media:scale-[1.02]"
-                            fallback="research"
-                            morph
-                          />
-                        </Link>
+                        <ResearchCardMedia
+                          pdfUrl={item.pdfUrl}
+                          image={item.image}
+                          alt={item.title}
+                          className="aspect-[4/3] sm:aspect-[4/5] max-w-[18rem] sm:max-w-[12rem] border border-charcoal/10"
+                          fallback="research"
+                          morph
+                        />
                         <div className="mt-4 flex gap-3 lg:flex-col lg:gap-1.5">
                           <span className="label-caps font-semibold text-clay">{item.category}</span>
                           <span className="label-caps font-mono text-charcoal/70">
