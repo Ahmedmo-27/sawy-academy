@@ -5,7 +5,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/cart/CartProvider";
 import { InstaPayTransferDetails } from "@/components/cart/InstaPayTransferDetails";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
+import { BorderBeam } from "@/components/animation/BorderBeam";
 import { AsyncState } from "@/components/feedback/AsyncState";
 import { Skeleton } from "@/components/feedback/Skeleton";
 import { FormErrorSummary } from "@/components/forms/FormErrorSummary";
@@ -92,7 +92,6 @@ export function CheckoutForm() {
 
   return (
     <div className="hairline-border p-6 lg:p-10 mt-4 bg-concrete/80 w-full">
-      <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
 
       <div className="hairline-b pb-6 mb-6">
         <p className="label-caps mb-2">Project</p>
@@ -122,7 +121,8 @@ export function CheckoutForm() {
                 amount manually — no card gateway on this sheet.
               </p>
             </div>
-            <div className="hairline-border bg-concrete p-4 sm:p-5">
+            <div className="relative hairline-border bg-concrete p-4 sm:p-5 overflow-hidden">
+              <BorderBeam size={28} duration={8} borderWidth={1.5} colorFrom="#8B5A4A" colorTo="#D89982" />
               <InstaPayTransferDetails />
             </div>
           </div>

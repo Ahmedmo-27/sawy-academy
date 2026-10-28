@@ -9,7 +9,6 @@ import { CourseSheetIndex } from "@/components/courses/CourseSheetIndex";
 import { DiplomaCourseDetail } from "@/components/courses/DiplomaCourseDetail";
 import { EnrollButton } from "@/components/courses/EnrollButton";
 import { LeveledCourseDetail } from "@/components/courses/LeveledCourseDetail";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { MediaBay } from "@/components/decorative/MediaBay";
 import { SectionCutDivider } from "@/components/decorative/SectionCutDivider";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
@@ -216,7 +215,6 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
 
           <div className="relative z-[1] flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 hairline-border p-6 sm:p-8 bg-concrete/60">
             <div className="max-w-2xl">
-              <ScaleBar scale="1:100" className="mb-3 max-w-[120px]" />
               <div className="flex flex-wrap items-center gap-3 mb-3">
                 <span className="label-caps text-sm text-charcoal font-semibold tracking-wider">
                   {course.level}
@@ -258,7 +256,6 @@ function StandaloneCourseDetail({ course }: { course: Course }) {
             <>
               <SectionCutDivider label="MATERIALS" />
               <div className="relative z-[1]">
-                <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
                 <p className="eyebrow mb-2">Specified equipment</p>
                 <h2 className="type-heading mb-8">Materials &amp; tools</h2>
                 <ThresholdFrame label="Stock list — Course">

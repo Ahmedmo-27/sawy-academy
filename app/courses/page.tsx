@@ -11,7 +11,6 @@ import { CourseTrackNav, type CourseTrack } from "@/components/courses/CourseTra
 import { CurriculumPathwayGrid } from "@/components/courses/CurriculumPathwayGrid";
 import { BiogeometryLevelStepper } from "@/components/courses/BiogeometryLevelStepper";
 import { MediaBay } from "@/components/decorative/MediaBay";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
@@ -90,7 +89,6 @@ function CourseListing({
                     : "sm:col-start-2 lg:col-start-auto lg:col-span-6"
                 } min-w-0`}
               >
-                <ScaleBar scale="1:100" className="mb-2 max-w-[100px]" />
                 <h3 className="font-serif font-medium text-2xl sm:text-[2rem] mb-2 text-charcoal transition-colors duration-200 group-hover:text-clay">
                   {course.title}
                 </h3>

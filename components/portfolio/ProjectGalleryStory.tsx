@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { MediaBay } from "@/components/decorative/MediaBay";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import type { MediaFallbackKind } from "@/components/decorative/MediaFallbackSketch";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { gsap, registerGsap } from "@/lib/gsap/config";
@@ -80,7 +79,6 @@ function ProjectCopyPanel({
   return (
     <div className="flex w-full flex-col justify-start gap-5 lg:h-full lg:min-h-[min(52svh,28rem)] lg:flex-row lg:items-center lg:justify-center lg:gap-12">
       <div className="hairline-border w-full max-w-sm shrink-0 p-4 sm:p-6 lg:p-8">
-        <ScaleBar scale="1:50" className="mb-4 max-w-[100px] sm:mb-6 sm:max-w-[120px]" />
         <div className="space-y-4 sm:space-y-6">
           <div>
             <p className="label-caps mb-1.5 sm:mb-2">Sheet</p>

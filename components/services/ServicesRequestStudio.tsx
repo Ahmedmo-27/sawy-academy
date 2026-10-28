@@ -6,7 +6,6 @@ import { HorizontalPinGallery } from "@/components/animation/HorizontalPinGaller
 import { Magnetic } from "@/components/animation/Magnetic";
 import { SplitTextReveal } from "@/components/animation/SplitTextReveal";
 import { MediaBay } from "@/components/decorative/MediaBay";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { DesignRequestForm } from "@/components/services/DesignRequestForm";
 import { ProjectTypeCard } from "@/components/services/ProjectTypeCard";
 import { RequestReceived } from "@/components/services/RequestReceived";
@@ -138,7 +137,7 @@ export function ServicesRequestStudio() {
           >
             <ThresholdFrame label="Practice note">
               <div className="mt-4 bg-concrete-dark/45 p-6 sm:p-8">
-                <ScaleBar scale="1:200" className="mb-7 max-w-[140px]" />
+
                 <p className="type-infill leading-relaxed">
                   Each submission is reviewed as a commission brief, not a
                   generic contact form.
@@ -346,7 +345,6 @@ export function ServicesRequestStudio() {
                 <div className="grid grid-cols-1 gap-px bg-hairline lg:grid-cols-12">
                   <aside className="bg-concrete-dark/55 p-6 sm:p-8 lg:col-span-4 lg:p-10">
                     <div className="lg:sticky lg:top-28">
-                      <ScaleBar scale="1:50" className="mb-8 max-w-[130px]" />
                       <p className="label-caps mb-3">Active sheet</p>
                       <p className="type-title">{requestLabels[selectedType]}</p>
                       <p className="type-infill mt-4 max-w-xs leading-relaxed">

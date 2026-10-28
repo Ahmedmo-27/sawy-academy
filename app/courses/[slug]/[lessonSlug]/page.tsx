@@ -8,7 +8,6 @@ import { EnrollButton } from "@/components/courses/EnrollButton";
 import { LessonCourseRail } from "@/components/courses/LessonCourseRail";
 import { LessonNav } from "@/components/courses/LessonNav";
 import { CompleteMarker } from "@/components/decorative/CompleteMarker";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { GridColumns } from "@/components/decorative/GridColumns";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
@@ -333,7 +332,6 @@ export default function LessonPage({ params }: LessonPageProps) {
             </div>
 
             <div className="hairline-border bg-concrete/80 p-4 lg:col-span-5 lg:p-5">
-              <ScaleBar scale="1:50" className="mb-4 max-w-[100px]" />
               <div className="grid grid-cols-2 gap-x-5 gap-y-4 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
               <div>
                 <p className="label-caps mb-2">Sheet</p>

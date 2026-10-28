@@ -31,6 +31,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1106.0",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.7.1",
+    "@types/three": "^0.186.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
@@ -48,6 +49,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.85.0",
+    "three": "^0.186.1",
     "yet-another-react-lightbox": "^3.32.2",
     "zod": "^4.4.3"
   },

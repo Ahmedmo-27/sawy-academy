@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { BioGeometryShape } from "@/components/BioGeometryShape";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { MediaBay } from "@/components/decorative/MediaBay";
+import { BorderBeam } from "@/components/animation/BorderBeam";
+import { DecryptedText } from "@/components/animation/DecryptedText";
 import type { CourseGroup } from "@/lib/api/types";
 import { courseGroupSlug } from "@/lib/api/courseGroups";
 
@@ -39,12 +40,15 @@ export function CurriculumPathwayGrid({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Track 01: Architecture Diploma */}
-        <div className="relative border border-hairline bg-concrete/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:border-charcoal/30 hover:bg-concrete-dark/20">
+        <div className="relative border border-hairline bg-concrete/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:border-charcoal/30 hover:bg-concrete-dark/20 overflow-hidden">
+          <BorderBeam size={22} duration={8} borderWidth={1.5} colorFrom="#8B5A4A" colorTo="#D89982" />
           <div className="relative z-[1] space-y-4">
             <div className="flex items-center justify-between gap-2 border-b border-hairline pb-4">
               <div>
                 <span className="label-caps text-clay">Track 01 · Studio Diploma</span>
-                <p className="font-mono text-xs text-charcoal/60 mt-0.5">4 Core Courses · Studio Programme</p>
+                <p className="font-mono text-xs text-charcoal/60 mt-0.5">
+                  <DecryptedText text="4 Core Courses · Studio Programme" animateOn="hover" />
+                </p>
               </div>
               <span className="font-serif font-medium text-sm sm:text-base text-clay">
                 {diplomaGroup?.bundlePrice || "EGP 52,000"}
@@ -64,7 +68,6 @@ export function CurriculumPathwayGrid({
             )}
 
             <div>
-              <ScaleBar scale="1:100" className="mb-2 max-w-[90px]" />
               <h3 className="font-serif text-2xl font-medium text-charcoal">
                 Architecture Diploma
               </h3>
@@ -117,7 +120,9 @@ export function CurriculumPathwayGrid({
             <div className="flex items-center justify-between gap-2 border-b border-hairline pb-4">
               <div>
                 <span className="label-caps text-clay font-medium">Track 02 · Harmonization Science</span>
-                <p className="font-mono text-xs text-charcoal/60 mt-0.5">3 Sequential Levels · Energy & Form</p>
+                <p className="font-mono text-xs text-charcoal/60 mt-0.5">
+                  <DecryptedText text="3 Sequential Levels · Energy & Form" animateOn="hover" />
+                </p>
               </div>
               <span className="font-serif font-medium text-sm sm:text-base text-clay">
                 From EGP 14,500

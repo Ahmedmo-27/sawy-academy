@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Wordmark } from "@/components/Wordmark";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { useSiteSettings } from "@/components/cms/SiteContentProvider";
@@ -55,8 +54,7 @@ export function Footer() {
           <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
             <div className="shrink-0">
               <Wordmark linked={false} size="sm" tone="light" />
-              <ScaleBar scale="1:200" className="mt-6 mb-4 max-w-[100px]" />
-              <p className="type-title mb-2">{professorTitle}</p>
+              <p className="type-title mt-6 mb-2">{professorTitle}</p>
               <p className="type-infill leading-relaxed max-w-xs">
                 {addressLine2}
                 <br />

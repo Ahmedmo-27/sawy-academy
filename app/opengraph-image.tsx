@@ -30,7 +30,6 @@ export default function OpenGraphImage() {
           }}
         >
           <span>Architecture · Education · Studio</span>
-          <span>1:100</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ width: 150, height: 8, background: "#8b5a4a" }} />

@@ -1,4 +1,3 @@
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { BRAND } from "@/lib/branding";
 
@@ -10,7 +9,6 @@ export function RequestReceived({ requestLabel }: RequestReceivedProps) {
   return (
     <ThresholdFrame label="Submission stamp">
       <div className="hairline-border p-8 lg:p-10 mt-4 bg-concrete/80">
-        <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
 
         <div className="hairline-b pb-6 mb-6">
           <p className="label-caps mb-2">Status</p>

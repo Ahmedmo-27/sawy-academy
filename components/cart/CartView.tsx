@@ -6,7 +6,6 @@ import { useState } from "react";
 import { CourseImagePlaceholder } from "@/components/cart/CourseImagePlaceholder";
 import { InstaPayTransferDetails } from "@/components/cart/InstaPayTransferDetails";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { useCart } from "@/components/cart/CartProvider";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { AsyncState } from "@/components/feedback/AsyncState";
@@ -26,7 +25,6 @@ function OrderSummary({
   return (
     <aside className="hairline-border bg-concrete p-[var(--spacing-gutter)]">
       <header className="pb-2">
-        <ScaleBar scale="1:100" className="mb-2 max-w-[120px]" />
         <h2 className="type-title text-xl">Project / Order Summary</h2>
       </header>
 

@@ -8,7 +8,6 @@ import { Magnetic } from "@/components/animation/Magnetic";
 import { SplitTextReveal } from "@/components/animation/SplitTextReveal";
 import { GridColumns } from "@/components/decorative/GridColumns";
 import { MediaBay } from "@/components/decorative/MediaBay";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Section } from "@/components/layout/Section";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
@@ -151,7 +150,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-4">
               <div className="hairline-border p-6 lg:p-8">
-                <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
                 <p className="label-caps mb-2">Category</p>
                 <p className="type-infill mb-6">{product.category}</p>
                 <p className="label-caps mb-2">Price</p>

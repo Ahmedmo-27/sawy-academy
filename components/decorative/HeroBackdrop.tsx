@@ -6,6 +6,7 @@ import { GeometricLattice } from "./GeometricLattice";
 import { FloorPlanSketch } from "./FloorPlanSketch";
 import { AxonometricSketch } from "./AxonometricSketch";
 import { BlueprintDraw } from "./BlueprintDraw";
+import { ShapeGrid } from "@/components/animation/ShapeGrid";
 
 interface HeroBackdropProps {
   variant?: "home" | "page";
@@ -31,6 +32,9 @@ export function HeroBackdrop({ variant = "page" }: HeroBackdropProps) {
       className="pointer-events-none absolute inset-0 overflow-hidden z-0"
       aria-hidden="true"
     >
+      {/* Interactive CAD Shape Grid */}
+      <ShapeGrid className="z-0 opacity-60" />
+
       {/* Background plane — lattice */}
       <motion.div className="absolute inset-0 z-0" style={{ y: bgY }}>
         <GeometricLattice opacity={variant === "home" ? 0.04 : 0.03} />

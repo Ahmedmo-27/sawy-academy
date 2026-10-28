@@ -6,7 +6,6 @@ import { EnrollButton } from "@/components/courses/EnrollButton";
 import { CompleteMarker } from "@/components/decorative/CompleteMarker";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { MediaBay } from "@/components/decorative/MediaBay";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { ThresholdFrame } from "@/components/layout/ThresholdFrame";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCourseDuration } from "@/lib/api/courses";
@@ -241,7 +240,6 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
       />
 
       <div className="hairline-border p-4 sm:p-6 lg:p-10">
-        <ScaleBar scale="1:100" className="mb-4 max-w-[120px]" />
         <p className="label-caps mb-2 text-clay font-medium text-xs sm:text-sm">Leveled progression</p>
         <p className="text-base sm:text-lg max-w-2xl leading-relaxed text-charcoal/90">{group.subtitle}</p>
         <p className="text-base sm:text-[1.0625rem] mt-3 max-w-2xl leading-relaxed text-charcoal/80">
@@ -258,7 +256,6 @@ export function LeveledCourseDetail({ group }: LeveledCourseDetailProps) {
         className="min-w-0"
       >
         <div className="mt-4 min-w-0 hairline-border p-4 sm:p-6 lg:p-10">
-          <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
           <p className="label-caps mb-8 text-charcoal font-semibold text-xs sm:text-sm tracking-wider">
             Sequence — {String(levels.length).padStart(2, "0")} levels
           </p>
