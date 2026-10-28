@@ -1,0 +1,33 @@
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+    <rect width="512" height="512" fill="#0B0C0E"/>
+    <!-- Concentric golden ratio guides -->
+    <circle cx="256" cy="256" r="210" stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none"/>
+    <circle cx="256" cy="256" r="160" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="4 4" fill="none" opacity="0.6"/>
+    <circle cx="256" cy="256" r="100" stroke="rgba(255,255,255,0.15)" stroke-width="1" fill="none"/>
+    
+    <!-- Coordinate axes -->
+    <line x1="256" y1="26" x2="256" y2="486" stroke="rgba(212,175,55,0.4)" stroke-width="1"/>
+    <line x1="26" y1="256" x2="486" y2="256" stroke="rgba(212,175,55,0.4)" stroke-width="1"/>
+    <circle cx="256" cy="256" r="4" fill="#D4AF37"/>
+
+    <!-- Architectural Square & Compass Emblem -->
+    <!-- Outer diamond square -->
+    <polygon points="256,66 446,256 256,446 66,256" stroke="#FFFFFF" stroke-width="2.5" fill="none" opacity="0.85"/>
+    
+    <!-- Drafting Compass Arms -->
+    <path d="M256,120 L160,370" stroke="#D4AF37" stroke-width="6" stroke-linecap="round"/>
+    <path d="M256,120 L352,370" stroke="#D4AF37" stroke-width="6" stroke-linecap="round"/>
+    <!-- Compass Hinge -->
+    <circle cx="256" cy="120" r="16" fill="#14161B" stroke="#D4AF37" stroke-width="4"/>
+    <circle cx="256" cy="120" r="6" fill="#D4AF37"/>
+    <!-- Compass cross bar -->
+    <path d="M196,280 Q256,295 316,280" stroke="#D4AF37" stroke-width="3" fill="none"/>
+    <circle cx="196" cy="280" r="4" fill="#D4AF37"/>
+    <circle cx="316" cy="280" r="4" fill="#D4AF37"/>
+
+    <!-- Geometric S / A Monogram in Center -->
+    <text x="256" y="275" font-family="'Space Grotesk', 'Helvetica Neue', sans-serif" font-size="82" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="-2">S</text>
+    <text x="256" y="415" font-family="monospace" font-size="14" fill="#D4AF37" letter-spacing="8" text-anchor="middle">CAIRO · 2012</text>
+  </svg>
+  

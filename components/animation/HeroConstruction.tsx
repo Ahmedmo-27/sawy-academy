@@ -126,14 +126,9 @@ export function HeroConstruction({
       aria-hidden="true"
     >
       {variant === "feature" && (
-        <>
-          <span className="label-caps absolute left-4 top-4 z-10 text-clay sm:left-6 sm:top-6">
-            Studio drawing / 01
-          </span>
-          <span className="dim-label absolute bottom-4 right-4 z-10 sm:bottom-6 sm:right-6">
-            Scale 1:200
-          </span>
-        </>
+        <span className="label-caps absolute left-4 top-4 z-10 text-clay sm:left-6 sm:top-6">
+          Studio drawing / 01
+        </span>
       )}
       <div ref={setRefs} className="absolute inset-0 will-change-transform">
         <svg

@@ -1,4 +1,3 @@
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 
 interface AdminPageHeaderProps {
   eyebrow: string;
@@ -20,7 +19,6 @@ export function AdminPageHeader({
   return (
     <header className="mb-6 flex flex-col gap-4 sm:mb-8 sm:gap-6 lg:flex-row lg:items-end lg:justify-between">
       <div className="min-w-0">
-        <ScaleBar scale="1:100" className="mb-3 max-w-[100px] sm:mb-4 sm:max-w-[120px]" />
         <p className="eyebrow mb-2 sm:mb-3">{eyebrow}</p>
         {context && <p className="label-caps mb-2 text-clay">{context}</p>}
         <h1 className="font-serif font-light text-charcoal text-[1.5rem] leading-tight tracking-[-0.01em] sm:text-[1.75rem] lg:text-[2rem]">

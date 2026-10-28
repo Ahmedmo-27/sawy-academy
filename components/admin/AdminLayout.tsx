@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from "react";
 import { AdminCommandPalette } from "@/components/admin/AdminCommandPalette";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { useAuth } from "@/hooks/useAuth";
 import { useFocusTrap } from "@/lib/a11y/focusTrap";
 import { easeOut, navTransition } from "@/lib/motion";
@@ -345,9 +344,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               {!collapsed && <span>Collapse</span>}
             </button>
 
-            {!collapsed && (
-              <ScaleBar scale="1:50" className="max-w-[120px]" />
-            )}
           </div>
 
           <nav

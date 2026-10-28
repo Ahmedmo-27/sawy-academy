@@ -4,7 +4,6 @@ import Image from "next/image";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { ProcessProgressBar } from "@/components/feedback/ProcessProgressBar";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { ProfileSectionShell } from "@/components/profile/ProfileSectionShell";
 import {
   ProfileSectionError,
@@ -183,7 +182,6 @@ export function ProfileIdentityPanel() {
               Edit your portrait and contact details, then save the sheet.
             </p>
           </div>
-          <ScaleBar scale="1:100" className="max-w-[100px] opacity-70" />
         </div>
 
         <div className="grid grid-cols-1 gap-10 p-6 sm:p-8 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-12">

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { MediaBay } from "@/components/decorative/MediaBay";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { lessonSlugOf } from "@/lib/api/courses";
 import type { Lesson } from "@/lib/api/types";
 
@@ -15,7 +14,6 @@ export function CourseSheetIndex({
 }: CourseSheetIndexProps) {
   return (
     <div>
-      <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
       <p className="label-caps mb-6 text-charcoal font-semibold text-xs sm:text-sm tracking-wider">
         Sheet index — {String(lessons.length).padStart(2, "0")} drawings
       </p>

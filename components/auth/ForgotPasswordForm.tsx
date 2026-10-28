@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FormEvent, useId, useState } from "react";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { FormErrorSummary } from "@/components/forms/FormErrorSummary";
 import { forgotPasswordRequest } from "@/lib/api/auth";
 import { forgotPasswordSchema, issuesByField } from "@/lib/validation/forms";
@@ -56,7 +55,6 @@ export function ForgotPasswordForm() {
             Request a password reset link for your account.
           </p>
         </div>
-        <ScaleBar scale="1:100" className="max-w-[100px] opacity-70" />
       </div>
 
       <div className="p-6 sm:p-8 lg:p-10">

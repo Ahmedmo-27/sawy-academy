@@ -1,6 +1,8 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
+import { motion } from "framer-motion";
+import { DecryptedText } from "@/components/animation/DecryptedText";
 
 export type CourseTrack = "all" | "diploma" | "biogeometry";
 
@@ -105,7 +107,7 @@ export function CourseTrackNav({
             >
               <div className="flex items-center justify-between gap-2 mb-1">
                 <span className="font-mono text-xs text-clay font-medium tracking-wider">
-                  0{idx + 1}
+                  <DecryptedText text={`0${idx + 1}`} animateOn="hover" />
                 </span>
                 <span
                   className={`text-[0.7rem] uppercase tracking-wider px-2 py-0.5 border ${
@@ -129,7 +131,13 @@ export function CourseTrackNav({
               </p>
 
               {isActive && (
-                <div
+                <motion.div
+                  layoutId="trackNavActiveIndicator"
+                  transition={{
+                    type: "spring",
+                    stiffness: 450,
+                    damping: 35,
+                  }}
                   aria-hidden="true"
                   className="absolute bottom-0 left-0 right-0 h-0.5 bg-clay"
                 />

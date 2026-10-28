@@ -166,7 +166,7 @@ export function OrthographicSectionCut({
                   CAD ORTHOGRAPHIC POCHE CUT
                 </p>
                 <p className="text-[11px] text-[#7CB2FF]/80 leading-relaxed">
-                  Solid-to-void Poche analysis · 1:50 Module Grid · Structural Bay Layout
+                  Solid-to-void Poche analysis · Module Grid · Structural Bay Layout
                 </p>
               </div>
             </div>

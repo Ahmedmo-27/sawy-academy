@@ -1,7 +1,6 @@
 "use client";
 
 import { MediaBay } from "@/components/decorative/MediaBay";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import type { MediaFallbackKind } from "@/components/decorative/MediaFallbackSketch";
 
 interface ProjectTypeCardProps {
@@ -98,7 +97,6 @@ export function ProjectTypeCard({
         morph
       />
 
-      <ScaleBar scale="1:50" className="mb-6 max-w-[120px]" />
       <h3 className="type-title">{title}</h3>
       <p className="type-infill mt-4 max-w-md leading-relaxed">{description}</p>
 

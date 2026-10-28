@@ -84,17 +84,6 @@ export function PortraitSilhouette({ className = "" }: PortraitSilhouetteProps) 
         <line x1="40" y1="178" x2="48" y2="178" />
         <line x1="36" y1="78" x2="36" y2="178" />
       </g>
-      <text
-        x="52"
-        y="132"
-        className="label-caps"
-        fill="var(--color-clay)"
-        fontSize="7"
-        letterSpacing="1.5"
-        opacity="0.7"
-      >
-        1:20
-      </text>
     </svg>
   );
 }

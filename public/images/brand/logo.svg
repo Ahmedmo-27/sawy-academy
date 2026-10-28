@@ -1,0 +1,23 @@
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" width="640" height="160">
+    <rect width="640" height="160" fill="transparent"/>
+    <!-- Emblem -->
+    <g transform="translate(15, 15) scale(0.25)">
+      <circle cx="256" cy="256" r="210" stroke="rgba(255,255,255,0.15)" stroke-width="2" fill="none"/>
+      <circle cx="256" cy="256" r="160" stroke="#D4AF37" stroke-width="3" stroke-dasharray="6 6" fill="none"/>
+      <line x1="256" y1="26" x2="256" y2="486" stroke="#D4AF37" stroke-width="2"/>
+      <line x1="26" y1="256" x2="486" y2="256" stroke="#D4AF37" stroke-width="2"/>
+      <polygon points="256,66 446,256 256,446 66,256" stroke="#FFFFFF" stroke-width="5" fill="none"/>
+      <path d="M256,120 L160,370" stroke="#D4AF37" stroke-width="12" stroke-linecap="round"/>
+      <path d="M256,120 L352,370" stroke="#D4AF37" stroke-width="12" stroke-linecap="round"/>
+      <circle cx="256" cy="120" r="30" fill="#14161B" stroke="#D4AF37" stroke-width="8"/>
+      <path d="M196,280 Q256,295 316,280" stroke="#D4AF37" stroke-width="6" fill="none"/>
+    </g>
+    <!-- Divider -->
+    <line x1="170" y1="40" x2="170" y2="120" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <!-- Typography -->
+    <text x="200" y="75" font-family="'Space Grotesk', sans-serif" font-size="34" font-weight="700" fill="#FFFFFF" letter-spacing="6">SAWY</text>
+    <text x="360" y="75" font-family="serif" font-size="32" font-weight="300" fill="#D4AF37" font-style="italic">Academy</text>
+    <text x="202" y="105" font-family="monospace" font-size="11" fill="#A0A5AD" letter-spacing="3">ARCHITECTURE · PEDAGOGY · RESEARCH</text>
+  </svg>
+  

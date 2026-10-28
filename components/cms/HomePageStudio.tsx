@@ -9,15 +9,16 @@ import { HorizontalPinGallery } from "@/components/animation/HorizontalPinGaller
 import { PinScrubStats } from "@/components/animation/PinScrubStats";
 import { HeroBackdrop } from "@/components/decorative/HeroBackdrop";
 import { GridColumns } from "@/components/decorative/GridColumns";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { MediaBay } from "@/components/decorative/MediaBay";
 import { LevelProgressLine } from "@/components/decorative/LevelProgressLine";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
-import { PortraitSilhouette } from "@/components/decorative/PortraitSilhouette";
 import { Magnetic } from "@/components/animation/Magnetic";
 import { ArchitecturalTilt3D } from "@/components/animation/ArchitecturalTilt3D";
 import { OrthographicSectionCut } from "@/components/animation/OrthographicSectionCut";
 import { ArchitecturalMetricTicker } from "@/components/animation/ArchitecturalMetricTicker";
+import { DecryptedText } from "@/components/animation/DecryptedText";
+import { ScrollVideoScrub } from "@/components/animation/ScrollVideoScrub";
+import { HeroSpatialScrub } from "@/components/animation/HeroSpatialScrub";
 import { ProjectCard } from "@/components/portfolio/ProjectCard";
 import { ProductCard } from "@/components/products/ProductCard";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -89,7 +90,7 @@ function SectionHeader({
     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8 pb-4 border-b border-charcoal/10">
       <div className="flex items-start gap-4 sm:gap-6">
         <span className="inline-flex items-center justify-center px-2.5 py-1 text-[0.8125rem] font-mono font-semibold text-clay bg-clay/10 border border-clay/20 shrink-0">
-          {displayRoom}
+          <DecryptedText text={displayRoom} animateOn="view" speed={30} maxIterations={8} />
         </span>
         <div>
           <p className="eyebrow mb-1.5 text-clay">{eyebrow}</p>
@@ -119,31 +120,8 @@ function HeroSection({
 }: {
   content: Record<string, unknown>;
 }) {
-  // const { locale, t } = useLocale();
-  // const isAr = locale === "ar";
-  const jumpLinks = Array.isArray(content.jumpLinks)
-    ? (content.jumpLinks as Array<{ href?: string; label?: string }>)
-    : [];
-  const heroImageUrl = text(content.heroImageUrl) || "/images/hero/prof-mohamed-el-sawy.jpg";
-  /*
-  const primaryCtaLabel =
-    isAr && (!content.primaryCtaLabel || content.primaryCtaLabel === "View")
-      ? t.common.view
-      : text(content.primaryCtaLabel, "View");
-  const secondaryCtaLabel =
-    isAr &&
-    (!content.secondaryCtaLabel || content.secondaryCtaLabel === "Browse")
-      ? t.common.browse
-      : text(content.secondaryCtaLabel, "Browse");
-  const floorPlanLabel =
-    isAr &&
-    (!content.floorPlanLabel || content.floorPlanLabel === "Floor plan")
-      ? t.rooms.floorPlan
-      : text(content.floorPlanLabel, "Floor plan");
-  */
   const primaryCtaLabel = text(content.primaryCtaLabel, "View");
   const secondaryCtaLabel = text(content.secondaryCtaLabel, "Browse");
-  const floorPlanLabel = text(content.floorPlanLabel, "Floor plan");
 
   return (
     <section className="relative overflow-x-clip" aria-label="Entrance">
@@ -203,60 +181,21 @@ function HeroSection({
                   </Link>
                 )}
               </div>
-              <ScaleBar scale="1:200" className="hidden sm:block max-w-[200px]" />
             </GsapReveal>
-
-            {jumpLinks.length > 0 && (
-              <GsapReveal
-                type="text"
-                immediate
-                delay={0.46}
-                className="min-w-0 max-w-full"
-              >
-                <nav
-                  className="mt-6 sm:mt-8 pt-5 sm:pt-6 hairline-t"
-                  aria-label="Jump to rooms"
-                >
-                  <p className="label-caps mb-2 sm:mb-3">
-                    {floorPlanLabel}
-                  </p>
-                  <ul className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-2">
-                    {jumpLinks.map((link, i) => {
-                      const href = safeHref(link.href);
-                      if (!href) return null;
-                      return (
-                        <li key={`${href}-${i}`} className="min-w-0">
-                          <a href={href} className="action-secondary">
-                            {text(link.label)}
-                          </a>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </nav>
-              </GsapReveal>
-            )}
           </div>
 
-          <div className="order-1 min-w-0 max-w-full lg:order-none lg:col-span-7 mx-auto w-full max-w-xs sm:max-w-sm md:max-w-md lg:mx-0 lg:max-w-none lg:-translate-y-8">
+          <div className="order-1 min-w-0 max-w-full lg:order-none lg:col-span-7 w-full flex items-center justify-center">
             <GsapReveal
               type="image"
               immediate
               delay={0.18}
-              className="min-w-0 max-w-full"
+              className="min-w-0 w-full flex items-center justify-center"
             >
-              <ImageFrame className="aspect-[4/3] sm:aspect-[4/3] lg:aspect-[3/4] max-h-[min(40svh,280px)] sm:max-h-[min(42svh,320px)] lg:max-h-[min(68svh,680px)] bg-concrete-dark/20">
-                {heroImageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={heroImageUrl}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <PortraitSilhouette />
-                )}
-              </ImageFrame>
+              <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto flex items-center justify-center">
+                <ImageFrame className="aspect-[4/3] sm:aspect-[4/3] lg:aspect-[4/3] w-full max-h-[min(45svh,320px)] sm:max-h-[min(50svh,380px)] lg:max-h-[min(65svh,560px)] bg-concrete-dark/20 shadow-md">
+                  <HeroSpatialScrub frameCount={240} />
+                </ImageFrame>
+              </div>
             </GsapReveal>
           </div>
         </div>
@@ -275,7 +214,7 @@ function PhilosophySection({ content }: { content: Record<string, unknown> }) {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               <div className="lg:col-span-8">
                 <span className="inline-flex items-center justify-center px-2.5 py-1 text-[0.8125rem] font-mono font-semibold text-clay bg-clay/10 border border-clay/20 mb-4">
-                  ROOM {text(content.roomNumber, "01")}
+                  ROOM <DecryptedText text={text(content.roomNumber, "01")} animateOn="view" speed={30} maxIterations={8} parentClassName="ml-1" />
                 </span>
                 <blockquote>
                   <GsapReveal type="heading">
@@ -534,6 +473,14 @@ function CoursesSection({
             href={safeHref(content.href, "/courses")}
             linkLabel={text(content.linkLabel, "Full curriculum")}
           />
+        </PageContainer>
+
+        {/* 3D Axonometric Diploma Scroll Scrubbing Stage */}
+        <div className="my-8">
+          <ScrollVideoScrub frameCount={240} />
+        </div>
+
+        <PageContainer>
           <ThresholdFrame label={text(content.thresholdLabel, "Programme index")}>
             <GsapStagger className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               {featured.map((group) => {
@@ -691,13 +638,15 @@ function ResearchSection({
                   <article className="surface-card-elevated p-6 lg:p-8">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
                       <div className="lg:col-span-3">
-                        <MediaBay
-                          src={item.image}
-                          alt={item.title}
-                          className="aspect-[4/3] sm:aspect-[4/5] max-w-[18rem] sm:max-w-[12rem] border border-charcoal/10"
-                          fallback="research"
-                          morph
-                        />
+                        <Link href={`/researches/${item.slug}`} className="block group/media">
+                          <MediaBay
+                            src={item.image}
+                            alt={item.title}
+                            className="aspect-[4/3] sm:aspect-[4/5] max-w-[18rem] sm:max-w-[12rem] border border-charcoal/10 transition-transform duration-500 group-hover/media:scale-[1.02]"
+                            fallback="research"
+                            morph
+                          />
+                        </Link>
                         <div className="mt-4 flex gap-3 lg:flex-col lg:gap-1.5">
                           <span className="label-caps font-semibold text-clay">{item.category}</span>
                           <span className="label-caps font-mono text-charcoal/70">
@@ -707,14 +656,27 @@ function ResearchSection({
                       </div>
                       <div className="lg:col-span-9">
                         <h3 className="type-title mb-2 text-xl sm:text-2xl font-serif font-medium text-charcoal">
-                          {item.title}
+                          <Link
+                            href={`/researches/${item.slug}`}
+                            className="hover:text-clay transition-colors"
+                          >
+                            {item.title}
+                          </Link>
                         </h3>
                         <p className="label-caps mb-3 text-clay font-medium">
                           {item.venue}
                         </p>
-                        <p className="type-infill line-clamp-3 text-charcoal/80 leading-relaxed">
+                        <p className="type-infill line-clamp-3 text-charcoal/80 leading-relaxed mb-5">
                           {item.abstract}
                         </p>
+                        <div className="pt-2">
+                          <Link
+                            href={`/researches/${item.slug}`}
+                            className="cta-entrance text-xs sm:text-sm"
+                          >
+                            View research →
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </article>
@@ -772,7 +734,6 @@ function ContactSection({
                 />
               </div>
               <div className="bg-concrete-dark/30 p-6 lg:p-10 lg:col-span-4">
-                <ScaleBar scale="1:100" className="mb-6 max-w-[120px]" />
                 <dl className="space-y-6">
                   <div>
                     <dt className="label-caps mb-2">Email</dt>

@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { GsapStagger } from "@/components/animation/GsapReveal";
 import { ImageFrame } from "@/components/decorative/ImageFrame";
 import { ProductCard } from "@/components/products/ProductCard";
 import { listProducts } from "@/lib/api/products";
@@ -47,23 +46,42 @@ export function CourseMaterials({ relatedProductIds }: CourseMaterialsProps) {
   if (materials.length === 0) return null;
 
   return (
-    <GsapStagger className="bay-grid">
-      {materials.map((product) => (
-        <div
-          key={product.id}
-          className="col-span-12 sm:col-span-6 lg:col-span-3 bg-concrete"
-        >
-          <ProductCard
-            id={product.id}
-            name={product.name}
-            category={product.category}
-            description={product.description}
-            price={product.price}
-            image={product.image}
-          />
-        </div>
-      ))}
-    </GsapStagger>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5 sm:gap-6">
+      {materials.map((product, index) => {
+        const isFeatured = index === 0 && materials.length >= 3;
+        const colClass = isFeatured
+          ? "col-span-1 sm:col-span-2 lg:col-span-6"
+          : materials.length === 3
+          ? "col-span-1 sm:col-span-1 lg:col-span-3"
+          : "col-span-1 sm:col-span-1 lg:col-span-3";
+
+        return (
+          <div
+            key={product.id}
+            className={`${colClass} bg-concrete border border-hairline transition-all duration-300 hover:border-clay/50`}
+          >
+            {isFeatured && (
+              <div className="border-b border-hairline px-4 py-2 bg-concrete-dark/30 flex items-center justify-between">
+                <span className="font-mono text-[11px] text-clay font-medium tracking-wider">
+                  PRIMARY SPECIFICATION
+                </span>
+                <span className="font-mono text-[10px] text-charcoal/50 uppercase">
+                  REQUIRED STUDIO TOOL
+                </span>
+              </div>
+            )}
+            <ProductCard
+              id={product.id}
+              name={product.name}
+              category={product.category}
+              description={product.description}
+              price={product.price}
+              image={product.image}
+            />
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

@@ -2,6 +2,8 @@ import { Reveal } from "./Reveal";
 import { HeroBackdrop } from "./decorative/HeroBackdrop";
 import { GridColumns } from "./decorative/GridColumns";
 import { PageContainer } from "./layout/PageContainer";
+import { BlurTextReveal } from "./animation/BlurTextReveal";
+import { DecryptedText } from "./animation/DecryptedText";
 
 export type PageHeaderTone = "neutral" | "warm";
 
@@ -26,10 +28,14 @@ export function PageHeader({
       <GridColumns />
       <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-8 lg:pb-12">
         <Reveal variant="infill" immediate>
-          <p className="eyebrow mb-3">{eyebrow}</p>
+          <p className="eyebrow mb-3">
+            <DecryptedText text={eyebrow} animateOn="view" speed={35} maxIterations={8} />
+          </p>
         </Reveal>
         <Reveal variant="hero" immediate delay={80}>
-          <h1 className="type-display max-w-4xl">{title}</h1>
+          <h1 className="type-display max-w-4xl">
+            <BlurTextReveal text={title} />
+          </h1>
         </Reveal>
         {description && (
           <Reveal variant="infill" immediate delay={200}>

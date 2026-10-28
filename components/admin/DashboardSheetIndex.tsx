@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import type { DashboardMetric } from "@/lib/api/types";
 
 interface DashboardSheetIndexProps {
@@ -9,7 +8,6 @@ interface DashboardSheetIndexProps {
 export function DashboardSheetIndex({ metrics }: DashboardSheetIndexProps) {
   return (
     <div className="hairline-border bg-concrete p-4 sm:p-6 lg:p-8">
-      <ScaleBar scale="1:100" className="mb-4 max-w-[100px] sm:mb-6 sm:max-w-[120px]" />
       <p className="eyebrow mb-4 sm:mb-6 text-charcoal-infill">
         Select an area — {String(metrics.length).padStart(2, "0")} available
       </p>

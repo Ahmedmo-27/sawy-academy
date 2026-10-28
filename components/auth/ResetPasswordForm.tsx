@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useId, useState } from "react";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { FormErrorSummary } from "@/components/forms/FormErrorSummary";
 import { resetPasswordRequest, verifyResetTokenRequest } from "@/lib/api/auth";
 import { issuesByField, resetPasswordSchema } from "@/lib/validation/forms";
@@ -137,7 +136,6 @@ export function ResetPasswordForm() {
             {tokenEmail ? `Updating password for ${tokenEmail}` : "Enter your new password."}
           </p>
         </div>
-        <ScaleBar scale="1:100" className="max-w-[100px] opacity-70" />
       </div>
 
       <div className="p-6 sm:p-8 lg:p-10">

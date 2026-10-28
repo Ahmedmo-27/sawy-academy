@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Reveal } from "@/components/Reveal";
-import { ScaleBar } from "@/components/decorative/ScaleBar";
 import { CmsPageHeader } from "@/components/cms/CmsPageHeader";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ThresholdDoorway } from "@/components/layout/ThresholdDoorway";
@@ -80,7 +79,6 @@ export function AuthPageShell({
               <aside className="sticky top-[calc(var(--nav-height)+2rem)]">
                 <ThresholdFrame label="Academy note">
                   <div className="hairline-border mt-4 bg-concrete/80 p-8">
-                    <ScaleBar scale="1:100" className="mb-6 max-w-[100px]" />
                     <p className="eyebrow text-clay mb-3">{copy.asideEyebrow}</p>
                     <p className="type-title font-serif text-2xl italic leading-tight">
                       {copy.asideTitle}
