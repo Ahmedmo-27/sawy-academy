@@ -486,12 +486,14 @@ export function Navigation() {
                   : "text-charcoal-infill hover:text-charcoal"
               }`}
             >
-              <CartGlyph className="h-5 w-5" />
-              {count > 0 && (
-                <span className="absolute -top-1.5 -right-2 label-caps text-[10px] leading-none text-clay">
-                  {count}
-                </span>
-              )}
+              <div className="relative inline-flex items-center justify-center">
+                <CartGlyph className="h-5 w-5" />
+                {count > 0 && (
+                  <span className="absolute -top-1.5 -right-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-clay px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-concrete tabular-nums pointer-events-none">
+                    {count > 99 ? "99+" : count}
+                  </span>
+                )}
+              </div>
             </Link>
 
             <NavLink
@@ -653,7 +655,14 @@ export function Navigation() {
                   : "Cart"
               }
             >
-              <CartGlyph />
+              <div className="relative inline-flex items-center justify-center">
+                <CartGlyph />
+                {count > 0 && (
+                  <span className="absolute -top-1.5 -right-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-clay px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-concrete tabular-nums pointer-events-none">
+                    {count > 99 ? "99+" : count}
+                  </span>
+                )}
+              </div>
               {count > 0 ? `Cart (${count})` : "Cart"}
             </Link>
 
