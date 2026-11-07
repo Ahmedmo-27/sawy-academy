@@ -1132,3 +1132,360 @@ html[data-theme="pharaonic"] .theme-footer {
     display: none;
   }
 }
+
+/* Theme component slots. Structure the shared header, card, and signature
+   cannot get from color tokens alone. */
+.theme-folio-vertical {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--color-hairline);
+  color: var(--color-clay);
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.theme-stamp-plate {
+  display: inline-flex;
+  max-width: 100%;
+  flex-direction: column;
+  gap: 0.45rem;
+  border: 3px solid var(--color-charcoal);
+  background: var(--color-clay);
+  color: var(--color-charcoal);
+  padding: 0.9rem 1.15rem 1.05rem;
+  box-shadow: 7px 7px 0 var(--color-charcoal);
+}
+
+.theme-stamp-plate .type-display,
+.theme-stamp-plate .type-heading,
+.theme-stamp-plate p {
+  color: var(--color-charcoal);
+}
+
+.theme-nameplate {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.theme-nameplate-rule {
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+}
+
+.theme-nameplate-bar {
+  height: 3px;
+  margin: 0.45rem 0 0.85rem;
+  background: currentColor;
+  box-shadow: 0 5px 0 currentColor;
+}
+
+.theme-chapter-dash {
+  display: block;
+  width: 3.5rem;
+  height: 1px;
+  margin-top: 1.25rem;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.theme-iwan-arch {
+  width: min(100%, 22rem);
+  height: auto;
+  margin: 0 auto 0.35rem;
+  color: var(--color-clay);
+}
+
+.theme-cartouche-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 9rem;
+  max-width: 100%;
+  padding: 0.45rem 1.4rem;
+  border: 1px solid var(--color-clay);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.theme-slot-card {
+  min-width: 0;
+  color: inherit;
+}
+
+.theme-slot-card:focus-visible {
+  outline: 2px solid var(--color-clay);
+  outline-offset: 4px;
+}
+
+.theme-slot-index {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.theme-slot-card-obsidian {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  align-items: baseline;
+  padding: 1.35rem 0;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.theme-slot-card-corten {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 5.5rem;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border: 3px solid var(--color-charcoal);
+  background: var(--color-concrete);
+  box-shadow: 8px 8px 0 var(--color-clay);
+}
+
+.theme-slot-card-corten:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 12px 12px 0 var(--color-charcoal);
+}
+
+.theme-slot-card-corten .theme-slot-index {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.theme-slot-thumb {
+  display: block;
+  height: 4.5rem;
+  overflow: hidden;
+  background: var(--color-concrete-dark);
+}
+
+.theme-slot-card-instrument {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.25rem 0.25rem 1rem;
+  text-align: center;
+}
+
+.theme-round-media {
+  display: block;
+  width: min(100%, 15rem);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--color-hairline);
+  border-radius: 999px;
+  background: var(--color-concrete-dark);
+}
+
+.theme-slot-card-ledger {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 0.75rem 1rem;
+  align-items: baseline;
+  padding: 0.95rem 0;
+  border-top: 1px solid var(--color-charcoal);
+}
+
+.theme-slot-card-lecture {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+.theme-slot-bleed {
+  display: block;
+  aspect-ratio: 16 / 9;
+  min-height: 12rem;
+  background: #14110e;
+}
+
+.theme-slot-caption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  padding: 2.5rem 1.25rem 1.1rem;
+  background: linear-gradient(transparent, rgba(10, 8, 6, 0.84));
+}
+
+.theme-slot-card-arabesque {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.theme-arch-media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--color-concrete-dark);
+  clip-path: polygon(50% 0, 100% 16%, 100% 100%, 0 100%, 0 16%);
+}
+
+.theme-slot-card-pharaonic {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-clay);
+  background: var(--color-concrete);
+}
+
+.theme-cornice {
+  display: block;
+  height: 0.85rem;
+  background:
+    linear-gradient(135deg, var(--color-construction) 25%, transparent 25%) 0 0 / 0.85rem 0.85rem,
+    linear-gradient(225deg, var(--color-construction) 25%, transparent 25%) 0 0 / 0.85rem 0.85rem,
+    var(--color-charcoal);
+}
+
+.theme-slot-relief {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--color-concrete-dark);
+}
+
+.theme-slot-inscription {
+  display: block;
+  padding: 1rem 1rem 1.15rem;
+  border-top: 1px solid var(--color-clay);
+  text-align: center;
+}
+
+.theme-signature {
+  margin: 0.25rem 0 2.25rem;
+  color: var(--color-charcoal);
+  pointer-events: none;
+}
+
+.theme-signature-ticks {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.45rem;
+  height: 1.5rem;
+}
+
+.theme-tick {
+  display: block;
+  width: 1px;
+  height: 0.45rem;
+  background: currentColor;
+  transform-origin: center bottom;
+}
+
+.theme-tick-major {
+  height: 1rem;
+}
+
+.theme-signature-quote,
+.theme-signature-dial,
+.theme-signature-rosette,
+.theme-signature-shafts {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.theme-signature-dial,
+.theme-signature-rosette,
+.theme-signature-shafts {
+  justify-content: center;
+}
+
+.theme-pull-rule {
+  display: block;
+  width: 1px;
+  height: 4.5rem;
+  background: var(--color-clay);
+  transform-origin: center bottom;
+}
+
+.theme-signature-stamp {
+  display: inline-grid;
+  justify-items: center;
+  gap: 0.1rem;
+  border: 2px solid var(--color-charcoal);
+  padding: 0.45rem 0.95rem 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 var(--color-clay);
+}
+
+.theme-signature-stamp strong {
+  font-size: 1.05rem;
+  letter-spacing: 0.28em;
+}
+
+.theme-dial,
+.theme-signature-star {
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.theme-signature-rules {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.theme-signature-rule {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left center;
+}
+
+.theme-signature-rule-strong {
+  height: 3px;
+}
+
+.theme-chapter-mark {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+
+.theme-signature-shaft {
+  display: block;
+  width: 1.35rem;
+  height: 5.5rem;
+  background:
+    linear-gradient(var(--color-clay), var(--color-clay)) top / 100% 0.45rem no-repeat,
+    linear-gradient(var(--color-charcoal), var(--color-charcoal)) center / 62% 100% no-repeat;
+  transform-origin: center bottom;
+}
+
+.theme-signature-shafts {
+  gap: 2.75rem;
+}
+
+html[data-theme="arabesque"] .theme-section-head,
+html[data-theme="pharaonic"] .theme-section-head,
+html[data-theme="instrument"] .theme-section-head {
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .theme-slot-card-ledger {
+    grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+  }
+}

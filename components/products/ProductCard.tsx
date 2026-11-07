@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { Magnetic } from "@/components/animation/Magnetic";
-import { MediaBay } from "@/components/decorative/MediaBay";
 import { useCart } from "@/components/cart/CartProvider";
 import { useToast } from "@/components/feedback/ToastProvider";
+import { useThemeSlots } from "@/components/theme/slots";
 
 interface ProductCardProps {
   id: string;
@@ -28,6 +27,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const { addItem, hasItem } = useCart();
   const { success } = useToast();
+  const { Card } = useThemeSlots();
   const [justAdded, setJustAdded] = useState(false);
   const inCart = hasItem(id) || justAdded;
   const href = `/products/${id}`;
@@ -47,37 +47,12 @@ export function ProductCard({
   }
 
   return (
-    <article className="theme-card group flex h-full min-w-0 flex-col surface-card-elevated">
-      <Link href={href} className="relative block">
-        <MediaBay
-          src={image}
-          alt={name}
-          className="aspect-[4/3] sm:aspect-[4/5]"
-          fallback="product"
-          morph
-          sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
-        />
-        <div className="project-overlay pointer-events-none absolute inset-0 hidden items-end bg-charcoal/50 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:flex sm:p-5">
-          <p className="type-infill !text-concrete line-clamp-4 leading-snug">
-            {description}
-          </p>
-        </div>
-      </Link>
-      <div className="flex min-w-0 flex-1 flex-col p-5 sm:p-5 lg:p-6">
-        <p className="label-caps mb-2">{category}</p>
-        <h2 className="font-serif font-medium mb-2 line-clamp-2 text-lg sm:text-xl text-charcoal leading-snug">
-          <Link
-            href={href}
-            className="hover:text-clay transition-colors duration-200"
-          >
-            {name}
-          </Link>
-        </h2>
-        <p className="type-infill mb-5 line-clamp-2 flex-1 leading-snug lg:hidden">
-          {description}
-        </p>
-        <div className="mt-auto flex min-w-0 flex-col gap-3 border-t border-charcoal/10 pt-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
-          <span className="font-serif font-semibold shrink-0 text-base tabular-nums sm:text-lg text-clay">
+    <article className="flex h-full min-w-0 flex-col gap-4">
+      <Card title={name} meta={category} image={image} href={href} />
+      <div className="mt-auto flex min-w-0 flex-1 flex-col">
+        <p className="type-infill mb-5 line-clamp-3 flex-1 leading-snug">{description}</p>
+        <div className="flex min-w-0 flex-col gap-3 border-t border-charcoal/10 pt-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+          <span className="shrink-0 font-serif text-base font-semibold tabular-nums text-clay sm:text-lg">
             {price}
           </span>
           <Magnetic strength={16}>
