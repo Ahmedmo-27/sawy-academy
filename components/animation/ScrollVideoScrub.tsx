@@ -283,7 +283,7 @@ export function ScrollVideoScrub({
     >
       <div
         ref={pinRef}
-        className="h-[var(--app-height,100svh)] w-full flex flex-col justify-between overflow-hidden pt-[calc(var(--nav-height,3.75rem)+0.5rem)] sm:pt-[calc(var(--nav-height,4.5rem)+0.75rem)] pb-2.5 sm:pb-4 px-3 sm:px-6 lg:px-8"
+        className="h-[var(--app-height,100svh)] w-full flex flex-col justify-between overflow-hidden pt-[calc(var(--nav-height,3.75rem)+0.5rem)] sm:pt-[calc(var(--nav-height,4.5rem)+0.75rem)] pb-2.5 sm:pb-4 px-3 sm:px-6 lg:px-10 xl:pl-16 xl:pr-14"
       >
         {/* Top Architectural HUD Bar - Locked Height & Navbar Clearance */}
         <header className="relative z-20 h-10 sm:h-12 lg:h-14 shrink-0 flex items-center justify-between gap-3 sm:gap-4 border-b border-charcoal/10 pb-2 sm:pb-3 flex-nowrap overflow-hidden">
@@ -323,7 +323,7 @@ export function ScrollVideoScrub({
               <span className="text-clay font-medium">DATUM: </span>
               {activeChapter.datum}
             </div>
-            <div className="px-2 py-0.5 sm:px-3 sm:py-1 border border-charcoal/15 bg-white shadow-xs text-charcoal font-medium shrink-0 text-[0.625rem] sm:text-[0.75rem]">
+            <div className="scrub-sheet px-2 py-0.5 sm:px-3 sm:py-1 border border-charcoal/15 shadow-xs font-medium shrink-0 text-[0.625rem] sm:text-[0.75rem]">
               FRAME [ {String(activeFrame).padStart(padLength, "0")} / {frameCount} ]
             </div>
           </div>
@@ -332,7 +332,7 @@ export function ScrollVideoScrub({
         {/* Center Main Stage - Responsive Vertical Split on Mobile, Horizontal on Desktop */}
         <div className="relative z-10 flex-1 my-2 sm:my-3 flex flex-col lg:grid lg:grid-cols-12 gap-3 sm:gap-4 lg:gap-6 items-stretch min-h-0 overflow-hidden">
           {/* Canvas Viewport: Constrained height on mobile so card fits comfortably */}
-          <div className="relative w-full h-[28svh] sm:h-[34svh] lg:h-full lg:col-span-8 shrink-0 lg:shrink flex items-center justify-center overflow-hidden border border-charcoal/15 bg-white shadow-xs">
+          <div className="scrub-sheet relative w-full h-[28svh] sm:h-[34svh] lg:h-full lg:col-span-8 shrink-0 lg:shrink flex items-center justify-center overflow-hidden border border-charcoal/15 shadow-xs">
             <canvas
               ref={canvasRef}
               className="w-full h-full object-contain pointer-events-none"
@@ -367,7 +367,7 @@ export function ScrollVideoScrub({
           </div>
 
           {/* Chapter Syllabus Side HUD Card - Flexible on Mobile with Full Content Visibility */}
-          <div className="flex-1 min-h-0 lg:col-span-4 flex flex-col justify-between bg-white border border-charcoal/15 p-3.5 sm:p-4 lg:p-5 shadow-xs overflow-hidden select-none">
+          <div className="scrub-sheet flex-1 min-h-0 lg:col-span-4 flex flex-col justify-between border border-charcoal/15 p-3.5 sm:p-4 lg:p-5 shadow-xs overflow-hidden select-none">
             {/* Top Chapter Metadata with Scroll-Driven Fade */}
             <div className="flex flex-col shrink-0">
               {/* Badge row */}
@@ -410,7 +410,7 @@ export function ScrollVideoScrub({
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-charcoal/50">DELIVERY:</span>
-                    <span className="px-1.5 py-0.5 bg-concrete text-charcoal/80 border border-charcoal/10 text-[0.5625rem] sm:text-[0.6875rem]">
+                    <span className="px-1.5 py-0.5 bg-[#14110e] text-white text-[0.5625rem] sm:text-[0.6875rem]">
                       100% ONLINE VIDEO
                     </span>
                   </div>

@@ -670,7 +670,7 @@ html[data-theme="corten"] .theme-section-head {
 .theme-chapter {
   position: fixed;
   top: 18svh;
-  right: 0.85rem;
+  right: max(0.35rem, env(safe-area-inset-right));
   z-index: 40;
   display: flex;
   flex-direction: column;
@@ -702,6 +702,25 @@ html[data-theme="corten"] .theme-section-head {
   background: #d6c4a8;
   transform: scaleY(0);
   transform-origin: top center;
+}
+
+/*
+ * The axonometric diploma sheet is a white drawing board. Theme tokens
+ * invert charcoal into light ink, which disappears on that board.
+ * Reset the board to atelier ink so every language stays readable.
+ */
+.scrub-sheet {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  --color-concrete: #f5f3ef;
+  --color-concrete-dark: #ebe8e2;
+  --color-charcoal: #1a1a1a;
+  --color-charcoal-muted: #404040;
+  --color-charcoal-infill: #525252;
+  --color-clay: #8b5a4a;
+  --color-clay-muted: #a67b6e;
+  --color-hairline: #d4d0c8;
+  --font-serif: var(--font-fraunces), Georgia, serif;
 }
 
 /* Switcher */
