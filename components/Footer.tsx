@@ -64,6 +64,16 @@ export function Footer() {
           End of yard · {branding.address.line2}
         </p>
       )}
+      {theme.layout === "iwan" && (
+        <p className="bg-[#0f3d32] px-4 py-2 text-center font-serif text-sm tracking-[0.22em] text-[#f6f0e4]">
+          ✦ {addressLine2} · {branding.name} ✦
+        </p>
+      )}
+      {theme.layout === "pylon" && (
+        <p className="bg-[#1c140e] px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.28em] text-[#c6a15b]">
+          {branding.name} · {addressLine2}
+        </p>
+      )}
 
       <div className="site-footer-contrast section-intimate">
         <PageContainer>

@@ -126,6 +126,51 @@ function applyReveal(
     });
   }
 
+  if (motion.reveal === "star") {
+    gsap.set(el, {
+      scale: motion.scaleFrom,
+      rotation: type === "heading" ? -10 : -6,
+      autoAlpha: 0,
+      transformOrigin: "50% 50%",
+    });
+    return gsap.to(el, {
+      scale: 1,
+      rotation: 0,
+      autoAlpha: 1,
+      duration,
+      delay,
+      ease,
+      ...(immediate
+        ? {}
+        : {
+            scrollTrigger: {
+              trigger: el,
+              start: "top 88%",
+              toggleActions: "play none none none",
+            },
+          }),
+    });
+  }
+
+  if (motion.reveal === "relief") {
+    gsap.set(el, { clipPath: "inset(0 100% 0 0)", autoAlpha: 1 });
+    return gsap.to(el, {
+      clipPath: "inset(0 0% 0 0)",
+      duration,
+      delay,
+      ease,
+      ...(immediate
+        ? {}
+        : {
+            scrollTrigger: {
+              trigger: el,
+              start: "top 86%",
+              toggleActions: "play none none none",
+            },
+          }),
+    });
+  }
+
   const from: gsap.TweenVars = { autoAlpha: 0, force3D: true };
   const to: gsap.TweenVars = {
     autoAlpha: 1,
@@ -253,6 +298,43 @@ export function GsapStagger({
               ? "inset(0 100% 0 0)"
               : "inset(0 0 100% 0)";
           gsap.set(items, { clipPath: inset });
+          gsap.to(items, {
+            clipPath: "inset(0 0% 0 0)",
+            duration: motion.duration,
+            stagger: staggerAmount,
+            ease: motion.ease,
+            scrollTrigger: {
+              trigger: el,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          });
+          return;
+        }
+        if (motion.reveal === "star") {
+          gsap.set(items, {
+            scale: motion.scaleFrom,
+            rotation: -8,
+            autoAlpha: 0,
+            transformOrigin: "50% 50%",
+          });
+          gsap.to(items, {
+            scale: 1,
+            rotation: 0,
+            autoAlpha: 1,
+            duration: motion.duration,
+            stagger: staggerAmount,
+            ease: motion.ease,
+            scrollTrigger: {
+              trigger: el,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          });
+          return;
+        }
+        if (motion.reveal === "relief") {
+          gsap.set(items, { clipPath: "inset(0 100% 0 0)" });
           gsap.to(items, {
             clipPath: "inset(0 0% 0 0)",
             duration: motion.duration,

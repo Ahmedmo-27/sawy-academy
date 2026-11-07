@@ -92,6 +92,34 @@ export const themes: Record<ThemeId, ThemeDefinition> = {
       stagger: 0.14,
     },
   },
+  arabesque: {
+    id: "arabesque",
+    name: "Arabesque",
+    note: "Islamic geometry, pointed arch, brass and green frieze",
+    layout: "iwan",
+    motion: {
+      ease: "sine.inOut",
+      travel: 0,
+      duration: 1.05,
+      scaleFrom: 0.84,
+      reveal: "star",
+      stagger: 0.09,
+    },
+  },
+  pharaonic: {
+    id: "pharaonic",
+    name: "Pharaonic",
+    note: "Temple pylon, limestone relief, lapis and gold",
+    layout: "pylon",
+    motion: {
+      ease: "power1.inOut",
+      travel: 0,
+      duration: 1.25,
+      scaleFrom: 1,
+      reveal: "relief",
+      stagger: 0.11,
+    },
+  },
 };
 
 export const themeList: ThemeDefinition[] = [
@@ -101,6 +129,8 @@ export const themeList: ThemeDefinition[] = [
   themes.instrument,
   themes.ledger,
   themes.lecture,
+  themes.arabesque,
+  themes.pharaonic,
 ];
 
 export function getTheme(id: ThemeId): ThemeDefinition {

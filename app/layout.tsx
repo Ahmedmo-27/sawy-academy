@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import {
+  Amiri,
   Archivo,
+  Cinzel,
   Cormorant_Garamond,
   Fraunces,
   IBM_Plex_Mono,
@@ -61,6 +63,21 @@ const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--font-plex-mono",
+  display: "swap",
+});
+
+const amiri = Amiri({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-amiri",
+  display: "swap",
+});
+
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-cinzel",
   display: "swap",
 });
 
@@ -149,13 +166,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${inter.variable} ${cormorant.variable} ${archivo.variable} ${newsreader.variable} ${outfit.variable} ${plexMono.variable}`}
+      className={`${fraunces.variable} ${inter.variable} ${cormorant.variable} ${archivo.variable} ${newsreader.variable} ${outfit.variable} ${plexMono.variable} ${amiri.variable} ${cinzel.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <body className="min-h-screen flex flex-col">
         <Script id="sawy-theme-boot" strategy="beforeInteractive">
-          {`try{var a=["atelier","obsidian","corten","instrument","ledger","lecture"];var t=localStorage.getItem("sawy-theme");if(a.indexOf(t)!==-1)document.documentElement.setAttribute("data-theme",t);}catch(e){}`}
+          {`try{var a=["atelier","obsidian","corten","instrument","ledger","lecture","arabesque","pharaonic"];var t=localStorage.getItem("sawy-theme");if(a.indexOf(t)!==-1)document.documentElement.setAttribute("data-theme",t);}catch(e){}`}
         </Script>
         <SiteShell>{children}</SiteShell>
       </body>

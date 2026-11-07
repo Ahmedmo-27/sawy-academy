@@ -107,6 +107,45 @@ export function ThemeAtmosphere() {
           });
         }
 
+        if (theme.id === "arabesque") {
+          gsap.from("[data-motif='rosette']", {
+            scale: theme.motion.scaleFrom,
+            rotation: -20,
+            autoAlpha: 0,
+            duration,
+            ease,
+            transformOrigin: "50% 50%",
+          });
+          gsap.to("[data-motif='rosette']", {
+            rotation: 360,
+            duration: 48,
+            ease: "none",
+            repeat: -1,
+            transformOrigin: "50% 50%",
+          });
+          gsap.from("[data-motif='girih']", {
+            scaleX: 0,
+            duration: duration * 1.2,
+            ease,
+            transformOrigin: "center center",
+          });
+        }
+
+        if (theme.id === "pharaonic") {
+          gsap.from("[data-motif='shaft']", {
+            scaleY: 0,
+            duration: duration * 1.3,
+            ease,
+            transformOrigin: "top center",
+            stagger: 0.12,
+          });
+          gsap.from("[data-motif='cartouche']", {
+            clipPath: "inset(0 100% 0 0)",
+            duration,
+            ease,
+          });
+        }
+
         if (theme.id === "atelier") {
           gsap.from("[data-motif='ticks']", {
             scaleX: 0,
@@ -182,6 +221,40 @@ export function ThemeAtmosphere() {
           <span className="theme-chapter-track">
             <span data-motif="chapter-fill" className="theme-chapter-fill" />
           </span>
+        </div>
+      )}
+      {theme.id === "arabesque" && (
+        <>
+          <svg
+            data-motif="rosette"
+            className="theme-rosette"
+            viewBox="0 0 120 120"
+            fill="none"
+          >
+            <polygon
+              points="60,6 72,38 106,38 78,58 90,92 60,72 30,92 42,58 14,38 48,38"
+              stroke="currentColor"
+              strokeWidth="1.4"
+            />
+            <polygon
+              points="60,24 68,46 92,46 73,59 81,82 60,69 39,82 47,59 28,46 52,46"
+              stroke="currentColor"
+              strokeWidth="1"
+            />
+            <circle cx="60" cy="60" r="6" stroke="currentColor" strokeWidth="1" />
+          </svg>
+          <div data-motif="girih" className="theme-girih" />
+        </>
+      )}
+      {theme.id === "pharaonic" && (
+        <div className="theme-pylon-frame">
+          <span data-motif="shaft" className="theme-pylon-shaft theme-pylon-shaft-left" />
+          <span data-motif="shaft" className="theme-pylon-shaft theme-pylon-shaft-right" />
+          <div className="theme-cartouche-anchor">
+            <span data-motif="cartouche" className="theme-cartouche">
+              Nile · Cairo
+            </span>
+          </div>
         </div>
       )}
     </div>

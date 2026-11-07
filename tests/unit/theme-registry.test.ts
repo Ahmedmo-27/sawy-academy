@@ -3,7 +3,7 @@ import { themeList, themes } from "@/lib/themes/registry";
 import { isThemeId, THEME_IDS } from "@/lib/themes/types";
 
 describe("design languages", () => {
-  it("registers six languages with distinct layouts and motion", () => {
+  it("registers eight languages with distinct layouts and motion", () => {
     expect(themeList.map((theme) => theme.id)).toEqual([...THEME_IDS]);
 
     const layouts = new Set(themeList.map((theme) => theme.layout));

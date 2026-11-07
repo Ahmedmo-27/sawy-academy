@@ -5,6 +5,8 @@ export const THEME_IDS = [
   "instrument",
   "ledger",
   "lecture",
+  "arabesque",
+  "pharaonic",
 ] as const;
 
 export type ThemeId = (typeof THEME_IDS)[number];
@@ -15,9 +17,18 @@ export type ThemeLayout =
   | "masthead"
   | "instrument"
   | "folio"
-  | "quiet";
+  | "quiet"
+  | "iwan"
+  | "pylon";
 
-export type ThemeReveal = "rise" | "wipe" | "hard" | "orbit" | "clip";
+export type ThemeReveal =
+  | "rise"
+  | "wipe"
+  | "hard"
+  | "orbit"
+  | "clip"
+  | "star"
+  | "relief";
 
 export interface ThemeMotion {
   ease: string;

@@ -788,3 +788,347 @@ html[data-theme="corten"] body[data-shell="public"] {
 html[data-theme="ledger"] body[data-shell="public"] {
   padding-top: 1.7rem;
 }
+
+/* Arabesque — Islamic geometry, iwan portal, brass on ivory */
+html[data-theme="arabesque"] {
+  --color-concrete: #f6f0e4;
+  --color-concrete-dark: #e7dcc6;
+  --color-charcoal: #14241c;
+  --color-charcoal-muted: #2c4638;
+  --color-charcoal-infill: #4d6658;
+  --color-clay: #0f3d32;
+  --color-clay-muted: #b0893e;
+  --color-error: #8c2f2f;
+  --color-hairline: #b0893e;
+  --color-construction: #0f3d32;
+  --color-construction-muted: #1d5c4a;
+  --font-serif: var(--font-amiri), Georgia, serif;
+  --nav-scrim: rgba(246, 240, 228, 0.94);
+  --theme-display: var(--font-amiri), Georgia, serif;
+  --nav-height: 5.75rem;
+}
+
+html[data-theme="arabesque"] .type-display,
+html[data-theme="arabesque"] .type-hero,
+html[data-theme="arabesque"] .type-heading,
+html[data-theme="arabesque"] .type-title {
+  font-family: var(--font-amiri), Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.08;
+}
+
+html[data-theme="arabesque"] .eyebrow,
+html[data-theme="arabesque"] .label-caps {
+  letter-spacing: 0.28em;
+}
+
+html[data-theme="arabesque"] .theme-nav {
+  background: #f6f0e4;
+  box-shadow: inset 0 -7px 0 #0f3d32, inset 0 -10px 0 #b0893e;
+}
+
+html[data-theme="arabesque"] .theme-nav nav {
+  height: auto;
+  min-height: var(--nav-height);
+  padding-bottom: 0.85rem;
+  align-items: flex-end;
+}
+
+html[data-theme="arabesque"] .surface-card-elevated,
+html[data-theme="arabesque"] .theme-card {
+  background: #fffaf2;
+  border: 1px solid #b0893e;
+  border-radius: 0;
+  box-shadow: 0 0 0 5px #f6f0e4, 0 0 0 6px #0f3d32;
+}
+
+html[data-theme="arabesque"] .surface-card-elevated:hover,
+html[data-theme="arabesque"] .theme-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 5px #f6f0e4, 0 0 0 6px #b0893e;
+}
+
+html[data-theme="arabesque"] .theme-catalogue {
+  gap: 1.75rem;
+  background: transparent;
+}
+
+html[data-theme="arabesque"] .room-field-warm,
+html[data-theme="arabesque"] .room-field-quiet {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(176, 137, 62, 0.16), transparent 46%),
+    #f6f0e4;
+  border-top: 1px solid #b0893e;
+  border-bottom: 1px solid #0f3d32;
+}
+
+html[data-theme="arabesque"] .cta-entrance {
+  clip-path: none;
+  background: #0f3d32;
+  color: #f6f0e4;
+  border: 1px solid #b0893e;
+  letter-spacing: 0.18em;
+}
+
+html[data-theme="arabesque"] .theme-hero,
+html[data-theme="arabesque"] .theme-page-header {
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(176, 137, 62, 0.2), transparent 40%),
+    #f6f0e4;
+  border-bottom: 0;
+}
+
+html[data-theme="arabesque"] .theme-hero-copy,
+html[data-theme="arabesque"] .theme-page-header .type-display,
+html[data-theme="arabesque"] .theme-page-header .type-lead,
+html[data-theme="arabesque"] .theme-page-header .eyebrow {
+  margin-inline: auto;
+  text-align: center;
+}
+
+html[data-theme="arabesque"] .theme-hero-copy .flex {
+  justify-content: center;
+}
+
+html[data-theme="arabesque"] .theme-hero-frame {
+  clip-path: polygon(0 14%, 50% 0, 100% 14%, 100% 100%, 0 100%);
+}
+
+html[data-theme="arabesque"] .theme-section-head {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-bottom: 0;
+}
+
+html[data-theme="arabesque"] .theme-section-head > div {
+  flex-direction: column;
+  align-items: center;
+}
+
+html[data-theme="arabesque"] .bg-charcoal .text-clay {
+  color: #e7c98a;
+}
+
+html[data-theme="arabesque"] .theme-footer {
+  background: #0f3d32;
+  box-shadow: inset 0 8px 0 #b0893e;
+}
+
+.theme-rosette {
+  position: fixed;
+  right: 0.5rem;
+  bottom: 2.5rem;
+  z-index: 30;
+  width: 7.5rem;
+  height: auto;
+  color: #b0893e;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.theme-girih {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 35;
+  height: 0.7rem;
+  transform-origin: center center;
+  background: repeating-linear-gradient(
+    90deg,
+    #0f3d32 0 12px,
+    #b0893e 12px 14px,
+    #f6f0e4 14px 26px,
+    #b0893e 26px 28px
+  );
+}
+
+html[data-theme="arabesque"] body[data-shell="public"] {
+  padding-bottom: 0.7rem;
+}
+
+/* Pharaonic — temple pylon, limestone, lapis, gold relief */
+html[data-theme="pharaonic"] {
+  --color-concrete: #e6d3b0;
+  --color-concrete-dark: #d2b98a;
+  --color-charcoal: #1c140e;
+  --color-charcoal-muted: #3d3226;
+  --color-charcoal-infill: #5c4d3a;
+  --color-clay: #1e3a5f;
+  --color-clay-muted: #c6a15b;
+  --color-error: #7a2e24;
+  --color-hairline: #1c140e;
+  --color-construction: #c6a15b;
+  --color-construction-muted: #8d7340;
+  --font-serif: var(--font-cinzel), "Times New Roman", serif;
+  --nav-scrim: rgba(230, 211, 176, 0.94);
+  --theme-display: var(--font-cinzel), serif;
+  --nav-height: 6.5rem;
+}
+
+html[data-theme="pharaonic"] .type-display,
+html[data-theme="pharaonic"] .type-hero,
+html[data-theme="pharaonic"] .type-heading,
+html[data-theme="pharaonic"] .type-title {
+  font-family: var(--font-cinzel), serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.12;
+}
+
+html[data-theme="pharaonic"] .eyebrow,
+html[data-theme="pharaonic"] .label-caps,
+html[data-theme="pharaonic"] .dim-label {
+  letter-spacing: 0.22em;
+}
+
+html[data-theme="pharaonic"] .theme-nav {
+  background: #e6d3b0;
+  box-shadow:
+    inset 0 -12px 0 #1c140e,
+    inset 0 -16px 0 #c6a15b,
+    inset 0 -20px 0 #1c140e;
+}
+
+html[data-theme="pharaonic"] .theme-nav nav {
+  height: auto;
+  min-height: var(--nav-height);
+  align-items: flex-end;
+  padding-bottom: 1.45rem;
+}
+
+html[data-theme="pharaonic"] .surface-card-elevated,
+html[data-theme="pharaonic"] .theme-card {
+  background: #f3e6c8;
+  border: 0;
+  border-top: 8px solid #1c140e;
+  border-radius: 0;
+  box-shadow: inset 0 4px 0 #c6a15b;
+}
+
+html[data-theme="pharaonic"] .surface-card-elevated:hover,
+html[data-theme="pharaonic"] .theme-card:hover {
+  transform: none;
+  box-shadow: inset 0 4px 0 #1e3a5f;
+}
+
+html[data-theme="pharaonic"] .theme-catalogue {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: transparent;
+}
+
+html[data-theme="pharaonic"] .theme-catalogue > * {
+  width: 100%;
+}
+
+html[data-theme="pharaonic"] .room-field-warm,
+html[data-theme="pharaonic"] .room-field-quiet {
+  background: #e6d3b0;
+  border-top: 12px solid #1c140e;
+  border-bottom: 2px solid #c6a15b;
+}
+
+html[data-theme="pharaonic"] .cta-entrance {
+  clip-path: none;
+  background: #1c140e;
+  color: #e6d3b0;
+  border: 2px solid #c6a15b;
+  letter-spacing: 0.18em;
+}
+
+html[data-theme="pharaonic"] .theme-hero,
+html[data-theme="pharaonic"] .theme-page-header {
+  background:
+    linear-gradient(#1c140e, #1c140e) top / 100% 10px no-repeat,
+    linear-gradient(#c6a15b, #c6a15b) top 10px center / 100% 4px no-repeat,
+    #e6d3b0;
+  border-bottom: 12px solid #1c140e;
+  text-align: center;
+}
+
+html[data-theme="pharaonic"] .theme-hero .grid {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+}
+
+html[data-theme="pharaonic"] .theme-hero-copy,
+html[data-theme="pharaonic"] .theme-page-header .type-display {
+  text-align: center;
+  margin-inline: auto;
+  max-width: 18em;
+}
+
+html[data-theme="pharaonic"] .theme-hero-copy .flex {
+  justify-content: center;
+}
+
+html[data-theme="pharaonic"] .theme-section-head {
+  border-bottom: 4px solid #1c140e;
+  box-shadow: inset 0 -3px 0 #c6a15b;
+}
+
+html[data-theme="pharaonic"] .bg-charcoal .text-clay {
+  color: #c6a15b;
+}
+
+html[data-theme="pharaonic"] .theme-footer {
+  background: #1c140e;
+  border-top: 8px solid #c6a15b;
+  color: #e6d3b0;
+}
+
+.theme-pylon-shaft {
+  position: fixed;
+  top: var(--nav-height);
+  bottom: 0;
+  z-index: 25;
+  width: 0.55rem;
+  background: linear-gradient(#c6a15b, #c6a15b) 0 0 / 100% 3px no-repeat, #1c140e;
+  transform-origin: top center;
+  pointer-events: none;
+}
+
+.theme-pylon-shaft-left {
+  left: 0;
+}
+
+.theme-pylon-shaft-right {
+  right: 0;
+}
+
+.theme-cartouche-anchor {
+  position: fixed;
+  top: calc(var(--nav-height) + 0.45rem);
+  left: 50%;
+  z-index: 36;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.theme-cartouche {
+  display: inline-block;
+  border: 2px solid #c6a15b;
+  border-radius: 999px;
+  background: #1c140e;
+  color: #e6d3b0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.85rem;
+}
+
+@media (max-width: 1023px) {
+  .theme-pylon-shaft,
+  .theme-cartouche-anchor,
+  .theme-rosette {
+    display: none;
+  }
+}

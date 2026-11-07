@@ -127,7 +127,11 @@ function HeroSection({
   const secondaryCtaLabel = text(content.secondaryCtaLabel, "Browse");
   const { theme } = useTheme();
   const stacked =
-    theme.id === "obsidian" || theme.id === "ledger" || theme.id === "instrument";
+    theme.id === "obsidian" ||
+    theme.id === "ledger" ||
+    theme.id === "instrument" ||
+    theme.id === "arabesque" ||
+    theme.id === "pharaonic";
 
   return (
     <section
