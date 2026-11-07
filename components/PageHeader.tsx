@@ -1,11 +1,9 @@
 "use client";
 
-import { Reveal } from "./Reveal";
 import { HeroBackdrop } from "./decorative/HeroBackdrop";
 import { GridColumns } from "./decorative/GridColumns";
 import { PageContainer } from "./layout/PageContainer";
-import { BlurTextReveal } from "./animation/BlurTextReveal";
-import { DecryptedText } from "./animation/DecryptedText";
+import { useThemeSlots } from "@/components/theme/slots";
 import { useTheme } from "@/lib/themes/ThemeProvider";
 
 export type PageHeaderTone = "neutral" | "warm";
@@ -24,6 +22,7 @@ export function PageHeader({
   tone = "neutral",
 }: PageHeaderProps) {
   const { theme } = useTheme();
+  const { Header } = useThemeSlots();
   return (
     <header
       className={`theme-page-header theme-page-header-${theme.layout} page-header-tone page-header-${tone} relative section-intimate overflow-hidden`}
@@ -31,21 +30,7 @@ export function PageHeader({
       <HeroBackdrop variant="page" />
       <GridColumns />
       <PageContainer className="relative z-10 pt-24 lg:pt-32 pb-8 lg:pb-12">
-        <Reveal variant="infill" immediate>
-          <p className="eyebrow mb-3">
-            <DecryptedText text={eyebrow} animateOn="view" speed={35} maxIterations={8} />
-          </p>
-        </Reveal>
-        <Reveal variant="hero" immediate delay={80}>
-          <h1 className="type-display max-w-4xl">
-            <BlurTextReveal text={title} />
-          </h1>
-        </Reveal>
-        {description && (
-          <Reveal variant="infill" immediate delay={200}>
-            <p className="type-lead mt-6 max-w-xl">{description}</p>
-          </Reveal>
-        )}
+        <Header eyebrow={eyebrow} title={title} description={description ?? ""} />
       </PageContainer>
     </header>
   );

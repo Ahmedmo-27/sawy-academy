@@ -43,6 +43,7 @@ import type {
 import { toSlug } from "@/lib/slug";
 import { runParallelStagedLoad } from "@/lib/load/stagedLoad";
 import { safeHref } from "@/lib/safeHref";
+import { ThemeSignature, useThemeSlots } from "@/components/theme/slots";
 import { useTheme } from "@/lib/themes/ThemeProvider";
 // import { useLocale } from "@/lib/i18n";
 
@@ -88,23 +89,15 @@ function SectionHeader({
   */
   const displayRoom = room;
   const { theme } = useTheme();
+  const { Header } = useThemeSlots();
+  const eyebrowLine = [displayRoom, eyebrow].filter(Boolean).join(" · ");
 
   return (
-    <div className={`theme-section-head theme-section-head-${theme.layout} flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8 pb-4 border-b border-charcoal/10`}>
-      <div className="flex items-start gap-4 sm:gap-6">
-        <span className="inline-flex items-center justify-center px-2.5 py-1 text-[0.8125rem] font-mono font-semibold text-clay bg-clay/10 border border-clay/20 shrink-0">
-          <DecryptedText text={displayRoom} animateOn="view" speed={30} maxIterations={8} />
-        </span>
-        <div>
-          <p className="eyebrow mb-1.5 text-clay">{eyebrow}</p>
-          <SplitTextReveal type="lines">
-            <h2 className="type-heading font-serif text-charcoal">{title}</h2>
-          </SplitTextReveal>
-        </div>
-      </div>
+    <div className={`theme-section-head theme-section-head-${theme.layout} mb-8 border-b border-charcoal/10 pb-4`}>
+      <Header eyebrow={eyebrowLine} title={title} />
       {safeLink && linkLabel && (
         <GsapReveal type="text" delay={0.06}>
-          <Link href={safeLink} className="action-secondary shrink-0 pb-1">
+          <Link href={safeLink} className="action-secondary mt-4 inline-flex pb-1">
             {linkLabel} →
           </Link>
         </GsapReveal>
@@ -308,7 +301,7 @@ function PortfolioSection({
             {usePinGallery ? (
               <div className="pt-6">
                 <HorizontalPinGallery>
-                  {featured.map((project) => (
+                  {featured.map((project, index) => (
                     <div
                       key={project.id}
                       className="w-[min(88vw,24rem)] shrink-0 bg-concrete sm:w-[min(42vw,28rem)]"
@@ -320,6 +313,7 @@ function PortfolioSection({
                         image={project.image}
                         sheetRef={project.sheetRef ?? ""}
                         href={`/portfolio/${project.slug}`}
+                        index={index}
                       />
                     </div>
                   ))}
@@ -327,7 +321,7 @@ function PortfolioSection({
               </div>
             ) : (
               <GsapStagger className="theme-catalogue bay-grid pt-6">
-                {featured.map((project) => (
+                {featured.map((project, index) => (
                   <div
                     key={project.id}
                     className="col-span-12 md:col-span-4 bg-concrete"
@@ -339,6 +333,7 @@ function PortfolioSection({
                       image={project.image}
                       sheetRef={project.sheetRef ?? ""}
                       href={`/portfolio/${project.slug}`}
+                      index={index}
                     />
                   </div>
                 ))}
@@ -906,7 +901,14 @@ export function HomePageStudio() {
         const node = (() => {
           switch (section.type) {
             case "hero":
-              return <HeroSection content={content} />;
+              return (
+                <>
+                  <HeroSection content={content} />
+                  <PageContainer>
+                    <ThemeSignature />
+                  </PageContainer>
+                </>
+              );
             case "philosophy":
               return <PhilosophySection content={content} />;
             case "portfolio":
