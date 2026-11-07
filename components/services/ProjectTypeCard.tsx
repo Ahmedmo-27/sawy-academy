@@ -35,7 +35,7 @@ export function ProjectTypeCard({
       onClick={onSelect}
       aria-pressed={selected}
       aria-controls="request-brief"
-      className={`group relative w-full overflow-hidden p-6 text-left transition-colors duration-300 sm:p-8 lg:p-10 ${
+      className={`theme-card group relative w-full overflow-hidden p-6 text-left transition-colors duration-300 sm:p-8 lg:p-10 ${
         selected
           ? "bg-concrete-dark"
           : "bg-concrete hover:bg-concrete-dark/45"

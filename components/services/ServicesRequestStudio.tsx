@@ -181,7 +181,7 @@ export function ServicesRequestStudio() {
             />
 
             <ThresholdFrame label="Two entries — one studio">
-              <GsapStagger className="mt-4 grid grid-cols-1 gap-px bg-hairline lg:grid-cols-2">
+              <GsapStagger className="theme-catalogue mt-4 grid grid-cols-1 gap-px bg-hairline lg:grid-cols-2">
                 <ProjectTypeCard
                   index="A"
                   sheetRef="Sheet A — Design"

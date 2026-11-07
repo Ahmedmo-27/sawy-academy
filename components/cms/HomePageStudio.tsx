@@ -43,6 +43,7 @@ import type {
 import { toSlug } from "@/lib/slug";
 import { runParallelStagedLoad } from "@/lib/load/stagedLoad";
 import { safeHref } from "@/lib/safeHref";
+import { useTheme } from "@/lib/themes/ThemeProvider";
 // import { useLocale } from "@/lib/i18n";
 
 function text(value: unknown, fallback = "") {
@@ -86,9 +87,10 @@ function SectionHeader({
     : room;
   */
   const displayRoom = room;
+  const { theme } = useTheme();
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8 pb-4 border-b border-charcoal/10">
+    <div className={`theme-section-head theme-section-head-${theme.layout} flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8 pb-4 border-b border-charcoal/10`}>
       <div className="flex items-start gap-4 sm:gap-6">
         <span className="inline-flex items-center justify-center px-2.5 py-1 text-[0.8125rem] font-mono font-semibold text-clay bg-clay/10 border border-clay/20 shrink-0">
           <DecryptedText text={displayRoom} animateOn="view" speed={30} maxIterations={8} />
@@ -123,16 +125,23 @@ function HeroSection({
 }) {
   const primaryCtaLabel = text(content.primaryCtaLabel, "View");
   const secondaryCtaLabel = text(content.secondaryCtaLabel, "Browse");
+  const { theme } = useTheme();
+  const stacked =
+    theme.id === "obsidian" || theme.id === "ledger" || theme.id === "instrument";
 
   return (
-    <section className="relative overflow-x-clip" aria-label="Entrance">
+    <section
+      className={`theme-hero theme-hero-${theme.id} relative overflow-x-clip`}
+      aria-label="Entrance"
+      data-composition={stacked ? "stacked" : "split"}
+    >
       <HeroBackdrop variant="home" />
       <HeroConstruction />
       <GridColumns />
 
       <PageContainer className="relative z-10 pt-[calc(var(--nav-height)+1.5rem+env(safe-area-inset-top))] pb-8 sm:pt-24 sm:pb-10 lg:pt-28 lg:pb-12">
         <div className="grid min-w-0 grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:items-center lg:gap-6">
-          <div className="order-2 min-w-0 max-w-full lg:order-none lg:col-span-5 lg:pr-4">
+          <div className="theme-hero-copy order-2 min-w-0 max-w-full lg:order-none lg:col-span-5 lg:pr-4">
             <GsapReveal type="text" immediate className="min-w-0 max-w-full">
               <p className="eyebrow mb-3 break-words">
                 {text(content.tagline)}
@@ -185,7 +194,7 @@ function HeroSection({
             </GsapReveal>
           </div>
 
-          <div className="order-1 min-w-0 max-w-full lg:order-none lg:col-span-7 w-full flex items-center justify-center">
+          <div className="theme-hero-media order-1 min-w-0 max-w-full lg:order-none lg:col-span-7 w-full flex items-center justify-center">
             <GsapReveal
               type="image"
               immediate
@@ -193,7 +202,7 @@ function HeroSection({
               className="min-w-0 w-full flex items-center justify-center"
             >
               <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto flex items-center justify-center">
-                <ImageFrame className="aspect-[4/3] sm:aspect-[4/3] lg:aspect-[4/3] w-full max-h-[min(45svh,320px)] sm:max-h-[min(50svh,380px)] lg:max-h-[min(65svh,560px)] bg-concrete-dark/20 shadow-md">
+                <ImageFrame className="theme-hero-frame aspect-[4/3] sm:aspect-[4/3] lg:aspect-[4/3] w-full max-h-[min(45svh,320px)] sm:max-h-[min(50svh,380px)] lg:max-h-[min(65svh,560px)] bg-concrete-dark/20 shadow-md">
                   <HeroSpatialScrub frameCount={240} />
                 </ImageFrame>
               </div>
@@ -211,7 +220,7 @@ function PhilosophySection({ content }: { content: Record<string, unknown> }) {
       <ThresholdDoorway label={text(content.roomLabel, "PHILOSOPHY")} />
       <Section id="philosophy" rhythm="standard" contained={false}>
         <PageContainer>
-          <div className="surface-card-elevated p-8 sm:p-10 lg:p-12 border-l-4 border-l-clay">
+          <div className="theme-card surface-card-elevated p-8 sm:p-10 lg:p-12 border-l-4 border-l-clay">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               <div className="lg:col-span-8">
                 <span className="inline-flex items-center justify-center px-2.5 py-1 text-[0.8125rem] font-mono font-semibold text-clay bg-clay/10 border border-clay/20 mb-4">
@@ -267,7 +276,10 @@ function PortfolioSection({
 }) {
   const limit = num(content.featuredLimit, 3);
   const featured = limit > 0 ? projects.slice(0, limit) : projects;
-  const usePinGallery = featured.length >= 2;
+  const { theme } = useTheme();
+  const usePinGallery =
+    featured.length >= 2 &&
+    (theme.id === "atelier" || theme.id === "lecture" || theme.id === "corten");
 
   return (
     <>
@@ -310,7 +322,7 @@ function PortfolioSection({
                 </HorizontalPinGallery>
               </div>
             ) : (
-              <GsapStagger className="bay-grid pt-6">
+              <GsapStagger className="theme-catalogue bay-grid pt-6">
                 {featured.map((project) => (
                   <div
                     key={project.id}
@@ -483,7 +495,7 @@ function CoursesSection({
 
         <PageContainer>
           <ThresholdFrame label={text(content.thresholdLabel, "Programme index")}>
-            <GsapStagger className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <GsapStagger className="theme-catalogue grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               {featured.map((group) => {
                 const courses = (group.courses ?? []).filter(
                   (c): c is NonNullable<typeof c> & object =>
@@ -496,7 +508,7 @@ function CoursesSection({
                     maxTilt={5}
                     className="h-full"
                   >
-                    <div className="surface-card-elevated p-6 lg:p-8 flex flex-col group h-full">
+                    <div className="theme-card surface-card-elevated p-6 lg:p-8 flex flex-col group h-full">
                       <MediaBay
                         src={group.image}
                         alt={group.title}
@@ -579,7 +591,7 @@ function ProductsSection({
           <ThresholdFrame
             label={text(content.thresholdLabel, "Featured")}
           >
-            <GsapStagger className="bay-grid pt-6">
+            <GsapStagger className="theme-catalogue bay-grid pt-6">
               {featured.map((product) => (
                 <div
                   key={product.id}
@@ -636,7 +648,7 @@ function ResearchSection({
             <div className="mt-6 space-y-4">
               {featured.map((item, i) => (
                 <GsapReveal key={item.id} type="card" delay={i * 0.055}>
-                  <article className="surface-card-elevated p-6 lg:p-8">
+                  <article className="theme-card surface-card-elevated p-6 lg:p-8">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
                       <div className="lg:col-span-3">
                         <ResearchCardMedia
@@ -710,7 +722,7 @@ function ContactSection({
             linkLabel={text(content.linkLabel, "Send a message")}
           />
           <GsapReveal type="card">
-            <div className="grid grid-cols-1 lg:grid-cols-12 surface-card-elevated overflow-hidden">
+            <div className="theme-card grid grid-cols-1 lg:grid-cols-12 surface-card-elevated overflow-hidden">
               <div className="bg-white p-6 lg:p-10 lg:col-span-5 border-b lg:border-b-0 lg:border-r border-charcoal/10">
                 <p className="type-body text-charcoal/80 max-w-lg mb-8 leading-relaxed">
                   {text(content.body)}

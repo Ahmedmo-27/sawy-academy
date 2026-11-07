@@ -28,7 +28,7 @@ export function ProjectCard({
     <ArchitecturalTilt3D className="h-full">
       <Link
         href={href}
-        className="group flex flex-col h-full min-w-0 max-w-full overflow-hidden surface-card-elevated focus-visible:outline-offset-4"
+        className="theme-card group flex flex-col h-full min-w-0 max-w-full overflow-hidden surface-card-elevated focus-visible:outline-offset-4"
       >
         <div className="shrink-0 overflow-hidden bg-concrete-dark">
           <ImageFrame

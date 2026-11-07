@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { CartProvider } from "@/components/cart/CartProvider";
@@ -12,6 +13,8 @@ import { Footer } from "@/components/Footer";
 import { SplashLoader } from "@/components/SplashLoader";
 import { ScrollAnimationShell } from "@/components/animation/ScrollAnimationShell";
 import { PageTransition } from "@/components/animation/PageTransition";
+import { ThemeProvider } from "@/lib/themes/ThemeProvider";
+import { ThemeAtmosphere } from "@/components/theme/ThemeAtmosphere";
 
 interface SiteShellProps {
   children: React.ReactNode;
@@ -21,8 +24,13 @@ export function SiteShell({ children }: SiteShellProps) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
 
+  useEffect(() => {
+    document.body.dataset.shell = isAdmin ? "admin" : "public";
+  }, [isAdmin]);
+
   return (
     <AuthProvider>
+      <ThemeProvider>
       {/* <LocaleProvider> */}
         <ToastProvider>
           <SiteContentProvider>
@@ -38,6 +46,7 @@ export function SiteShell({ children }: SiteShellProps) {
                 Skip to main content
               </a>
               <SplashLoader />
+              <ThemeAtmosphere />
               <PageTransition />
               <ScrollAnimationShell>
                 <Navigation />
@@ -55,6 +64,7 @@ export function SiteShell({ children }: SiteShellProps) {
         </SiteContentProvider>
       </ToastProvider>
       {/* </LocaleProvider> */}
+      </ThemeProvider>
     </AuthProvider>
   );
 }

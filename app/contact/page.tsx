@@ -52,7 +52,7 @@ export default function ContactPage() {
 
       <ThresholdDoorway label="STUDIO CORRESPONDENCE / 06" />
 
-      <section className="border-b border-hairline">
+      <section className="theme-catalogue border-b border-hairline">
         <PageContainer>
           <div className="grid min-h-[30rem] grid-cols-1 lg:grid-cols-12">
             <div className="flex flex-col justify-between border-hairline px-2 py-10 sm:px-4 sm:py-14 lg:col-span-8 lg:border-r lg:px-8 lg:py-20">

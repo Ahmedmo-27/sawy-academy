@@ -120,7 +120,7 @@ export function FaqStudio({ faqs, loadError = false }: FaqStudioProps) {
   }
 
   return (
-    <section className="section-standard">
+    <section className="theme-catalogue section-standard">
       <PageContainer>
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-0">
           <div className="lg:col-span-4 lg:pr-12">

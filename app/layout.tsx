@@ -1,5 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import {
+  Archivo,
+  Cormorant_Garamond,
+  Fraunces,
+  IBM_Plex_Mono,
+  Inter,
+  Newsreader,
+  Outfit,
+} from "next/font/google";
+import Script from "next/script";
 // Bilingual / Arabic font configuration (commented out)
 // import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
@@ -15,6 +24,43 @@ const fraunces = Fraunces({
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const archivo = Archivo({
+  subsets: ["latin"],
+  weight: ["500", "700", "800"],
+  variable: "--font-archivo",
+  display: "swap",
+});
+
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-newsreader",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -103,10 +149,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${inter.variable}`}
+      className={`${fraunces.variable} ${inter.variable} ${cormorant.variable} ${archivo.variable} ${newsreader.variable} ${outfit.variable} ${plexMono.variable}`}
       data-scroll-behavior="smooth"
+      suppressHydrationWarning
     >
       <body className="min-h-screen flex flex-col">
+        <Script id="sawy-theme-boot" strategy="beforeInteractive">
+          {`try{var a=["atelier","obsidian","corten","instrument","ledger","lecture"];var t=localStorage.getItem("sawy-theme");if(a.indexOf(t)!==-1)document.documentElement.setAttribute("data-theme",t);}catch(e){}`}
+        </Script>
         <SiteShell>{children}</SiteShell>
       </body>
     </html>

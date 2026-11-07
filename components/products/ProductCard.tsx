@@ -47,7 +47,7 @@ export function ProductCard({
   }
 
   return (
-    <article className="group flex h-full min-w-0 flex-col surface-card-elevated">
+    <article className="theme-card group flex h-full min-w-0 flex-col surface-card-elevated">
       <Link href={href} className="relative block">
         <MediaBay
           src={image}

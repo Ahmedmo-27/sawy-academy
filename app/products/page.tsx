@@ -273,7 +273,7 @@ export default function ProductsPage() {
                   <>
                     <GsapStagger
                       key={currentPage}
-                      className="bay-grid pt-6"
+                      className="theme-catalogue bay-grid pt-6"
                     >
                       {paginatedProducts.map((product) => (
                         <div

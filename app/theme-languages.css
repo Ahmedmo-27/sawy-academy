@@ -1,0 +1,771 @@
+/*
+ * Design languages. Atelier is the default stylesheet in globals.css.
+ * Every other theme changes type, chrome, rhythm, and composition —
+ * not only the accent color.
+ */
+
+:root {
+  --nav-scrim: rgba(245, 243, 239, 0.94);
+  --theme-radius: 0px;
+  --theme-display: var(--font-serif), Georgia, serif;
+}
+
+html[data-theme="obsidian"] {
+  --color-concrete: #0b0c0e;
+  --color-concrete-dark: #14161b;
+  --color-charcoal: #f7f4ee;
+  --color-charcoal-muted: #c8c2b8;
+  --color-charcoal-infill: #9c968c;
+  --color-clay: #d4af37;
+  --color-clay-muted: #e4c56a;
+  --color-error: #e07a5f;
+  --color-hairline: rgba(212, 175, 55, 0.35);
+  --color-construction: rgba(247, 244, 238, 0.14);
+  --color-construction-muted: rgba(247, 244, 238, 0.08);
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --nav-scrim: rgba(11, 12, 14, 0.9);
+  --theme-display: var(--font-cormorant), Georgia, serif;
+  --nav-height: 4.5rem;
+}
+
+html[data-theme="corten"] {
+  --color-concrete: #f3efe6;
+  --color-concrete-dark: #e4dccb;
+  --color-charcoal: #14110e;
+  --color-charcoal-muted: #3a332c;
+  --color-charcoal-infill: #5c534a;
+  --color-clay: #c45a2c;
+  --color-clay-muted: #a34b24;
+  --color-error: #8d2b22;
+  --color-hairline: #14110e;
+  --color-construction: #c45a2c;
+  --color-construction-muted: #a34b24;
+  --font-serif: var(--font-archivo), var(--font-inter), sans-serif;
+  --font-sans: var(--font-archivo), var(--font-inter), sans-serif;
+  --nav-scrim: #f3efe6;
+  --theme-display: var(--font-archivo), sans-serif;
+  --nav-height: 6.25rem;
+}
+
+html[data-theme="instrument"] {
+  --color-concrete: #e7eef2;
+  --color-concrete-dark: #d5e2e8;
+  --color-charcoal: #102027;
+  --color-charcoal-muted: #2c4652;
+  --color-charcoal-infill: #4d6773;
+  --color-clay: #0e7490;
+  --color-clay-muted: #155e75;
+  --color-error: #9f1239;
+  --color-hairline: #9fb4bf;
+  --color-construction: #7d9aa8;
+  --color-construction-muted: #b7c9d1;
+  --font-serif: var(--font-outfit), var(--font-inter), sans-serif;
+  --font-sans: var(--font-outfit), var(--font-inter), sans-serif;
+  --nav-scrim: rgba(231, 238, 242, 0.92);
+  --theme-display: var(--font-outfit), sans-serif;
+  --theme-radius: 1.75rem;
+}
+
+html[data-theme="ledger"] {
+  --color-concrete: #f7f1e6;
+  --color-concrete-dark: #efe4d2;
+  --color-charcoal: #1a120b;
+  --color-charcoal-muted: #3d3126;
+  --color-charcoal-infill: #6b5a49;
+  --color-clay: #8c1d18;
+  --color-clay-muted: #a33a32;
+  --color-error: #7f1d1d;
+  --color-hairline: #1a120b;
+  --color-construction: #c4b49a;
+  --color-construction-muted: #d9cbb6;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+  --nav-scrim: #f7f1e6;
+  --theme-display: var(--font-newsreader), Georgia, serif;
+  --nav-height: 6.5rem;
+}
+
+html[data-theme="lecture"] {
+  --color-concrete: #07080a;
+  --color-concrete-dark: #12141a;
+  --color-charcoal: #f3efe6;
+  --color-charcoal-muted: #c9c3b6;
+  --color-charcoal-infill: #8f897e;
+  --color-clay: #d6c4a8;
+  --color-clay-muted: #b7a78d;
+  --color-error: #e7b2a4;
+  --color-hairline: rgba(243, 239, 230, 0.22);
+  --color-construction: rgba(243, 239, 230, 0.12);
+  --color-construction-muted: rgba(243, 239, 230, 0.08);
+  --nav-scrim: rgba(7, 8, 10, 0.88);
+  --theme-display: var(--font-fraunces), Georgia, serif;
+}
+
+/* Shared display voice */
+html[data-theme="obsidian"] .type-display,
+html[data-theme="obsidian"] .type-hero,
+html[data-theme="obsidian"] .type-heading,
+html[data-theme="corten"] .type-display,
+html[data-theme="corten"] .type-hero,
+html[data-theme="corten"] .type-heading,
+html[data-theme="instrument"] .type-display,
+html[data-theme="instrument"] .type-hero,
+html[data-theme="ledger"] .type-display,
+html[data-theme="ledger"] .type-hero,
+html[data-theme="ledger"] .type-heading,
+html[data-theme="lecture"] .type-display,
+html[data-theme="lecture"] .type-hero {
+  font-family: var(--theme-display);
+}
+
+html[data-theme="obsidian"] .type-display,
+html[data-theme="obsidian"] .type-hero,
+html[data-theme="obsidian"] .type-heading {
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+html[data-theme="corten"] .type-display,
+html[data-theme="corten"] .type-hero,
+html[data-theme="corten"] .type-heading,
+html[data-theme="corten"] .type-title {
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+}
+
+html[data-theme="instrument"] .eyebrow,
+html[data-theme="instrument"] .label-caps,
+html[data-theme="instrument"] .dim-label {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  letter-spacing: 0.08em;
+}
+
+html[data-theme="ledger"] .type-display {
+  font-weight: 560;
+  letter-spacing: -0.03em;
+  line-height: 0.96;
+}
+
+html[data-theme="lecture"] .type-display,
+html[data-theme="lecture"] .type-hero {
+  font-weight: 460;
+  font-size: clamp(3rem, 8vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+}
+
+/* Cards */
+html[data-theme="obsidian"] .surface-card-elevated,
+html[data-theme="obsidian"] .theme-card {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html[data-theme="obsidian"] .surface-card-elevated:hover,
+html[data-theme="obsidian"] .theme-card:hover {
+  transform: none;
+  box-shadow: none;
+  border-bottom-color: #d4af37;
+}
+
+html[data-theme="corten"] .surface-card-elevated,
+html[data-theme="corten"] .theme-card {
+  background: #f3efe6;
+  border: 3px solid #14110e;
+  border-radius: 0;
+  box-shadow: 8px 8px 0 #c45a2c;
+}
+
+html[data-theme="corten"] .surface-card-elevated:hover,
+html[data-theme="corten"] .theme-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 12px 12px 0 #14110e;
+}
+
+html[data-theme="instrument"] .surface-card-elevated,
+html[data-theme="instrument"] .theme-card {
+  background: color-mix(in srgb, white 72%, var(--color-concrete));
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--theme-radius);
+  box-shadow: none;
+}
+
+html[data-theme="instrument"] .surface-card-elevated:hover,
+html[data-theme="instrument"] .theme-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(16, 32, 39, 0.08);
+}
+
+html[data-theme="ledger"] .surface-card-elevated,
+html[data-theme="ledger"] .theme-card {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #1a120b;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html[data-theme="ledger"] .surface-card-elevated:hover,
+html[data-theme="ledger"] .theme-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+html[data-theme="lecture"] .surface-card-elevated,
+html[data-theme="lecture"] .theme-card {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(243, 239, 230, 0.28);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html[data-theme="lecture"] .surface-card-elevated:hover,
+html[data-theme="lecture"] .theme-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Catalogue composition */
+html[data-theme="ledger"] .theme-catalogue,
+html[data-theme="obsidian"] .theme-catalogue {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: transparent;
+}
+
+html[data-theme="ledger"] .theme-catalogue > *,
+html[data-theme="obsidian"] .theme-catalogue > * {
+  width: 100%;
+  max-width: none;
+}
+
+html[data-theme="instrument"] .theme-catalogue {
+  gap: 1.25rem;
+  background: transparent;
+}
+
+html[data-theme="corten"] .bay-grid,
+html[data-theme="corten"] .theme-catalogue {
+  gap: 1.25rem;
+  background: transparent;
+}
+
+html[data-theme="lecture"] .theme-catalogue {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: transparent;
+}
+
+/* Rooms that were hardcoded beige */
+html[data-theme="obsidian"] .room-field-warm,
+html[data-theme="obsidian"] .room-field-quiet,
+html[data-theme="lecture"] .room-field-warm,
+html[data-theme="lecture"] .room-field-quiet {
+  background: transparent;
+  border-color: var(--color-hairline);
+}
+
+html[data-theme="corten"] .room-field-warm,
+html[data-theme="corten"] .room-field-quiet {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 12px,
+    rgba(196, 90, 44, 0.08) 12px,
+    rgba(196, 90, 44, 0.08) 13px
+  );
+  border-top: 4px solid #14110e;
+  border-bottom: 4px solid #14110e;
+}
+
+html[data-theme="instrument"] .room-field-warm,
+html[data-theme="instrument"] .room-field-quiet {
+  background: radial-gradient(circle at 10% 0%, rgba(14, 116, 144, 0.08), transparent 40%),
+    var(--color-concrete);
+  border: 0;
+}
+
+html[data-theme="ledger"] .room-field-warm,
+html[data-theme="ledger"] .room-field-quiet {
+  background: transparent;
+  border-top: 3px double #1a120b;
+  border-bottom: 1px solid #1a120b;
+}
+
+/* Buttons */
+html[data-theme="obsidian"] .cta-entrance,
+html[data-theme="corten"] .cta-entrance,
+html[data-theme="instrument"] .cta-entrance,
+html[data-theme="ledger"] .cta-entrance,
+html[data-theme="lecture"] .cta-entrance {
+  clip-path: none;
+}
+
+html[data-theme="obsidian"] .cta-entrance {
+  background: transparent;
+  color: #f7f4ee;
+  border: 1px solid #d4af37;
+}
+
+html[data-theme="corten"] .cta-entrance {
+  border-radius: 0;
+  background: #14110e;
+  color: #f3efe6;
+  box-shadow: 6px 6px 0 #c45a2c;
+  font-weight: 800;
+}
+
+html[data-theme="instrument"] .cta-entrance {
+  border-radius: 999px;
+  background: #102027;
+  color: #e7eef2;
+}
+
+html[data-theme="ledger"] .cta-entrance {
+  background: transparent;
+  color: #1a120b;
+  padding-left: 0;
+  padding-right: 0;
+  border-bottom: 2px solid #8c1d18;
+  border-radius: 0;
+}
+
+html[data-theme="lecture"] .cta-entrance {
+  background: transparent;
+  color: #f3efe6;
+  border: 1px solid rgba(243, 239, 230, 0.45);
+  letter-spacing: 0.22em;
+}
+
+/* Navigation shapes */
+.theme-nav {
+  background: transparent;
+  transition: background-color 0.35s ease, border-color 0.35s ease;
+}
+
+.theme-nav-solid {
+  background: var(--nav-scrim);
+  backdrop-filter: blur(14px);
+}
+
+html[data-theme="obsidian"] .theme-nav {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+html[data-theme="corten"] .theme-nav {
+  border-bottom: 4px solid #14110e;
+  background: #f3efe6;
+}
+
+html[data-theme="corten"] .theme-nav nav {
+  height: auto;
+  min-height: var(--nav-height);
+  align-items: flex-end;
+  padding-top: 0.85rem;
+  padding-bottom: 0.7rem;
+}
+
+html[data-theme="instrument"] .theme-nav-solid {
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+html[data-theme="instrument"] .theme-nav-link {
+  border-radius: 999px;
+  padding-inline: 0.65rem;
+}
+
+html[data-theme="ledger"] .theme-nav {
+  top: 1.65rem;
+  background: #f7f1e6;
+  border-bottom: 1px solid #1a120b;
+  box-shadow: inset 0 -5px 0 #f7f1e6, inset 0 -6px 0 #1a120b;
+}
+
+html[data-theme="ledger"] .theme-nav nav {
+  height: auto;
+  min-height: var(--nav-height);
+  padding-top: 1.6rem;
+  align-items: flex-end;
+  padding-bottom: 0.7rem;
+}
+
+html[data-theme="lecture"] .theme-nav {
+  background: linear-gradient(to bottom, rgba(7, 8, 10, 0.72), transparent);
+  border: 0;
+}
+
+html[data-theme="lecture"] .theme-nav-solid {
+  background: rgba(7, 8, 10, 0.92);
+}
+
+/* Page header compositions */
+html[data-theme="obsidian"] .theme-page-header,
+html[data-theme="lecture"] .theme-page-header {
+  min-height: 70svh;
+  display: flex;
+  align-items: flex-end;
+  background: var(--color-concrete);
+  border-bottom: 0;
+}
+
+html[data-theme="obsidian"] .theme-page-header .type-display {
+  font-size: clamp(3.4rem, 8vw, 7rem);
+}
+
+html[data-theme="corten"] .theme-page-header {
+  border-bottom: 8px solid #14110e;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(196, 90, 44, 0.09) 10px,
+      rgba(196, 90, 44, 0.09) 12px
+    ),
+    var(--color-concrete);
+}
+
+html[data-theme="instrument"] .theme-page-header {
+  border-bottom: 0;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(14, 116, 144, 0.16), transparent 36%),
+    var(--color-concrete);
+}
+
+html[data-theme="ledger"] .theme-page-header {
+  border-bottom: 0;
+  background: var(--color-concrete);
+}
+
+html[data-theme="ledger"] .theme-page-header .type-display {
+  max-width: 18ch;
+}
+
+/* Hero compositions */
+html[data-theme="obsidian"] .theme-hero,
+html[data-theme="lecture"] .theme-hero {
+  min-height: 100svh;
+  display: flex;
+  align-items: flex-end;
+}
+
+html[data-theme="obsidian"] .theme-hero {
+  background:
+    radial-gradient(ellipse at 85% 15%, rgba(212, 175, 55, 0.18), transparent 46%),
+    #0b0c0e;
+}
+
+html[data-theme="lecture"] .theme-hero {
+  background:
+    linear-gradient(to top, rgba(7, 8, 10, 0.2), transparent 30%),
+    #07080a;
+}
+
+html[data-theme="corten"] .theme-hero {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 11px,
+      rgba(196, 90, 44, 0.1) 11px,
+      rgba(196, 90, 44, 0.1) 13px
+    ),
+    #f3efe6;
+  border-bottom: 8px solid #14110e;
+}
+
+html[data-theme="instrument"] .theme-hero {
+  background:
+    radial-gradient(circle at 72% 42%, rgba(14, 116, 144, 0.14), transparent 42%),
+    #e7eef2;
+}
+
+html[data-theme="instrument"] .theme-hero-frame {
+  border-radius: 50%;
+  overflow: hidden;
+  aspect-ratio: 1;
+}
+
+html[data-theme="ledger"] .theme-hero {
+  background: #f7f1e6;
+  border-bottom: 1px solid #1a120b;
+}
+
+@media (min-width: 1024px) {
+  html[data-theme="corten"] .theme-hero-media {
+    order: 1;
+  }
+  html[data-theme="corten"] .theme-hero-copy {
+    order: 2;
+  }
+  html[data-theme="ledger"] .theme-hero .grid {
+    display: block;
+  }
+  html[data-theme="obsidian"] body[data-shell="public"] {
+    padding-left: 2.75rem;
+  }
+}
+
+html[data-theme="ledger"] .theme-section-head {
+  border-top: 3px solid #1a120b;
+  border-bottom: 1px solid #1a120b;
+  padding-top: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+html[data-theme="obsidian"] .theme-section-head {
+  border-bottom-color: rgba(212, 175, 55, 0.35);
+}
+
+html[data-theme="lecture"] .theme-section-head {
+  border: 0;
+  padding-bottom: 0;
+}
+
+html[data-theme="corten"] .theme-section-head {
+  border-bottom: 4px solid #14110e;
+}
+
+/* Atmosphere */
+.theme-atmosphere {
+  pointer-events: none;
+}
+
+.theme-atelier-ticks {
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-clay), transparent);
+  transform-origin: left center;
+}
+
+.theme-folio-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 45;
+  display: none;
+  height: 100svh;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  padding: 1.25rem 0;
+  border-right: 1px solid rgba(212, 175, 55, 0.35);
+  background: #0b0c0e;
+  color: #d4af37;
+}
+
+.theme-folio-rule {
+  width: 1px;
+  flex: 1;
+  margin: 1rem 0;
+  background: #d4af37;
+  transform: scaleY(0);
+  transform-origin: top center;
+}
+
+.theme-folio-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  letter-spacing: 0.18em;
+  font-size: 0.95rem;
+}
+
+@media (min-width: 1024px) {
+  .theme-folio-rail {
+    display: flex;
+  }
+}
+
+.theme-yard-stamp {
+  position: fixed;
+  top: calc(var(--nav-height) + 0.75rem);
+  right: 1rem;
+  z-index: 40;
+  border: 2px solid #14110e;
+  background: #c45a2c;
+  color: #f3efe6;
+  font-family: var(--font-archivo), sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  padding: 0.4rem 0.55rem;
+}
+
+.theme-yard-marquee {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  overflow: hidden;
+  background: #14110e;
+  color: #f3efe6;
+  border-top: 3px solid #c45a2c;
+}
+
+.theme-yard-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 0;
+  padding: 0.45rem 0;
+  font-family: var(--font-archivo), sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.theme-orbit {
+  position: fixed;
+  right: -2.5rem;
+  bottom: -2.5rem;
+  z-index: 20;
+  width: min(42vw, 18rem);
+  height: auto;
+  color: #0e7490;
+  opacity: 0.55;
+}
+
+.theme-issue {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 1rem;
+  background: #1a120b;
+  color: #f7f1e6;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.theme-issue.theme-issue-inline {
+  position: static;
+  z-index: 1;
+}
+
+.theme-chapter {
+  position: fixed;
+  top: 18svh;
+  right: 0.85rem;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  color: #d6c4a8;
+}
+
+.theme-chapter-label {
+  writing-mode: vertical-rl;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.theme-chapter-track {
+  position: relative;
+  width: 1px;
+  height: 42svh;
+  background: rgba(243, 239, 230, 0.2);
+}
+
+.theme-chapter-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: #d6c4a8;
+  transform: scaleY(0);
+  transform-origin: top center;
+}
+
+/* Switcher */
+.theme-switch {
+  color: var(--color-charcoal);
+}
+
+.theme-switch-mark {
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1.5px solid var(--color-clay);
+  background: color-mix(in srgb, var(--color-clay) 35%, transparent);
+}
+
+html[data-theme="instrument"] .theme-switch-mark,
+html[data-theme="instrument"] .theme-switch-panel {
+  border-radius: 999px;
+}
+
+html[data-theme="instrument"] .theme-switch-panel {
+  border-radius: 1.25rem;
+}
+
+.theme-switch-panel {
+  background: var(--color-concrete);
+  color: var(--color-charcoal);
+  border: 1px solid var(--color-hairline);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.16);
+}
+
+.theme-switch-option:hover,
+.theme-switch-option.is-selected {
+  background: color-mix(in srgb, var(--color-clay) 16%, transparent);
+}
+
+html[data-theme="corten"] .theme-switch-panel {
+  border: 3px solid #14110e;
+  box-shadow: 6px 6px 0 #c45a2c;
+}
+
+html[data-theme="ledger"] .theme-footer {
+  background: #1a120b;
+}
+
+html[data-theme="obsidian"] .theme-footer,
+html[data-theme="lecture"] .theme-footer {
+  background: #050506;
+  color: #f7f4ee;
+}
+
+html[data-theme="corten"] .theme-footer {
+  background: #14110e;
+  border-top: 8px solid #c45a2c;
+}
+
+html[data-theme="instrument"] .theme-footer {
+  border-radius: 1.75rem 1.75rem 0 0;
+  margin-inline: 0.75rem;
+}
+
+html[data-theme="corten"] body[data-shell="public"] {
+  padding-bottom: 2.25rem;
+}
+
+html[data-theme="ledger"] body[data-shell="public"] {
+  padding-top: 1.7rem;
+}

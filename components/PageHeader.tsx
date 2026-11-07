@@ -1,9 +1,12 @@
+"use client";
+
 import { Reveal } from "./Reveal";
 import { HeroBackdrop } from "./decorative/HeroBackdrop";
 import { GridColumns } from "./decorative/GridColumns";
 import { PageContainer } from "./layout/PageContainer";
 import { BlurTextReveal } from "./animation/BlurTextReveal";
 import { DecryptedText } from "./animation/DecryptedText";
+import { useTheme } from "@/lib/themes/ThemeProvider";
 
 export type PageHeaderTone = "neutral" | "warm";
 
@@ -20,9 +23,10 @@ export function PageHeader({
   description,
   tone = "neutral",
 }: PageHeaderProps) {
+  const { theme } = useTheme();
   return (
     <header
-      className={`page-header-tone page-header-${tone} relative section-intimate overflow-hidden`}
+      className={`theme-page-header theme-page-header-${theme.layout} page-header-tone page-header-${tone} relative section-intimate overflow-hidden`}
     >
       <HeroBackdrop variant="page" />
       <GridColumns />

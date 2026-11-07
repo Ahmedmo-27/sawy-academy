@@ -15,6 +15,8 @@ import { Wordmark } from "@/components/Wordmark";
 import { navTransition } from "@/lib/motion";
 import { getLenis } from "@/lib/smoothScroll";
 import type { NavLinkItem } from "@/lib/api/types";
+import { useTheme } from "@/lib/themes/ThemeProvider";
+import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 
 /*
 function getLocalizedNavLabel(item: { id?: string; label: string }, t: Translations): string {
@@ -96,7 +98,7 @@ function NavLink({
       href={href}
       aria-label={accessibleLabel}
       aria-current={active ? "page" : undefined}
-      className={`relative inline-flex min-h-11 items-center text-[0.875rem] font-medium tracking-[0.06em] uppercase transition-colors duration-200 ${
+      className={`theme-nav-link relative inline-flex min-h-11 items-center text-[0.875rem] font-medium tracking-[0.06em] uppercase transition-colors duration-200 ${
         active ? "text-clay" : "text-charcoal hover:text-clay"
       }`}
     >
@@ -260,7 +262,7 @@ function FlyoutMenu({
               }
             }}
           >
-            <div className="border border-charcoal/15 min-w-[14.5rem] bg-white shadow-[0_16px_40px_rgba(26,26,26,0.12)]">
+            <div className="border border-charcoal/15 min-w-[14.5rem] bg-concrete shadow-[0_16px_40px_rgba(26,26,26,0.12)]">
               {children.map((child, i) => (
                 <div key={child.id || child.href} className={i > 0 ? "hairline-t" : ""}>
                   <Link
@@ -291,6 +293,7 @@ function FlyoutMenu({
 export function Navigation() {
   // const t = useTranslation();
   const pathname = usePathname();
+  const { theme } = useTheme();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -432,15 +435,10 @@ export function Navigation() {
 
   return (
     <motion.header
-      className="fixed top-0 left-0 right-0 z-50"
+      className={`theme-nav theme-nav-${theme.layout} fixed top-0 left-0 right-0 z-50 ${
+        scrolled || open ? "theme-nav-solid" : ""
+      }`}
       initial={false}
-      animate={{
-        backgroundColor:
-          scrolled || open
-            ? "rgba(245, 243, 239, 0.94)"
-            : "rgba(245, 243, 239, 0)",
-        backdropFilter: scrolled || open ? "blur(12px)" : "blur(0px)",
-      }}
       transition={prefersReducedMotion ? { duration: 0 } : navTransition}
     >
       <nav
@@ -468,6 +466,8 @@ export function Navigation() {
           </ul>
 
           <span className="h-4 w-px bg-hairline" aria-hidden="true" />
+
+          <ThemeSwitcher />
 
           <div className="flex items-center gap-3 xl:gap-4">
             {/* <LanguageToggle /> */}
@@ -641,6 +641,7 @@ export function Navigation() {
           </ul>
 
           <div className="hairline-t mt-4 pt-4 flex flex-wrap items-center justify-between gap-4">
+            <ThemeSwitcher compact />
             <Link
               href="/cart"
               aria-current={cartActive ? "page" : undefined}

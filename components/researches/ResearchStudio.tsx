@@ -311,12 +311,12 @@ export function ResearchStudio({
             <>
               <GsapStagger
                 key={listItems.map((item) => item.id).join("-")}
-                className="space-y-0"
+                className="theme-catalogue space-y-0"
               >
                 {listItems.map((item, i) => (
                   <article
                     key={item.id}
-                    className={`relative py-10 ${i > 0 || featured ? "hairline-t" : ""}`}
+                    className={`theme-card relative py-10 ${i > 0 || featured ? "hairline-t" : ""}`}
                   >
                     <span className="label-caps absolute right-0 top-10 hidden text-clay lg:block">
                       {String(featured ? i + 2 : i + 1).padStart(2, "0")}

@@ -9,6 +9,7 @@ import { SocialLinks } from "@/components/SocialLinks";
 // import { LanguageToggle } from "@/components/LanguageToggle";
 // import { useLocale, type Translations } from "@/lib/i18n";
 import { withFaqFooterLink } from "@/lib/branding";
+import { useTheme } from "@/lib/themes/ThemeProvider";
 
 /*
 function getLocalizedFooterLabel(item: { id?: string; label: string }, t: Translations): string {
@@ -24,6 +25,7 @@ function getLocalizedFooterLabel(item: { id?: string; label: string }, t: Transl
 
 export function Footer() {
   const { branding, settings } = useSiteSettings();
+  const { theme } = useTheme();
   // const { locale, t } = useLocale();
   const footerLinks = withFaqFooterLink(settings.footer?.links ?? []);
   // const isAr = locale === "ar";
@@ -46,8 +48,22 @@ export function Footer() {
   const footerBlurb = branding.footerBlurb || "Architecture & Spatial Design";
 
   return (
-    <footer className="mt-auto relative z-10">
-      <ThresholdDoorway label="SITE FOOTER" />
+    <footer className={`theme-footer theme-footer-${theme.layout} mt-auto relative z-10`}>
+      {theme.layout !== "quiet" && theme.layout !== "rail" && (
+        <ThresholdDoorway label="SITE FOOTER" />
+      )}
+      {theme.layout === "folio" && (
+        <p className="theme-issue theme-issue-inline">
+          <span>Colophon</span>
+          <span>{branding.address.line2}</span>
+          <span>{branding.name}</span>
+        </p>
+      )}
+      {theme.layout === "masthead" && (
+        <p className="bg-clay px-4 py-2 text-center font-sans text-xs font-extrabold uppercase tracking-[0.18em] text-concrete">
+          End of yard · {branding.address.line2}
+        </p>
+      )}
 
       <div className="site-footer-contrast section-intimate">
         <PageContainer>

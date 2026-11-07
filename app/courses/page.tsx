@@ -47,7 +47,7 @@ function CourseListing({
 
   return (
     <div role="list">
-      <GsapStagger className="divide-y divide-hairline">
+      <GsapStagger className="theme-catalogue divide-y divide-hairline">
         {courses.map((course, i) => (
           <div key={course.id} role="listitem">
             <Link
